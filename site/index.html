@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gallop — cardiac auscultation trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Palette reuses Cairn's blues (handover §12, [inference]) */
+:root{--ink:#17435f;--blue:#215a7d;--deep:#1e4f6e;--pale:#e6eef4;--muted:#5d7385;--line:#c9d6e0}
+*{box-sizing:border-box}
+body{margin:0;font-family:"DM Sans",system-ui,-apple-system,sans-serif;color:var(--ink);background:#fff;line-height:1.45}
+header{display:flex;align-items:baseline;gap:.6rem;padding:.8rem 1rem;border-bottom:1px solid var(--line)}
+header h1{margin:0;font-size:1.4rem;color:var(--blue)}
+header .desc{color:var(--muted)}
+main{display:grid;gap:1rem;padding:1rem;max-width:1100px;margin:0 auto}
+@media(min-width:820px){main{grid-template-columns:minmax(0,1fr) 340px}}
+.chest{touch-action:none;width:100%;max-height:78vh;display:block;user-select:none;-webkit-user-select:none;outline:none;background:var(--pale);border-radius:12px}
+.chest:focus-visible{box-shadow:0 0 0 3px var(--blue)}
+.lm{cursor:pointer}
+.lm text{font-size:9px;fill:var(--deep);opacity:.45;transition:opacity .15s;pointer-events:none}
+.lm circle{fill:#fff;stroke:var(--deep);stroke-width:.8;opacity:.45}
+.lm.near text,.lm.near circle{opacity:1}
+.lm.near text{font-weight:700}
+#head{cursor:grab}
+#headDot{transition:r .08s}
+#headDot.beat{r:6}
+#caption{font-size:9px;fill:var(--muted)}
+.panel{display:flex;flex-direction:column;gap:.9rem}
+fieldset{border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;margin:0}
+legend{font-weight:500;padding:0 .3rem}
+label{display:block;font-size:.92rem}
+select,input[type=range],button{font:inherit}
+select{max-width:100%}
+input[type=range]{width:100%}
+button{border:1px solid var(--blue);background:#fff;color:var(--blue);border-radius:8px;padding:.45rem .8rem;cursor:pointer}
+button.on,button[aria-pressed=true]{background:var(--blue);color:#fff}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.primary{background:var(--blue);color:#fff}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.pill{display:inline-block;font-size:.72rem;padding:.05rem .45rem;border-radius:999px;background:var(--pale);color:var(--deep);border:1px solid var(--line);margin-left:.3rem;vertical-align:middle}
+.pill.draft{background:#fff4e0;border-color:#e0b96d;color:#7a5200}
+.layer{display:grid;grid-template-columns:1fr auto;gap:.4rem;align-items:center;padding:.3rem 0;border-top:1px dashed var(--line)}
+.layer:first-child{border-top:0}
+.muted{color:var(--muted)}
+small{color:var(--muted)}
+#gate{position:fixed;inset:0;background:rgba(23,67,95,.55);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:5}
+#gate .card{background:#fff;border-radius:14px;padding:1.4rem;max-width:460px;width:100%;display:grid;gap:.8rem}
+#gate h2{margin:0;color:var(--blue)}
+#gate p{margin:0}
+[hidden]{display:none!important}
+#pop{position:fixed;left:50%;bottom:1rem;transform:translateX(-50%);background:#fff;border:1px solid var(--line);border-radius:10px;padding:.7rem 1rem;max-width:min(420px,92vw);box-shadow:0 6px 24px rgba(0,0,0,.15);font-size:.9rem;z-index:4}
+#pop button{float:right;margin-left:.6rem;padding:.1rem .5rem}
+footer{padding:1rem;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;text-align:center}
+footer a{color:var(--blue)}
+.note{background:var(--pale);border-radius:10px;padding:.6rem .8rem;font-size:.9rem}
+details summary{cursor:pointer;font-weight:500}
+#cardBody{font-size:.92rem}
+#cardBody ul{padding-left:1.2rem}
+kbd{font-family:inherit;border:1px solid var(--line);border-radius:4px;padding:0 .3rem;background:#fff}
+.err{color:#9b1c1c}
+/* quiz mode */
+body.quiz .practice-only{display:none!important}
+body.quiz #card:not(.revealed){display:none}
+#ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:.3rem;margin-bottom:.5rem}
+#ladder button{padding:.35rem .2rem;font-size:.8rem;line-height:1.2}
+#ladder button small{color:inherit;opacity:.8}
+.dot{display:inline-block;width:.7rem;height:.7rem;border-radius:50%;border:1px solid var(--blue);margin-left:.2rem;vertical-align:middle}
+.dot.on{background:var(--blue)}
+#qAnswers button{min-width:6rem}
+#qAnswers button.correct{background:#e3f4e6;border-color:#3f8f4f;color:#1f5a2a}
+#qAnswers button.wrong{background:#fbe6e6;border-color:#b74848;color:#7a1f1f}
+#qResult{font-weight:500}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><h1>Gallop</h1><span class="desc">cardiac auscultation trainer</span></header>
+
+<main>
+  <section>
+    <svg id="chest" class="chest" viewBox="-170 -80 340 340" tabindex="0" role="application"
+         aria-label="Chest. Drag the stethoscope head, or use the arrow keys to move it 5 millimetres at a time.">
+      <image href="img/chest.svg" x="-170" y="-80" width="340" height="340"/>
+      <g id="landmarks"></g>
+      <g id="head"><circle r="13" fill="rgba(33,90,125,.18)" stroke="#215a7d" stroke-width="1.5"/><circle id="headDot" r="4" fill="#215a7d"/></g>
+      <text id="caption" x="0" y="252" text-anchor="middle"></text>
+    </svg>
+    <p class="muted" aria-live="polite"><span id="posOut"></span> · <span id="nearOut"></span></p>
+    <div class="note">Gallop builds the ear: the repetitions that make a sound recognisable. The program's manikin and real patients build the hands: placement, pressure, technique. Use both. The tool never names a diagnosis; it teaches findings.</div>
+  </section>
+
+  <aside class="panel">
+    <div class="row" role="group" aria-label="Mode">
+      <button id="modePractice" aria-pressed="true">Practice</button>
+      <button id="modeQuiz" aria-pressed="false">Quiz</button>
+    </div>
+
+    <div id="quiz" hidden>
+      <p id="betaNote" class="muted" style="margin:0 0 .6rem;font-size:.85rem" hidden><span class="pill draft" style="margin:0">beta</span> These cases have not yet been clinically reviewed.</p>
+      <fieldset><legend>Your ladder</legend>
+        <div id="ladder"></div>
+        <p id="streak" style="margin:.2rem 0"></p>
+        <p id="missedList" class="muted" style="margin:.2rem 0;font-size:.9rem"></p>
+        <p id="ladderMsg" style="margin:.3rem 0 0;font-weight:500"></p>
+      </fieldset>
+      <fieldset style="margin-top:.9rem"><legend>Question</legend>
+        <p id="qPrompt" style="margin:0 0 .3rem;font-weight:500"></p>
+        <p id="qHint" class="muted" style="margin:0 0 .5rem;font-size:.9rem"></p>
+        <div id="qClips" class="row" style="margin-bottom:.5rem" hidden><button id="clipA">Hear A</button><button id="clipB">Hear B</button></div>
+        <div id="qAnswers" class="row"></div>
+        <div id="qFeedback" hidden>
+          <p id="qResult"></p>
+          <p id="qRationale"></p>
+          <details><summary>Why squared</summary><p id="qWhy2"></p></details>
+          <button id="qNext" class="primary" style="margin-top:.5rem">Next</button>
+        </div>
+      </fieldset>
+      <details style="margin-top:.9rem"><summary>Progress data</summary>
+        <p class="muted" style="font-size:.85rem">Stored only in this browser. Export to move it to another device.</p>
+        <div class="row"><button id="exportBtn">Export</button><label>Import <input type="file" id="importFile" accept=".json"></label></div>
+        <p id="replayList" class="muted" style="font-size:.9rem"></p>
+      </details>
+    </div>
+
+    <fieldset class="practice-only"><legend>Case</legend>
+      <label for="caseSel">Case</label>
+      <div class="row"><select id="caseSel"></select><span id="draftPill" class="pill draft" hidden>draft</span></div>
+      <p id="caseFindings" class="muted" style="margin:.4rem 0 0"></p>
+    </fieldset>
+
+    <fieldset><legend>Stethoscope</legend>
+      <div class="row" role="group" aria-label="Head" id="headGroup">
+        <button id="bellBtn" aria-pressed="false">Bell</button>
+        <button id="diaBtn" aria-pressed="true">Diaphragm</button>
+        <span id="headIcon" aria-hidden="true">◐</span>
+      </div>
+      <p id="headNote" class="muted" style="margin:.3rem 0 0;font-size:.85rem" hidden></p>
+      <div class="practice-only">
+        <label for="bpm" style="margin-top:.6rem">Heart rate <output id="bpmOut" for="bpm">72</output> bpm</label>
+        <input id="bpm" type="range" min="50" max="130" step="1" value="72">
+        <button id="cmpBtn" aria-pressed="false" style="margin-top:.5rem">Hold: compare to normal (N)</button>
+      </div>
+    </fieldset>
+
+    <fieldset class="practice-only"><legend>Layers</legend><div id="layers"></div></fieldset>
+
+    <details id="card"><summary>Case card</summary><div id="cardBody"></div></details>
+
+    <p class="muted practice-only" style="font-size:.85rem">Keys: arrows move 5 mm · <kbd>B</kbd> / <kbd>D</kbd> bell / diaphragm · hold <kbd>N</kbd> to compare to normal</p>
+    <button id="resetBtn">Reset progress</button>
+  </aside>
+</main>
+
+<div id="pop" role="dialog" aria-label="Landmark note" hidden></div>
+
+<footer>Gallop · © 2026 Brendan Hood. Code MIT, content CC BY 4.0. · <a href="https://cairn.yeomanops.com">Cairn</a></footer>
+
+<div id="gate">
+  <div class="card">
+    <div data-step="start">
+      <h2>Gallop</h2>
+      <p>cardiac auscultation trainer</p>
+      <p style="margin-top:.6rem">Put on headphones. Tap start to hear a normal heart at the reference level, then set your device volume so it is comfortably audible.</p>
+      <p id="loadErr" class="err" hidden></p>
+      <button class="primary" id="startBtn" style="margin-top:.6rem">Start</button>
+    </div>
+    <div data-step="volume" hidden>
+      <h2>Set your volume</h2>
+      <p>A normal heart at 72 bpm is playing at the tool's reference level. Every sound in Gallop is relative to this, and Gallop never changes it. Adjust your device volume until it is comfortable, then continue.</p>
+      <button class="primary" id="volBtn" style="margin-top:.6rem">Next</button>
+    </div>
+    <div data-step="hp" hidden>
+      <h2>Can you hear this?</h2>
+      <p>A 40 Hz tone is playing at the reference level. This is the bottom of the bell's range.</p>
+      <div class="row" style="margin-top:.6rem"><button class="primary" id="hpYes">Yes</button><button id="hpNo">No</button></div>
+    </div>
+    <div data-step="nohp" hidden>
+      <h2>The low end is missing</h2>
+      <p>This device is not reproducing bell-range sounds (about 20 to 70 Hz). S3, S4 and low rumbles will be inaudible here. That is the device, not your ears. You can still practise everything the diaphragm hears. With headphones, start again and the bell comes back.</p>
+      <div class="row" style="margin-top:.6rem"><button class="primary" id="diaOnly">Continue on the diaphragm</button><button id="hpAgain">Start again with headphones</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+
+// ---- constants -------------------------------------------------------------
+// Landmarks: handover §6, provisional coordinates [inference]. Labels only; not sound sources.
+const LANDMARKS = [
+  {id:'A', name:'Aortic', x:-20, y:45, anchor:'end',
+   note:'2nd intercostal space, right sternal border. S2 (A2) is normally loudest here. Aortic ejection murmurs peak here and carry up to the carotids. StatPearls NBK541010; Bates 13e [page, verify].'},
+  {id:'P', name:'Pulmonic', x:20, y:45, anchor:'start',
+   note:'2nd intercostal space, left sternal border. P2 and physiological splitting of S2 are best heard here on the diaphragm. StatPearls NBK541010.'},
+  {id:'E', name:"Erb's point", x:25, y:70, anchor:'start',
+   note:"3rd intercostal space, left sternal border. No source of its own: the aortic and pulmonic fields overlap here, so S1 and S2 are both well heard. Early diastolic murmurs are often best here. StatPearls NBK541010."},
+  {id:'T', name:'Tricuspid', x:28, y:110, anchor:'start',
+   note:'4th to 5th intercostal space, left lower sternal border. S1 is strong; right-sided sounds and holosystolic murmurs of the lower sternal border are best here. StatPearls NBK541010.'},
+  {id:'M', name:'Mitral (apex)', x:85, y:125, anchor:'start',
+   note:'5th intercostal space, midclavicular line. S1 is loudest here. S3 and S4 are best on the bell at the apex. Mitral murmurs peak here and carry toward the axilla. StatPearls NBK541010; Healio Learn the Heart.'},
+];
+const BOX = {x0:-150, x1:150, y0:-60, y1:240};      // head clamp box (mm); mirrored in tools/validate_cases.py
+const REF = 0.7;                                     // master gain: set once at init, never changed (§5.6)
+// ponytail: intensity → gain map is a starting point; tuned by ear in Phase 2 (README "Provisional values")
+const GAIN = {
+  prominence: {faint:.35, moderate:.6, pronounced:1},
+  grade: [0, .12, .25, .45, .7, .7, .7],             // Levine I–III meaningful; IV–VI rendered "loud" (§5.2)
+  boundary: {faint:.1, moderate:.18, pronounced:.3},
+};
+const HEADS = {bell:{type:'lowpass', frequency:200}, diaphragm:{type:'highpass', frequency:125}}; // §5.4 [verify]
+const FINDING_LABEL = {normal:'Normal S1, S2', s3:'S3', s4:'S4', split_s2:'Split S2', systolic_murmur:'Systolic murmur',
+  diastolic_murmur:'Diastolic murmur', click:'Click', rub:'Rub'};
+const LAYER_LABEL = {s1:'S1', s2:'S2', s3:'S3', s4:'S4', murmur:'Murmur', boundary_breath:'Breath sounds (boundary)', boundary_bowel:'Bowel sounds (boundary)'};
+
+// ---- source-field maths (§5.3) ----------------------------------------------
+function field(layer, x, y) {
+  const srcs = layer.sources || [layer.source];
+  let best = 0;
+  for (const s of srcs) {
+    const dx = x - s.x, dy = y - s.y;
+    const sx = dx < 0 ? s.spread.l : s.spread.r;
+    const sy = dy < 0 ? s.spread.u : s.spread.d;
+    const v = Math.exp(-(dx*dx/(sx*sx) + dy*dy/(sy*sy)));
+    if (v > best) best = v;
+  }
+  return best;
+}
+function peakOf(def) {
+  if (def.type === 'murmur') return GAIN.grade[Math.min(def.grade, 6)];
+  if (def.type.startsWith('boundary')) return GAIN.boundary[def.intensity];
+  return GAIN.prominence[def.intensity];
+}
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function ramp(param, v, now, dur) {
+  param.cancelScheduledValues(now);
+  param.setValueAtTime(param.value, now);
+  param.linearRampToValueAtTime(v, now + dur);
+}
+
+// ---- engine: clock → layers → field blend → head filter → fixed master (§5) --
+const engine = {
+  ctx:null, master:null, pre:null, paths:{}, buffers:new Map(), buses:{main:null, normal:null}, ambient:null,
+  bpm:72, systole:0.3, head:'diaphragm', pos:{x:25, y:70}, compare:false,
+  nextCycle:0, cycleCount:0, timer:null, onBeat:null,
+  // Respiratory modulator, ~4 s period. Built in, wired to nothing until Phase 3 (§5.1).
+  resp(t) { return Math.sin(2*Math.PI*t/4); },
+
+  init() {
+    const c = this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.master = c.createGain(); this.master.gain.value = REF; this.master.connect(c.destination);
+    this.pre = c.createGain(); this.pre.gain.value = 1;
+    // Two parallel filter paths; toggling crossfades over 30 ms rather than reconfiguring one node (§5.4).
+    for (const [name, spec] of Object.entries(HEADS)) {
+      const f = c.createBiquadFilter(); f.type = spec.type; f.frequency.value = spec.frequency; f.Q.value = 0.7;
+      const g = c.createGain(); g.gain.value = name === this.head ? 1 : 0;
+      this.pre.connect(f); f.connect(g); g.connect(this.master);
+      this.paths[name] = g;
+    }
+  },
+  decode(url, arrayBuffer) {
+    return new Promise((res, rej) => this.ctx.decodeAudioData(arrayBuffer, b => { this.buffers.set(url, b); res(b); }, rej));
+  },
+  makeBus(cs) {
+    const c = this.ctx, bus = {gain:c.createGain(), layers:[]};
+    bus.gain.connect(this.pre);
+    for (const def of cs.layers) {
+      if (def.type.startsWith('boundary')) continue;
+      const g = c.createGain(); g.gain.value = 0; g.connect(bus.gain);
+      bus.layers.push({def, gain:g, peak:peakOf(def), buffer:this.buffers.get(def.stem.file)});
+    }
+    return bus;
+  },
+  makeAmbient(cs) {
+    // Boundary sounds loop independently of the clock (§5.5); the field blend still applies.
+    const c = this.ctx, amb = {gain:c.createGain(), layers:[], sources:[]};
+    amb.gain.connect(this.pre);
+    for (const def of cs.layers) {
+      if (!def.type.startsWith('boundary')) continue;
+      const g = c.createGain(); g.gain.value = 0; g.connect(amb.gain);
+      const s = c.createBufferSource(); s.buffer = this.buffers.get(def.stem.file); s.loop = true; s.connect(g); s.start();
+      amb.layers.push({def, gain:g, peak:peakOf(def)}); amb.sources.push(s);
+    }
+    return amb;
+  },
+  retire(bus) {
+    if (!bus) return;
+    bus.gain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.01);
+    setTimeout(() => { bus.gain.disconnect(); (bus.sources || []).forEach(s => s.stop()); }, 200);
+  },
+  setCase(cs, normal) {
+    this.retire(this.buses.main); this.retire(this.buses.normal); this.retire(this.ambient);
+    this.buses.main = this.makeBus(cs);
+    this.buses.normal = normal && normal.id !== cs.id ? this.makeBus(normal) : null;
+    this.buses.main.gain.gain.value = this.compare && this.buses.normal ? 0 : 1;
+    if (this.buses.normal) this.buses.normal.gain.gain.value = this.compare ? 1 : 0;
+    this.ambient = this.makeAmbient(cs);
+    this.updateMix();
+  },
+  start() {
+    if (this.timer) return;
+    this.nextCycle = this.ctx.currentTime + 0.05;
+    this.timer = setInterval(() => this.tick(), 25);   // look-ahead scheduler, "tale of two clocks" (§5.1)
+  },
+  tick() {
+    while (this.nextCycle < this.ctx.currentTime + 0.1) {
+      const t0 = this.nextCycle, cycle = 60 / this.bpm;   // bpm read once per cycle: changes land on the boundary
+      for (const bus of [this.buses.main, this.buses.normal]) if (bus) this.scheduleCycle(bus, t0, cycle);
+      if (this.onBeat) this.onBeat(t0);
+      this.nextCycle += cycle; this.cycleCount++;
+    }
+  },
+  play(L, t, scale) {
+    if (!L.buffer) return;
+    const c = this.ctx, s = c.createBufferSource(); s.buffer = L.buffer;
+    if (scale !== undefined) { const g = c.createGain(); g.gain.value = scale; s.connect(g); g.connect(L.gain); }
+    else s.connect(L.gain);
+    s.start(t);
+  },
+  scheduleCycle(bus, t0, cycle) {
+    const s2 = t0 + this.systole, next = t0 + cycle;   // systole fixed; diastole absorbs rate (§5.1)
+    for (const L of bus.layers) {
+      const d = L.def;
+      switch (d.type) {
+        case 's1': this.play(L, t0); break;
+        case 's2': this.play(L, s2); if (d.split_ms > 0) this.play(L, s2 + d.split_ms/1000, 0.7); break;   // A2 then P2
+        case 's3': this.play(L, Math.min(s2 + (d.offset_from_s2_ms ?? 150)/1000, next - 0.03)); break;
+        case 's4': this.play(L, Math.max(s2 + 0.06, next - (d.offset_before_s1_ms ?? 80)/1000)); break;    // merges with S3 as diastole shrinks
+        case 'murmur': this.play(L, d.phase === 'diastolic' ? s2 : t0); break;
+        // ponytail: click, snap, rub are Phase 3 layers; ignored until then
+      }
+    }
+  },
+  updateMix() {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime, {x, y} = this.pos;
+    for (const b of [this.buses.main, this.buses.normal, this.ambient]) if (b)
+      for (const L of b.layers) L.gain.gain.setTargetAtTime(L.peak * field(L.def, x, y), now, 0.02);
+  },
+  setPos(x, y) { this.pos = {x:clamp(x, BOX.x0, BOX.x1), y:clamp(y, BOX.y0, BOX.y1)}; this.updateMix(); },
+  setHead(h) {
+    this.head = h;
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    for (const [n, g] of Object.entries(this.paths)) ramp(g.gain, n === h ? 1 : 0, now, 0.03);
+  },
+  setCompare(on) {
+    this.compare = on;
+    if (!this.ctx || !this.buses.normal) return;
+    const now = this.ctx.currentTime;
+    ramp(this.buses.main.gain.gain, on ? 0 : 1, now, 0.02);
+    ramp(this.buses.normal.gain.gain, on ? 1 : 0, now, 0.02);
+  },
+  refreshPeaks() { for (const b of [this.buses.main, this.buses.normal]) if (b) for (const L of b.layers) L.peak = peakOf(L.def); this.updateMix(); },
+};
+window.gallop = engine;   // for the console checks in docs/ACCEPTANCE.md
+
+// ---- state ------------------------------------------------------------------
+let cases = [], current = null, normalCase = null, diaphragmOnly = false, dragging = false, tone = null;
+const store = {
+  get(k) { try { return localStorage.getItem('gallop.' + k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem('gallop.' + k, v); } catch {} },
+  clear() { try { for (const k of Object.keys(localStorage)) if (k.startsWith('gallop.')) localStorage.removeItem(k); } catch {} },
+};
+
+// ---- chest / head -------------------------------------------------------------
+const svg = $('#chest'), headEl = $('#head'), headDot = $('#headDot');
+function drawLandmarks() {
+  $('#landmarks').innerHTML = LANDMARKS.map(l =>
+    `<g class="lm" data-id="${l.id}"><circle cx="${l.x}" cy="${l.y}" r="4.5"/>` +
+    `<text x="${l.x + (l.anchor === 'end' ? -7 : 7)}" y="${l.y + 3}" text-anchor="${l.anchor}">${l.id} · ${l.name}</text></g>`).join('');
+  for (const g of document.querySelectorAll('.lm')) g.addEventListener('click', () => showPop(LANDMARKS.find(l => l.id === g.dataset.id)));
+}
+function nearestLandmark(x, y) {
+  let best = null, bd = Infinity;
+  for (const l of LANDMARKS) { const d = Math.hypot(x - l.x, y - l.y); if (d < bd) { bd = d; best = l; } }
+  return best;
+}
+function captionFor(cs, x, y) {
+  if (!cs || quiz.active) return '';   // region captions are a practice-mode cue (§8)
+  let heart = 0, best = null, bv = 0;
+  for (const L of cs.layers) {
+    if (!L.type.startsWith('boundary')) { heart = Math.max(heart, field(L, x, y)); continue; }
+    for (const s of L.sources) { const v = field({sources:[s]}, x, y); if (v > bv) { bv = v; best = s; } }
+  }
+  return bv > heart ? best.label : '';
+}
+function placeHead(x, y) {
+  engine.setPos(x, y);
+  const p = engine.pos;
+  headEl.setAttribute('transform', `translate(${p.x} ${p.y})`);
+  $('#posOut').textContent = `x ${Math.round(p.x)}, y ${Math.round(p.y)} mm`;
+  const near = nearestLandmark(p.x, p.y);
+  for (const g of document.querySelectorAll('.lm')) g.classList.toggle('near', g.dataset.id === near.id);
+  $('#nearOut').textContent = 'nearest: ' + near.name;
+  $('#caption').textContent = captionFor(current, p.x, p.y);
+}
+function toMM(ev) {
+  return new DOMPoint(ev.clientX, ev.clientY).matrixTransform(svg.getScreenCTM().inverse());
+}
+let headLocked = false;   // what-changed questions hide and freeze the head
+svg.addEventListener('pointerdown', ev => { if (headLocked) return; svg.setPointerCapture(ev.pointerId); dragging = true; const p = toMM(ev); placeHead(p.x, p.y); ev.preventDefault(); });
+svg.addEventListener('pointermove', ev => { if (dragging) { const p = toMM(ev); placeHead(p.x, p.y); } });
+for (const t of ['pointerup', 'pointercancel']) svg.addEventListener(t, () => dragging = false);
+
+function showPop(l) {
+  const pop = $('#pop');
+  pop.innerHTML = `<button aria-label="Close">×</button><strong>${l.name}</strong><br>${l.note}`;
+  pop.hidden = false;
+  pop.querySelector('button').onclick = () => pop.hidden = true;
+}
+
+// ---- head / rate / compare controls --------------------------------------------
+function setHead(h) {
+  if (h === 'bell' && diaphragmOnly) return;
+  engine.setHead(h);
+  $('#bellBtn').setAttribute('aria-pressed', h === 'bell');
+  $('#diaBtn').setAttribute('aria-pressed', h === 'diaphragm');
+  $('#headIcon').textContent = h === 'bell' ? '●' : '◐';
+}
+$('#bellBtn').onclick = () => setHead('bell');
+$('#diaBtn').onclick = () => setHead('diaphragm');
+$('#bpm').addEventListener('input', ev => { engine.bpm = +ev.target.value; $('#bpmOut').textContent = ev.target.value; });
+
+const cmpBtn = $('#cmpBtn');
+function setCompare(on) { if (on && quiz.active) return; engine.setCompare(on); cmpBtn.setAttribute('aria-pressed', on); }
+cmpBtn.addEventListener('pointerdown', ev => { setCompare(true); ev.preventDefault(); });
+for (const t of ['pointerup', 'pointercancel', 'pointerleave']) cmpBtn.addEventListener(t, () => setCompare(false));
+cmpBtn.addEventListener('keydown', ev => { if ((ev.key === ' ' || ev.key === 'Enter') && !ev.repeat) { setCompare(true); ev.preventDefault(); } });
+cmpBtn.addEventListener('keyup', ev => { if (ev.key === ' ' || ev.key === 'Enter') setCompare(false); });
+window.addEventListener('blur', () => setCompare(false));
+
+document.addEventListener('keydown', ev => {
+  if (/^(INPUT|SELECT|TEXTAREA)$/.test(ev.target.tagName)) return;
+  const p = engine.pos, k = ev.key.toLowerCase();
+  if (headLocked && ev.key.startsWith('Arrow')) return;
+  if (ev.key === 'ArrowLeft') placeHead(p.x - 5, p.y);
+  else if (ev.key === 'ArrowRight') placeHead(p.x + 5, p.y);
+  else if (ev.key === 'ArrowUp') placeHead(p.x, p.y - 5);
+  else if (ev.key === 'ArrowDown') placeHead(p.x, p.y + 5);
+  else if (k === 'b') setHead('bell');
+  else if (k === 'd') setHead('diaphragm');
+  else if (k === 'n') { if (!ev.repeat) setCompare(true); }
+  else return;
+  ev.preventDefault();
+});
+document.addEventListener('keyup', ev => { if (ev.key.toLowerCase() === 'n') setCompare(false); });
+
+document.addEventListener('visibilitychange', () => {
+  if (!engine.ctx) return;
+  if (document.hidden) engine.ctx.suspend(); else engine.ctx.resume();
+});
+
+// ---- case UI ---------------------------------------------------------------------
+function selectCase(cs) {
+  current = cs;
+  if (engine.ctx) engine.setCase(cs, normalCase);
+  $('#draftPill').hidden = cs.reviewed_by !== null;
+  $('#caseFindings').textContent = 'Findings: ' + cs.findings.map(f => FINDING_LABEL[f] || f).join(', ');
+  renderLayers(cs); renderCard(cs);
+  placeHead(engine.pos.x, engine.pos.y);
+}
+function renderLayers(cs) {
+  const box = $('#layers'); box.innerHTML = '';
+  cs.layers.forEach((L, i) => {
+    const row = document.createElement('div'); row.className = 'layer';
+    const name = LAYER_LABEL[L.type] || L.type;
+    const detail = L.type === 'murmur' ? ` <small>${L.phase}, ${L.timing}, ${L.shape}, ${L.pitch}, ${L.quality}</small>` : '';
+    const pill = `<span class="pill">${L.provenance.class.replace(/_/g, ' ')}</span>`;
+    if (L.type.startsWith('boundary')) { row.innerHTML = `<span>${name}${pill}</span><span class="muted">${L.intensity}</span>`; box.appendChild(row); return; }
+    const id = 'lay' + i;
+    const opts = L.type === 'murmur'
+      ? [1,2,3,4,5,6].map(g => `<option value="${g}" ${g === L.grade ? 'selected' : ''}>grade ${'I II III IV V VI'.split(' ')[g-1]}${g >= 4 ? ' (loud)' : ''}</option>`)
+      : ['faint','moderate','pronounced'].map(v => `<option ${v === L.intensity ? 'selected' : ''}>${v}</option>`);
+    row.innerHTML = `<label for="${id}">${name}${pill}${detail}</label><select id="${id}">${opts.join('')}</select>`;
+    row.querySelector('select').addEventListener('change', ev => {
+      if (L.type === 'murmur') L.grade = +ev.target.value; else L.intensity = ev.target.value;
+      engine.refreshPeaks();
+    });
+    box.appendChild(row);
+  });
+}
+function renderCard(cs) {
+  const c = cs.card, esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const draft = cs.reviewed_by === null ? '<span class="pill draft">draft: not yet reviewed</span>' : `<span class="pill">reviewed by ${esc(cs.reviewed_by)}, ${esc(cs.review_date)}</span>`;
+  $('#cardBody').innerHTML =
+    `<p><strong>${esc(cs.title)}</strong> ${draft}</p>` +
+    `<p>${esc(c.summary)}</p><p><strong>Why.</strong> ${esc(c.why)}</p>` +
+    `<details><summary>Why squared</summary><p>${esc(c.why_squared)}</p></details>` +
+    `<p><strong>Layers</strong></p><ul>` + cs.layers.map(L => `<li>${LAYER_LABEL[L.type] || L.type} <span class="pill">${L.provenance.class.replace(/_/g,' ')}</span><br><small>${esc(L.provenance.basis || (L.provenance.dataset + ' ' + L.provenance.record))}</small></li>`).join('') + `</ul>` +
+    `<p><strong>Sources</strong></p><ul>` + c.sources.map(s => `<li>${esc(s)}</li>`).join('') + `</ul>` +
+    (cs.real_thing ? `<p><strong>Hear the real thing.</strong> <audio controls src="${cs.real_thing.file}"></audio><br><small>${esc(cs.real_thing.dataset)} record ${esc(cs.real_thing.record)}, ${esc(cs.real_thing.licence)}</small></p>` : '');
+}
+$('#caseSel').addEventListener('change', ev => selectCase(cases.find(c => c.id === ev.target.value)));
+
+$('#resetBtn').onclick = () => {
+  if (confirm('Clear Gallop progress stored in this browser? (Calibration and headphone answers.)')) { store.clear(); location.reload(); }
+};
+
+// ---- calibration gate (§5.6) -----------------------------------------------------
+const stemBytes = new Map();
+function step(name) { for (const el of document.querySelectorAll('#gate [data-step]')) el.hidden = el.dataset.step !== name; }
+function toneOn() {
+  const c = engine.ctx, o = c.createOscillator(), g = c.createGain();
+  o.frequency.value = 40; g.gain.value = 0; o.connect(g); g.connect(engine.master); o.start();
+  ramp(g.gain, 1, c.currentTime, 0.05); tone = {o, g};
+  ramp(engine.pre.gain, 0, c.currentTime, 0.05);
+}
+function toneOff() {
+  if (!tone) return;
+  const c = engine.ctx; ramp(tone.g.gain, 0, c.currentTime, 0.05); tone.o.stop(c.currentTime + 0.1); tone = null;
+  ramp(engine.pre.gain, 1, c.currentTime, 0.05);
+}
+function finish() { store.set('calibrated', '1'); $('#gate').hidden = true; selectCase(current); svg.focus({preventScroll:true}); }
+
+$('#startBtn').onclick = async () => {
+  const btn = $('#startBtn'); btn.disabled = true;
+  try {
+    if (!engine.ctx) engine.init();
+    await engine.ctx.resume();                       // must happen inside the tap on iOS
+    await Promise.all([...stemBytes].map(([url, ab]) => engine.decode(url, ab.slice(0))));
+    engine.bpm = 72; $('#bpm').value = 72; $('#bpmOut').textContent = '72';
+    setHead('diaphragm'); placeHead(25, 70);
+    engine.setCase(normalCase, null);                // reference sequence: normal S1/S2 at 72 bpm
+    engine.start();
+    step('volume');
+  } catch (e) {
+    $('#loadErr').hidden = false; $('#loadErr').textContent = 'Could not start audio: ' + e.message + '. Serve this folder over http (see README).';
+    btn.disabled = false;
+  }
+};
+$('#volBtn').onclick = () => { toneOn(); step('hp'); };
+$('#hpYes').onclick = () => { toneOff(); store.set('headphones', 'yes'); finish(); };
+$('#hpNo').onclick = () => { toneOff(); store.set('headphones', 'no'); step('nohp'); };
+$('#diaOnly').onclick = () => {
+  diaphragmOnly = true; setHead('diaphragm');
+  $('#bellBtn').disabled = true; $('#headNote').hidden = false;
+  $('#headNote').textContent = 'Diaphragm only: this device cannot reproduce bell-range sounds. Reload with headphones to use the bell.';
+  finish();
+};
+$('#hpAgain').onclick = () => { toneOn(); step('hp'); };
+
+// beat marker: pulse the head dot on each S1
+engine.onBeat = t0 => setTimeout(() => { headDot.classList.add('beat'); setTimeout(() => headDot.classList.remove('beat'), 80); }, Math.max(0, (t0 - engine.ctx.currentTime) * 1000));
+
+// ---- quiz mode (§9) ---------------------------------------------------------------------
+const QUIZ_ALLOWS_DRAFTS = true;   // beta: unreviewed cases may enter the quiz. Set false once a reviewer has signed off (§7).
+const ADVANCE_STREAK = 8, DROP_MISSES = 4;   // §9.2 [inference: Brendan to confirm]
+const TIER_NAME = {1:'Foundations', 2:'Recognition', 3:'Localisation', 4:'Field conditions'};
+const TIER_RATE = {1:[70,70], 2:[60,90], 3:[60,110], 4:[60,130]};
+const TIER_INTENSITY = {1:{prom:2, grades:[3]}, 2:{prom:1, grades:[2]}, 3:{prom:0, grades:[1,2]}, 4:{prom:0, grades:[1,2]}};
+const PROM = ['faint', 'moderate', 'pronounced'];
+const OFF_HEART = [[-90,70], [130,90], [0,-35], [40,200]];
+const WHAT_CHANGED = {
+  rate: 'The rate changed. Listen to the gap after S2: it shortened or lengthened while S1 to S2 stayed the same.',
+  head: 'The head changed. On the bell the low end fills in and high-pitched sounds soften; on the diaphragm the reverse.',
+  intensity: 'The finding got louder or softer while everything else, including S1 and S2, stayed where it was.',
+  position: 'The head moved. What was loudest is no longer loudest, and the boundary sounds changed with it.',
+};
+const RADIATION_LABEL = {axilla:'Axilla', carotids:'Carotids', nowhere:'Nowhere'};
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const pick = (rng, arr) => arr[Math.floor(rng() * arr.length)];
+const irange = (rng, a, b) => a + Math.floor(rng() * (b - a + 1));
+const YESNO = [{v:'yes', l:'Yes'}, {v:'no', l:'No'}];
+
+function primaryLayer(cs) { return cs.layers.find(L => L.type === 'murmur') || cs.layers.find(L => L.type === 's3' || L.type === 's4') || cs.layers.find(L => L.type === 's1'); }
+function paFindings(c) {
+  const fs = Object.keys(c.quiz_rationales).filter(k => k.startsWith('present_absent_')).map(k => k.slice(15));
+  const pf = c.answer_key.primary_finding;
+  if (pf !== 'normal' && !fs.includes(pf)) fs.push(pf);
+  return fs;
+}
+function caseAtLevel(cs, level) {
+  const c = JSON.parse(JSON.stringify(cs)), L = primaryLayer(c);
+  if (L.type === 'murmur') L.grade = clamp(level, 1, 6); else L.intensity = PROM[clamp(level, 0, 2)];
+  return c;
+}
+// A template: which tiers, whether it applies to a case, how to ask, how to score, and the hand-written rationale.
+const TEMPLATES = {
+  identify: {tiers:[1,2,3,4], applies: c => !!c.quiz_rationales.identify, prompt: () => 'What do you hear?',
+    options: () => Object.entries(FINDING_LABEL).map(([v, l]) => ({v, l})), answer: q => q.case.answer_key.primary_finding,
+    rationale: q => q.case.quiz_rationales.identify, label: v => FINDING_LABEL[v]},
+  present_absent: {tiers:[1,2,3,4], applies: c => paFindings(c).length > 0, draw: (q, rng) => { q.finding = pick(rng, paFindings(q.case)); },
+    prompt: q => { const l = FINDING_LABEL[q.finding], shown = /^S\d/.test(l) ? l : l[0].toLowerCase() + l.slice(1); return `Is there ${/^[aeiou]/i.test(l) ? 'an' : 'a'} ${shown}?`; }, options: () => YESNO,
+    answer: q => q.case.findings.includes(q.finding) ? 'yes' : 'no',
+    rationale: q => q.case.quiz_rationales['present_absent_' + q.finding] || q.case.quiz_rationales.identify, label: v => v === 'yes' ? 'Yes' : 'No'},
+  localize: {tiers:[2,3,4], applies: c => !!c.quiz_rationales.localize, prompt: () => 'Drag the head to where it is loudest, then submit.',
+    options: () => [{v:'submit', l:'Submit position'}], answer: () => 'submit', rationale: q => q.case.quiz_rationales.localize,
+    score: q => { const la = q.case.answer_key.loudest_at, d = Math.hypot(engine.pos.x - la.x, engine.pos.y - la.y); return d <= la.radius_mm ? 'full' : d <= 2 * la.radius_mm ? 'partial' : 'miss'; },
+    label: (v, q) => 'near the ' + nearestLandmark(q.case.answer_key.loudest_at.x, q.case.answer_key.loudest_at.y).name.toLowerCase() + ' area'},
+  which_head: {tiers:[1,2,3,4], applies: c => !!c.quiz_rationales.which_head && c.answer_key.best_head !== 'either' && !diaphragmOnly, prompt: () => 'Which head makes this clearest?',
+    options: () => [{v:'bell', l:'Bell'}, {v:'diaphragm', l:'Diaphragm'}], answer: q => q.case.answer_key.best_head,
+    rationale: q => q.case.quiz_rationales.which_head, label: v => v === 'bell' ? 'Bell' : 'Diaphragm'},
+  timing: {tiers:[2,3,4], applies: c => !!c.quiz_rationales.timing && !!c.answer_key.timing, prompt: () => 'Systolic or diastolic?',
+    options: () => [{v:'systolic', l:'Systolic'}, {v:'diastolic', l:'Diastolic'}], answer: q => q.case.answer_key.timing,
+    rationale: q => q.case.quiz_rationales.timing, label: v => v[0].toUpperCase() + v.slice(1)},
+  radiation: {tiers:[3,4], applies: c => !!c.quiz_rationales.radiation, prompt: () => 'Where else can you hear this?',
+    options: () => Object.entries(RADIATION_LABEL).map(([v, l]) => ({v, l})), answer: q => q.case.answer_key.radiates_to[0] || 'nowhere',
+    rationale: q => q.case.quiz_rationales.radiation, label: v => RADIATION_LABEL[v]},
+  what_changed: {tiers:[3,4], applies: () => true, prompt: () => 'Two clips of the same case. One thing differs between A and B. What changed?',
+    options: () => [{v:'rate', l:'Rate'}, {v:'head', l:'Head'}, {v:'intensity', l:'Intensity'}, {v:'position', l:'Position'}],
+    answer: q => q.param, rationale: q => WHAT_CHANGED[q.param], label: v => v[0].toUpperCase() + v.slice(1),
+    draw: (q, rng) => {
+      q.param = pick(rng, ['rate', 'intensity', 'position'].concat(diaphragmOnly ? [] : ['head']));
+      const [lo, hi] = TIER_RATE[q.tier], A = q.A, B = q.B = {...A, pos: {...A.pos}};
+      if (q.param === 'rate') { const d = irange(rng, 15, 30); B.bpm = A.bpm + d <= hi ? A.bpm + d : A.bpm - d; }
+      if (q.param === 'head') B.head = A.head === 'bell' ? 'diaphragm' : 'bell';
+      if (q.param === 'intensity') { const top = primaryLayer(q.case).type === 'murmur' ? 6 : 2, lo2 = top === 6 ? 1 : 0; B.level = A.level + 1 <= top ? A.level + 1 : A.level - 1; B.level = clamp(B.level, lo2, top); }
+      if (q.param === 'position') { const lm = pick(rng, LANDMARKS.filter(l => Math.hypot(l.x - A.pos.x, l.y - A.pos.y) > 40)); B.pos = {x: lm.x, y: lm.y}; }
+    }},
+};
+
+// Everything about a question follows from (seed, tier), so a stored seed replays it exactly (§9.4).
+function buildQuestion(seed, tier) {
+  const rng = mulberry32(seed);
+  const pool = cases.filter(c => c.tiers.includes(tier) && (QUIZ_ALLOWS_DRAFTS || c.reviewed_by));
+  const normals = pool.filter(c => c.findings.includes('normal')), others = pool.filter(c => !c.findings.includes('normal'));
+  const cs = tier >= 2 && normals.length && others.length ? (rng() < 0.2 ? pick(rng, normals) : pick(rng, others)) : pick(rng, pool);
+  const names = Object.keys(TEMPLATES).filter(k => TEMPLATES[k].tiers.includes(tier) && TEMPLATES[k].applies(cs));
+  const template = pick(rng, names);
+  const q = {seed, tier, case: cs, template, key: cs.id + '|' + template};
+  const [lo, hi] = TIER_RATE[tier], band = TIER_INTENSITY[tier], L = primaryLayer(cs);
+  const level = cs.findings.includes('normal') ? PROM.indexOf(L.intensity) : L.type === 'murmur' ? pick(rng, band.grades) : band.prom;
+  let pos;
+  if (tier === 1) pos = {x: cs.answer_key.loudest_at.x, y: cs.answer_key.loudest_at.y};
+  else if (tier === 2) pos = {x: 25, y: 70};
+  else if (tier === 3) { const [x, y] = pick(rng, OFF_HEART); pos = {x: x + irange(rng, -15, 15), y: y + irange(rng, -15, 15)}; }
+  else pos = {x: irange(rng, BOX.x0, BOX.x1), y: irange(rng, BOX.y0, BOX.y1)};
+  const head = tier === 1 && cs.answer_key.best_head !== 'either' ? cs.answer_key.best_head : 'diaphragm';
+  q.A = {bpm: irange(rng, lo, hi), head: diaphragmOnly ? 'diaphragm' : head, pos, level};
+  if (TEMPLATES[template].draw) TEMPLATES[template].draw(q, rng);
+  return q;
+}
+function applyVariant(q, v) {
+  engine.bpm = v.bpm; setHead(v.head);
+  if (engine.ctx) engine.setCase(caseAtLevel(q.case, v.level), null);
+  placeHead(v.pos.x, v.pos.y);
+}
+function lockHead(on) {
+  headLocked = on; headEl.style.visibility = on ? 'hidden' : ''; $('#posOut').parentElement.style.visibility = on ? 'hidden' : '';
+  $('#headGroup').style.visibility = on ? 'hidden' : '';
+}
+
+const quiz = {
+  active: false, q: null, answered: false, fromQueue: null, replay: false, state: null,
+  load() {
+    let s = null; try { s = JSON.parse(store.get('quiz')); } catch {}
+    this.state = Object.assign({tier:1, unlocked:1, streak:0, last10:[], missed:[], recent:[], queue:[], count:0, log:[]}, s || {});
+  },
+  save() { store.set('quiz', JSON.stringify(this.state)); },
+  next() {
+    const s = this.state; this.fromQueue = null; this.replay = false;
+    const due = s.queue.find(it => it.dues.length && it.dues[0] <= s.count);
+    if (due) { due.dues.shift(); this.fromQueue = due; this.show(buildQuestion(due.seed, due.tier)); return; }
+    const seed = (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
+    let best = null, bestIdx = Infinity;
+    for (let i = 0; i < 40; i++) {
+      const cand = buildQuestion((seed + i) >>> 0, s.tier), idx = s.recent.lastIndexOf(cand.key);
+      if (idx < 0) { best = cand; break; }
+      if (idx < bestIdx) { bestIdx = idx; best = cand; }   // ponytail: a two-case pool cannot avoid repeats within 15; take the least recent
+    }
+    this.show(best);
+  },
+  show(q) {
+    this.q = q; this.answered = false;
+    const T = TEMPLATES[q.template];
+    applyVariant(q, q.A);
+    $('#qPrompt').textContent = T.prompt(q);
+    $('#qHint').textContent = q.tier === 1 && q.template !== 'which_head' ? `Head set to the ${q.A.head} for you, and you are on the right spot.` : '';
+    $('#qClips').hidden = q.template !== 'what_changed';
+    lockHead(q.template === 'what_changed');
+    $('#qAnswers').innerHTML = T.options(q).map(o => `<button data-v="${o.v}">${o.l}</button>`).join('');
+    for (const b of $('#qAnswers').querySelectorAll('button')) b.onclick = () => this.answer(b.dataset.v);
+    $('#qFeedback').hidden = true; $('#card').classList.remove('revealed'); $('#card').open = false;
+  },
+  answer(v) {
+    if (this.answered) return;
+    this.answered = true;
+    const q = this.q, T = TEMPLATES[q.template];
+    const result = T.score ? T.score(q) : v === T.answer(q) ? 'full' : 'miss';
+    const correct = result !== 'miss';
+    for (const b of $('#qAnswers').querySelectorAll('button')) {
+      b.disabled = true;
+      if (!T.score) { if (b.dataset.v === T.answer(q)) b.classList.add('correct'); else if (b.dataset.v === v) b.classList.add('wrong'); }
+    }
+    $('#qResult').textContent = result === 'full' ? 'Correct.' : result === 'partial' ? 'Close: within twice the radius. Counted as correct.' : `Not this time. The answer: ${T.label(T.answer(q), q)}.`;
+    $('#qRationale').textContent = T.rationale(q);
+    $('#qWhy2').textContent = q.case.card.why_squared;
+    renderCard(q.case); $('#card').classList.add('revealed');
+    $('#qFeedback').hidden = false;
+    lockHead(false);
+    if (!this.replay) this.record(correct);
+  },
+  record(correct) {
+    const s = this.state, q = this.q;
+    s.count++;
+    s.last10.push(correct); if (s.last10.length > 10) s.last10.shift();
+    s.recent.push(q.key); if (s.recent.length > 15) s.recent.shift();
+    s.log.unshift({seed: q.seed, tier: q.tier, correct, key: q.key}); s.log.length = Math.min(s.log.length, 30);
+    if (correct) s.streak++;
+    else { s.streak = 0; const f = FINDING_LABEL[q.case.answer_key.primary_finding]; s.missed = [f, ...s.missed.filter(x => x !== f)].slice(0, 5); }
+    // spaced repetition: back at +3, +10, +30; out after two correct in a row (§9.4)
+    const it = this.fromQueue;
+    if (it) {
+      if (correct) { it.run = (it.run || 0) + 1; if (it.run >= 2) s.queue = s.queue.filter(x => x !== it); }
+      else { it.run = 0; it.dues = [s.count + 3, s.count + 10, s.count + 30]; }
+      if (s.queue.includes(it) && !it.dues.length) it.dues = [s.count + 30];
+    } else if (!correct) s.queue.push({seed: q.seed, tier: q.tier, dues: [s.count + 3, s.count + 10, s.count + 30], run: 0});
+    // ladder (§9.2)
+    let msg = '';
+    if (s.streak >= ADVANCE_STREAK && s.tier < 4) { s.tier++; s.unlocked = Math.max(s.unlocked, s.tier); s.streak = 0; s.last10 = []; msg = `Tier ${s.tier} unlocked. Up you go.`; }
+    else if (s.last10.filter(x => !x).length >= DROP_MISSES && s.tier > 1) { s.tier--; s.streak = 0; s.last10 = []; msg = `Back to Tier ${s.tier} for a bit. That's the point of the ladder.`; }
+    this.save(); renderLadder(msg);
+  },
+  replayFrom(seed, tier) { this.fromQueue = null; this.show(buildQuestion(seed, tier)); this.replay = true; $('#qHint').textContent = 'Replay of a question you missed. Not scored.'; },
+};
+window.gallopQuiz = quiz;   // for tools/smoke_engine.js
+
+function renderLadder(msg) {
+  const s = quiz.state;
+  $('#ladder').innerHTML = [1,2,3,4].map(t => `<button data-t="${t}" aria-pressed="${t === s.tier}" ${t > s.unlocked ? 'disabled' : ''}>Tier ${t}<br><small>${TIER_NAME[t]}</small></button>`).join('');
+  for (const b of $('#ladder').querySelectorAll('button')) b.onclick = () => { s.tier = +b.dataset.t; s.streak = 0; s.last10 = []; quiz.save(); renderLadder(''); quiz.next(); };
+  $('#streak').innerHTML = `Streak: ` + Array.from({length: ADVANCE_STREAK}, (_, i) => `<span class="dot ${i < s.streak ? 'on' : ''}"></span>`).join('') + ` <small>${ADVANCE_STREAK} in a row moves you up</small>`;
+  $('#missedList').textContent = s.missed.length ? 'Recently missed: ' + s.missed.join(', ') : 'Nothing missed recently.';
+  $('#ladderMsg').textContent = msg || '';
+  const missedLog = s.log.filter(e => !e.correct).slice(0, 5);
+  $('#replayList').innerHTML = missedLog.length ? 'Replay a missed question: ' + missedLog.map(e => `<button data-seed="${e.seed}" data-tier="${e.tier}" style="padding:.1rem .5rem;margin:.1rem">${e.key.split('|')[1].replace(/_/g, ' ')}</button>`).join('') : '';
+  for (const b of $('#replayList').querySelectorAll('button')) b.onclick = () => quiz.replayFrom(+b.dataset.seed, +b.dataset.tier);
+}
+function setMode(m) {
+  quiz.active = m === 'quiz';
+  document.body.classList.toggle('quiz', quiz.active);
+  $('#modePractice').setAttribute('aria-pressed', !quiz.active); $('#modeQuiz').setAttribute('aria-pressed', quiz.active);
+  $('#quiz').hidden = !quiz.active;
+  if (quiz.active) {
+    setCompare(false);
+    $('#betaNote').hidden = !cases.some(c => c.reviewed_by === null && c.tiers.length);
+    renderLadder(''); quiz.next();
+  } else {
+    lockHead(false); $('#card').classList.remove('revealed');
+    engine.bpm = +$('#bpm').value; selectCase(current);
+  }
+}
+$('#modePractice').onclick = () => setMode('practice');
+$('#modeQuiz').onclick = () => setMode('quiz');
+$('#qNext').onclick = () => quiz.next();
+$('#clipA').onclick = () => applyVariant(quiz.q, quiz.q.A);
+$('#clipB').onclick = () => applyVariant(quiz.q, quiz.q.B);
+$('#exportBtn').onclick = () => {
+  const data = {}; try { for (const k of Object.keys(localStorage)) if (k.startsWith('gallop.')) data[k] = localStorage.getItem(k); } catch {}
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'})); a.download = 'gallop-progress.json'; a.click();
+};
+$('#importFile').onchange = async ev => {
+  try { const data = JSON.parse(await ev.target.files[0].text()); for (const [k, v] of Object.entries(data)) if (k.startsWith('gallop.')) localStorage.setItem(k, v); location.reload(); }
+  catch (e) { alert('Could not import that file: ' + e.message); }
+};
+
+// ---- boot ---------------------------------------------------------------------------
+(async function boot() {
+  drawLandmarks();
+  quiz.load();
+  placeHead(25, 70);
+  try {
+    const doc = await (await fetch('data/cases.json')).json();
+    cases = doc.cases;
+    normalCase = cases.find(c => c.id === 'normal-72') || cases[0];
+    current = normalCase;
+    $('#caseSel').innerHTML = cases.map(c => `<option value="${c.id}">${c.title}${c.reviewed_by === null ? ' (draft)' : ''}</option>`).join('');
+    selectCase(current);
+    const files = [...new Set(cases.flatMap(c => c.layers.map(L => L.stem.file)))];
+    await Promise.all(files.map(async f => stemBytes.set(f, await (await fetch(f)).arrayBuffer())));
+  } catch (e) {
+    $('#loadErr').hidden = false; $('#loadErr').textContent = 'Could not load cases or stems: ' + e.message + '. Serve this folder over http (see README).';
+    $('#startBtn').disabled = true;
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-170 -80 340 340" width="340" height="340">
+  <!-- Gallop chest silhouette. Units are millimetres. Origin = suprasternal notch.
+       x positive toward the patient's left (viewer's right), y positive inferior.
+       Adult male, fixed for v1 (handover section 6). CC BY 4.0 Brendan Hood. -->
+  <defs>
+    <style>
+      .skin{fill:#f6f9fb;stroke:#9fb4c4;stroke-width:1.2}
+      .bone{fill:#e6eef4;stroke:none}
+      .line{fill:none;stroke:#b7c8d5;stroke-width:1;stroke-linecap:round}
+      .rib{fill:none;stroke:#cfdbe5;stroke-width:0.9;stroke-linecap:round}
+    </style>
+  </defs>
+  <!-- torso: neck, shoulders, flanks -->
+  <path class="skin" d="M-36,-80 L-36,-14 C-60,-8 -110,-4 -150,14 C-166,22 -170,40 -170,60
+    L-160,260 L160,260 L170,60 C170,40 166,22 150,14 C110,-4 60,-8 36,-14 L36,-80 Z"/>
+  <!-- clavicles -->
+  <path class="line" d="M-14,-2 C-55,-12 -105,-2 -155,16"/>
+  <path class="line" d="M14,-2 C55,-12 105,-2 155,16"/>
+  <!-- sternum: manubrium notch, body, xiphoid -->
+  <path class="bone" d="M-12,4 C-8,-2 8,-2 12,4 L12,150 C12,158 6,166 0,172 C-6,166 -12,158 -12,150 Z"/>
+  <!-- rib-space hints, faint -->
+  <path class="rib" d="M-12,26 Q-70,34 -125,70"/> <path class="rib" d="M12,26 Q70,34 125,70"/>
+  <path class="rib" d="M-12,50 Q-75,60 -135,100"/> <path class="rib" d="M12,50 Q75,60 135,100"/>
+  <path class="rib" d="M-12,74 Q-80,86 -145,130"/> <path class="rib" d="M12,74 Q80,86 145,130"/>
+  <path class="rib" d="M-12,98 Q-85,112 -150,160"/> <path class="rib" d="M12,98 Q85,112 150,160"/>
+  <path class="rib" d="M-12,122 Q-90,138 -150,190"/> <path class="rib" d="M12,122 Q90,138 150,190"/>
+  <path class="rib" d="M-12,146 Q-90,166 -145,220"/> <path class="rib" d="M12,146 Q90,166 145,220"/>
+  <!-- costal margin -->
+  <path class="line" d="M0,172 C-30,200 -80,215 -125,235"/>
+  <path class="line" d="M0,172 C30,200 80,215 125,235"/>
+</svg>

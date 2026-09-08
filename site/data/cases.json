@@ -1,0 +1,162 @@
+{
+  "schema_version": "1.0",
+  "cases": [
+    {
+      "id": "normal-72",
+      "title": "Normal S1 and S2 at 72",
+      "findings": ["normal"],
+      "answer_key": {
+        "primary_finding": "normal",
+        "loudest_at": { "x": 85, "y": 125, "radius_mm": 25 },
+        "best_head": "either",
+        "timing": null,
+        "radiates_to": []
+      },
+      "clock": { "bpm": 72, "systole_ms": 300 },
+      "habitus": 1.0,
+      "layers": [
+        {
+          "type": "s1",
+          "intensity": "pronounced",
+          "source": { "x": 85, "y": 125, "spread": { "l": 110, "r": 55, "u": 80, "d": 45 } },
+          "stem": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e p. XXX [verify]; StatPearls NBK541010 (S1 loudest at apex, 50-150 Hz [verify])" }
+        },
+        {
+          "type": "s2",
+          "intensity": "moderate",
+          "split_ms": 0,
+          "source": { "x": 0, "y": 45, "spread": { "l": 70, "r": 70, "u": 40, "d": 110 } },
+          "stem": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e p. XXX [verify]; StatPearls NBK541010 (S2 loudest at base, higher pitch than S1 [verify])" }
+        },
+        {
+          "type": "boundary_breath",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the right lung field", "x": -70, "y": 70, "spread": { "l": 80, "r": 55, "u": 160, "d": 140 } },
+            { "label": "toward the axilla: breath sounds", "x": 120, "y": 85, "spread": { "l": 55, "r": 90, "u": 160, "d": 140 } },
+            { "label": "over the neck: upper lobes", "x": 0, "y": -30, "spread": { "l": 110, "r": 110, "u": 60, "d": 35 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/vesicular.wav", "params": { "texture": "vesicular" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        },
+        {
+          "type": "boundary_bowel",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the abdomen (liver)", "x": 20, "y": 205, "spread": { "l": 130, "r": 130, "u": 50, "d": 250 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/bowel.wav", "params": { "texture": "bowel" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        }
+      ],
+      "real_thing": null,
+      "card": {
+        "summary": "Two crisp sounds per beat and nothing between them. S1 is loudest at the apex; S2 is loudest at the base. Systole is the short gap, diastole the long one.",
+        "why": "S1 is the mitral and tricuspid valves closing as the ventricles start to contract, so it is loudest where the ventricles sit against the chest wall, at the apex. S2 is the aortic and pulmonic valves closing at the end of ejection, so it is loudest at the base where the great vessels come closest to the surface.",
+        "why_squared": "At 72 bpm the cycle is about 830 ms. Systole is roughly fixed at about 300 ms [verify: 250-330 ms], so diastole is about 530 ms. When rate rises, only diastole shortens. That is why extra diastolic sounds crowd together in tachycardia. [cite Bates 13e p. XXX; StatPearls NBK541010]",
+        "sources": [
+          "Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. [page - verify]",
+          "Dornbush S, Turnquest AE. Physiology, Heart Sounds. StatPearls. NBK541010."
+        ]
+      },
+      "quiz_rationales": {
+        "identify": "Two sounds per beat, S1 then S2, with a short silent systole and a longer silent diastole. Nothing extra: this is normal.",
+        "present_absent_s3": "Switch to the bell at the apex and listen just after S2. There is nothing there. No S3.",
+        "which_head": "Either head. S1 and S2 sit in a band both heads pass. Neither reveals anything the other hides here.",
+        "timing": "There is no murmur to time. Systole is the short gap after S1; diastole is the long gap after S2.",
+        "radiation": "Nothing to follow. Both sounds fade evenly as you move off the precordium."
+      },
+      "tiers": [1, 2, 3, 4],
+      "reviewed_by": null,
+      "review_date": null
+    },
+    {
+      "id": "as-ejection",
+      "title": "Systolic murmur, crescendo-decrescendo, harsh",
+      "findings": ["systolic_murmur"],
+      "answer_key": {
+        "primary_finding": "systolic_murmur",
+        "loudest_at": { "x": -20, "y": 45, "radius_mm": 20 },
+        "best_head": "diaphragm",
+        "timing": "systolic",
+        "radiates_to": ["carotids"]
+      },
+      "clock": { "bpm": 72, "systole_ms": 300 },
+      "habitus": 1.0,
+      "layers": [
+        {
+          "type": "s1",
+          "intensity": "pronounced",
+          "source": { "x": 85, "y": 125, "spread": { "l": 110, "r": 55, "u": 80, "d": 45 } },
+          "stem": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e p. XXX [verify]; StatPearls NBK541010" }
+        },
+        {
+          "type": "s2",
+          "intensity": "moderate",
+          "split_ms": 0,
+          "source": { "x": 0, "y": 45, "spread": { "l": 70, "r": 70, "u": 40, "d": 110 } },
+          "stem": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e p. XXX [verify]; StatPearls NBK541010" }
+        },
+        {
+          "type": "murmur",
+          "phase": "systolic",
+          "timing": "midsystolic",
+          "shape": "diamond",
+          "pitch": "medium",
+          "quality": "harsh",
+          "grade": 3,
+          "source": { "x": -20, "y": 45, "spread": { "l": 60, "r": 80, "u": 140, "d": 100 } },
+          "stem": { "kind": "synth", "file": "audio/stems/as-ejection-murmur.wav", "params": {} },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e p. XXX [verify] (aortic ejection murmur: mid-systolic, crescendo-decrescendo, harsh, radiates to carotids); Freeman & Levine 1933 (grading); CirCor DigiScope descriptor vocabulary" }
+        },
+        {
+          "type": "boundary_breath",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the right lung field", "x": -70, "y": 70, "spread": { "l": 80, "r": 55, "u": 160, "d": 140 } },
+            { "label": "toward the axilla: breath sounds", "x": 120, "y": 85, "spread": { "l": 55, "r": 90, "u": 160, "d": 140 } },
+            { "label": "over the neck: upper lobes", "x": 0, "y": -30, "spread": { "l": 110, "r": 110, "u": 60, "d": 35 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/vesicular.wav", "params": { "texture": "vesicular" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        },
+        {
+          "type": "boundary_bowel",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the abdomen (liver)", "x": 20, "y": 205, "spread": { "l": 130, "r": 130, "u": 50, "d": 250 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/bowel.wav", "params": { "texture": "bowel" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        }
+      ],
+      "real_thing": null,
+      "card": {
+        "summary": "A harsh murmur that starts after S1, swells to a peak in mid-systole and fades before S2. Loudest at the aortic area, it carries up into the neck and is faint at the apex.",
+        "why": "Blood is being pushed through a narrowed outlet. Flow ramps up as the ventricle contracts, peaks, and falls off, so the noise follows the same crescendo-decrescendo shape. Turbulence is generated at the valve, at the base, and the jet points up the aorta toward the carotids, which is where the sound travels.",
+        "why_squared": "The murmur stops before S2 because ejection ends before the valve closes; a murmur that runs through S2 is not an ejection murmur. Follow it up the neck and it stays; follow it to the axilla and it goes. That direction of radiation is the finding a chart note should carry. Grades IV and above come with a palpable thrill, which no recording can teach. [cite Bates 13e p. XXX; Freeman & Levine 1933]",
+        "sources": [
+          "Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. [page - verify]",
+          "Dornbush S, Turnquest AE. Physiology, Heart Sounds. StatPearls. NBK541010.",
+          "Freeman AR, Levine SA. The clinical significance of the systolic murmur. Ann Intern Med. 1933;6:1371-1385.",
+          "Oliveira J, et al. The CirCor DigiScope Phonocardiogram Dataset (v1.0.3). PhysioNet, 2022. doi:10.13026/tshs-mw03"
+        ]
+      },
+      "quiz_rationales": {
+        "identify": "Between S1 and S2 there is a rough noise that grows and then fades. That is a systolic murmur with a crescendo-decrescendo shape.",
+        "present_absent_s3": "Bell at the apex, listen after S2: nothing. There is no S3 here; the finding is in systole.",
+        "localize": "It is loudest at the aortic area, right of the sternum in the second space. It stays strong up toward the right clavicle and neck and drops away toward the apex.",
+        "which_head": "The diaphragm. The murmur is medium to high pitched and harsh; the bell muffles it.",
+        "timing": "The murmur sits between S1 and S2 and stops before S2. Systolic.",
+        "radiation": "Follow it up the neck: it is still there over the carotid. Toward the axilla it is gone. Carotids."
+      },
+      "tiers": [1, 2, 3, 4],
+      "reviewed_by": null,
+      "review_date": null
+    }
+  ]
+}

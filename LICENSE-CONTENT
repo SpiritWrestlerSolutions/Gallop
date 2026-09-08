@@ -1,0 +1,22 @@
+Gallop content licence
+
+The following are licensed under the Creative Commons Attribution 4.0
+International License (CC BY 4.0), copyright 2026 Brendan Hood:
+
+- site/data/cases.json (case definitions, cards, rationales)
+- site/audio/stems/ and site/audio/boundary/ where provenance.class is
+  "synthesized"
+- site/img/chest.svg
+- docs/ case-authoring text
+
+To view a copy of this licence, visit
+https://creativecommons.org/licenses/by/4.0/
+or see the legal code at
+https://creativecommons.org/licenses/by/4.0/legalcode
+
+Attribution: "Gallop, Brendan Hood, CC BY 4.0" with a link to the repository.
+
+Stems and clips derived from PhysioNet recordings are NOT covered by this
+licence. They inherit the Open Data Commons Attribution License v1.0
+(ODC-By 1.0) of their source dataset; see ATTRIBUTION.md and the per-layer
+provenance in cases.json.
