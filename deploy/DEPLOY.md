@@ -1,7 +1,8 @@
 # Deploying Gallop
 
-Same pattern as Cairn: `nginx:alpine` serves `site/`, bound to localhost,
-reverse-proxied by the host Caddy.
+Same pattern as Cairn: `nginx:alpine` serves `site/`, joined to the shared
+`caddy_net` Docker network, where the Caddy container reaches it by name on
+port 80. No host port is published.
 
 ## First deploy
 
@@ -9,15 +10,14 @@ reverse-proxied by the host Caddy.
 git clone <repo> gallop
 cd gallop/deploy
 docker compose up -d
-curl -s http://127.0.0.1:3642/healthz    # ok
+docker exec caddy curl -s http://gallop/healthz    # ok
 ```
 
-Add the site block to the host Caddyfile and reload Caddy. The hostname is
-provisional (handover §14, [inference]):
+Add the site block to the Caddyfile and reload Caddy:
 
 ```
 gallop.yeomanops.com {
-    reverse_proxy 127.0.0.1:3642
+    reverse_proxy gallop:80
 }
 ```
 
