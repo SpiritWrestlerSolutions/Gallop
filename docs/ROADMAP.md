@@ -22,7 +22,7 @@ paramedic conference the week of 14 September.
 - Reviews are keyed by `case_id`, and reviewed cases are never edited in
   place, so a review always refers to exactly the version heard.
 
-## 1. Engine generalisation
+## 1. Engine generalisation (shipped)
 
 Small, mostly plumbing. Everything after this sits on it.
 
@@ -42,9 +42,10 @@ Small, mostly plumbing. Everything after this sits on it.
 - Validator and `synth_stems.py` grow with the schema; `CASE-AUTHORING.md`
   documents the new fields.
 
-## 2. Bowel module
+## 2. Bowel module (shipped as drafts)
 
 Smallest content load; proves the abdomen view and the stochastic clock.
+Four draft cases: active, hyperactive, hypoactive, absent. Awaiting review.
 
 - Abdomen view with four quadrants as landmarks.
 - Findings: active, hyperactive, hypoactive, absent; pitch and character as
@@ -53,9 +54,13 @@ Smallest content load; proves the abdomen view and the stochastic clock.
   does not pretend thirty seconds proves it.
 - Quiz templates reuse identify, present/absent, localise, what changed.
 
-## 3. Lung module
+## 3. Lung module (shipped as drafts)
 
-The content-heavy one. Line up a reviewer before authoring.
+The content-heavy one. Nine draft cases: normal, fine crackles, coarse
+crackles, wheeze, rhonchi, stridor, diminished, absent, pleural rub. Every
+characteristic is marked [verify] pending a reviewer. The side-to-side
+compare template is not built yet; localise and present/absent cover it for
+now.
 
 - Anterior and posterior views with standard auscultation points.
 - Findings in chart-note language: vesicular normal, diminished or absent

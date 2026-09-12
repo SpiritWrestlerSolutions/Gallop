@@ -323,7 +323,7 @@ function field(layer, x, y, view = engine.view, caseView = engine.caseView) {
     const dx = x - s.x, dy = y - s.y;
     const sx = dx < 0 ? s.spread.l : s.spread.r;
     const sy = dy < 0 ? s.spread.u : s.spread.d;
-    const v = Math.exp(-(dx*dx/(sx*sx) + dy*dy/(sy*sy)));
+    const v = (s.gain ?? 1) * Math.exp(-(dx*dx/(sx*sx) + dy*dy/(sy*sy)));   // gain < 1 authors a diminished region
     if (v > best) best = v;
   }
   return best;
@@ -523,7 +523,7 @@ const store = {
   clear() { try { for (const k of Object.keys(localStorage)) if (k.startsWith('gallop.') && !/^gallop\.(reviews|rvName|rvRole|rvEmail|reviewer)$/.test(k)) localStorage.removeItem(k); } catch {} },   // reviews survive a learner reset
 };
 function normalFor(cs) {
-  return cases.find(c => c !== cs && moduleOf(c) === moduleOf(cs) && viewOf(c) === viewOf(cs) && isNormal(c)) || null;
+  return cases.find(c => c !== cs && moduleOf(c) === moduleOf(cs) && (c.views || [viewOf(c)]).includes(viewOf(cs)) && isNormal(c)) || null;
 }
 
 // ---- surface / head -------------------------------------------------------------
@@ -531,9 +531,10 @@ const svg = $('#chest'), headEl = $('#head'), headDot = $('#headDot');
 const V = () => VIEWS[engine.view];
 const sx = x => V().mirror ? -x : x;   // patient x → screen x
 function drawLandmarks() {
-  $('#landmarks').innerHTML = V().landmarks.map(l =>
-    `<g class="lm" data-id="${l.id}"><circle cx="${sx(l.x)}" cy="${l.y}" r="4.5"/>` +
-    `<text x="${sx(l.x) + (l.anchor === 'end' ? -7 : 7)}" y="${l.y + 3}" text-anchor="${l.anchor}">${V().labels === 'id' ? l.id : `${l.id} · ${l.name}`}</text></g>`).join('');
+  $('#landmarks').innerHTML = V().landmarks.map(l => {
+    const anchor = V().mirror ? (l.anchor === 'end' ? 'start' : 'end') : l.anchor;   // anchors are authored in patient space; flip with the view
+    return `<g class="lm" data-id="${l.id}"><circle cx="${sx(l.x)}" cy="${l.y}" r="4.5"/>` +
+    `<text x="${sx(l.x) + (anchor === 'end' ? -7 : 7)}" y="${l.y + 3}" text-anchor="${anchor}">${V().labels === 'id' ? l.id : `${l.id} · ${l.name}`}</text></g>`; }).join('');
   for (const g of document.querySelectorAll('.lm')) g.addEventListener('click', () => showPop(V().landmarks.find(l => l.id === g.dataset.id)));
 }
 function nearestLandmark(x, y, view = engine.view) {

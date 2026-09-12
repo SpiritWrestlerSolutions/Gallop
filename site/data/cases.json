@@ -56,18 +56,9 @@
         "summary": "Two crisp sounds per beat and nothing between them. S1 is loudest at the apex; S2 is loudest at the base. Systole is the short gap, diastole the long one.",
         "why": "S1 is the mitral and tricuspid valves closing as the ventricles start to contract, so it is loudest where the ventricles sit against the chest wall, at the apex. S2 is the aortic and pulmonic valves closing at the end of ejection, so it is loudest at the base where the great vessels come closest to the surface.",
         "why_squared": "At 72 bpm the cycle is about 830 ms. Systole is roughly fixed at about 300 ms [verify: 250-330 ms], so diastole is about 530 ms. When rate rises, only diastole shortens. That is why extra diastolic sounds crowd together in tachycardia. [cite Bates 13e p. XXX; StatPearls NBK541010]",
-        "sources": [
-          "Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. [page - verify]",
-          "Dornbush S, Turnquest AE. Physiology, Heart Sounds. StatPearls. NBK541010."
-        ]
+        "sources": ["Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. [page - verify]", "Dornbush S, Turnquest AE. Physiology, Heart Sounds. StatPearls. NBK541010."]
       },
-      "quiz_rationales": {
-        "identify": "Two sounds per beat, S1 then S2, with a short silent systole and a longer silent diastole. Nothing extra: this is normal.",
-        "present_absent_s3": "Switch to the bell at the apex and listen just after S2. There is nothing there. No S3.",
-        "which_head": "Either head. S1 and S2 sit in a band both heads pass. Neither reveals anything the other hides here.",
-        "timing": "There is no murmur to time. Systole is the short gap after S1; diastole is the long gap after S2.",
-        "radiation": "Nothing to follow. Both sounds fade evenly as you move off the precordium."
-      },
+      "quiz_rationales": { "identify": "Two sounds per beat, S1 then S2, with a short silent systole and a longer silent diastole. Nothing extra: this is normal.", "present_absent_s3": "Switch to the bell at the apex and listen just after S2. There is nothing there. No S3.", "which_head": "Either head. S1 and S2 sit in a band both heads pass. Neither reveals anything the other hides here.", "timing": "There is no murmur to time. Systole is the short gap after S1; diastole is the long gap after S2.", "radiation": "Nothing to follow. Both sounds fade evenly as you move off the precordium." },
       "tiers": [1, 2, 3, 4],
       "reviewed_by": null,
       "review_date": null
@@ -139,21 +130,9 @@
         "summary": "A harsh murmur that starts after S1, swells to a peak in mid-systole and fades before S2. Loudest at the aortic area, it carries up into the neck and is faint at the apex.",
         "why": "Blood is being pushed through a narrowed outlet. Flow ramps up as the ventricle contracts, peaks, and falls off, so the noise follows the same crescendo-decrescendo shape. Turbulence is generated at the valve, at the base, and the jet points up the aorta toward the carotids, which is where the sound travels.",
         "why_squared": "The murmur stops before S2 because ejection ends before the valve closes; a murmur that runs through S2 is not an ejection murmur. Follow it up the neck and it stays; follow it to the axilla and it goes. That direction of radiation is the finding a chart note should carry. Grades IV and above come with a palpable thrill, which no recording can teach. [cite Bates 13e p. XXX; Freeman & Levine 1933]",
-        "sources": [
-          "Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. [page - verify]",
-          "Dornbush S, Turnquest AE. Physiology, Heart Sounds. StatPearls. NBK541010.",
-          "Freeman AR, Levine SA. The clinical significance of the systolic murmur. Ann Intern Med. 1933;6:1371-1385.",
-          "Oliveira J, et al. The CirCor DigiScope Phonocardiogram Dataset (v1.0.3). PhysioNet, 2022. doi:10.13026/tshs-mw03"
-        ]
+        "sources": ["Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. [page - verify]", "Dornbush S, Turnquest AE. Physiology, Heart Sounds. StatPearls. NBK541010.", "Freeman AR, Levine SA. The clinical significance of the systolic murmur. Ann Intern Med. 1933;6:1371-1385.", "Oliveira J, et al. The CirCor DigiScope Phonocardiogram Dataset (v1.0.3). PhysioNet, 2022. doi:10.13026/tshs-mw03"]
       },
-      "quiz_rationales": {
-        "identify": "Between S1 and S2 there is a rough noise that grows and then fades. That is a systolic murmur with a crescendo-decrescendo shape.",
-        "present_absent_s3": "Bell at the apex, listen after S2: nothing. There is no S3 here; the finding is in systole.",
-        "localize": "It is loudest at the aortic area, right of the sternum in the second space. It stays strong up toward the right clavicle and neck and drops away toward the apex.",
-        "which_head": "The diaphragm. The murmur is medium to high pitched and harsh; the bell muffles it.",
-        "timing": "The murmur sits between S1 and S2 and stops before S2. Systolic.",
-        "radiation": "Follow it up the neck: it is still there over the carotid. Toward the axilla it is gone. Carotids."
-      },
+      "quiz_rationales": { "identify": "Between S1 and S2 there is a rough noise that grows and then fades. That is a systolic murmur with a crescendo-decrescendo shape.", "present_absent_s3": "Bell at the apex, listen after S2: nothing. There is no S3 here; the finding is in systole.", "localize": "It is loudest at the aortic area, right of the sternum in the second space. It stays strong up toward the right clavicle and neck and drops away toward the apex.", "which_head": "The diaphragm. The murmur is medium to high pitched and harsh; the bell muffles it.", "timing": "The murmur sits between S1 and S2 and stops before S2. Systolic.", "radiation": "Follow it up the neck: it is still there over the carotid. Toward the axilla it is gone. Carotids." },
       "tiers": [1, 2, 3, 4],
       "reviewed_by": null,
       "review_date": null
@@ -189,7 +168,10 @@
           "sources": [
             { "label": "toward the chest: the heart, distant", "x": -10, "y": -130, "spread": { "l": 200, "r": 200, "u": 60, "d": 260 } }
           ],
-          "stems": { "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } }, "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } } },
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } },
+            "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } }
+          },
           "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
         },
         {
@@ -207,16 +189,9 @@
         "summary": "Soft, irregular gurgles and clicks every few seconds, varying in pitch, heard much the same anywhere on the abdomen. Between them, quiet.",
         "why": "Each gurgle is gas and fluid being pushed along by a wave of peristalsis. The gut moves in irregular bursts, so the sounds come in irregular bursts. They travel through the abdomen, so one listening spot hears the whole gut.",
         "why_squared": "Normal is about 5 to 34 sounds a minute [verify], with wide variation by time since a meal. Because sounds transmit across the abdomen, hearing them in one quadrant is enough to chart them as present; you do not need all four. [cite Bates 13e abdomen chapter, page to verify]",
-        "sources": [
-          "Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Abdomen. [page - verify]",
-          "StatPearls. Abdominal Examination. [NBK id - verify]"
-        ]
+        "sources": ["Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Abdomen. [page - verify]", "StatPearls. Abdominal Examination. [NBK id - verify]"]
       },
-      "quiz_rationales": {
-        "identify": "Gurgles every few seconds, irregular, mixed pitch, no long silences. That is an active, normal bowel.",
-        "present_absent_bowel_active": "Wait a few seconds and a gurgle comes. Bowel sounds are present and active.",
-        "which_head": "The diaphragm. Bowel sounds are mid to high pitched clicks and gurgles; the bell dulls them."
-      },
+      "quiz_rationales": { "identify": "Gurgles every few seconds, irregular, mixed pitch, no long silences. That is an active, normal bowel.", "present_absent_bowel_active": "Wait a few seconds and a gurgle comes. Bowel sounds are present and active.", "which_head": "The diaphragm. Bowel sounds are mid to high pitched clicks and gurgles; the bell dulls them." },
       "tiers": [1, 2, 3, 4],
       "reviewed_by": null,
       "review_date": null
@@ -262,7 +237,10 @@
           "sources": [
             { "label": "toward the chest: the heart, distant", "x": -10, "y": -130, "spread": { "l": 200, "r": 200, "u": 60, "d": 260 } }
           ],
-          "stems": { "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } }, "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } } },
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } },
+            "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } }
+          },
           "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
         },
         {
@@ -280,17 +258,9 @@
         "summary": "Frequent, loud sounds with barely a pause: high-pitched tinkles mixed with rushes of gurgling. The whole abdomen is busy.",
         "why": "The gut is contracting harder and more often than usual, pushing gas and fluid through with force. The higher pitch comes from gas squeezed through narrower, tighter loops of bowel.",
         "why_squared": "Chart what you hear: frequent, high-pitched, with rushes. Do not chart what it might mean; the same sounds appear in very different situations, and the rest of the assessment decides. Loud, high-pitched tinkles above 30 a minute [verify] is the pattern to name. [cite Bates 13e abdomen chapter, page to verify]",
-        "sources": [
-          "Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Abdomen. [page - verify]",
-          "StatPearls. Abdominal Examination. [NBK id - verify]"
-        ]
+        "sources": ["Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Abdomen. [page - verify]", "StatPearls. Abdominal Examination. [NBK id - verify]"]
       },
-      "quiz_rationales": {
-        "identify": "Sounds almost continuously, many of them high and tinkling, with rushes. That is hyperactive, not merely active.",
-        "present_absent_bowel_active": "Sounds are present, but far more frequent and higher pitched than normal. Present, yes; active in the normal sense, no: this is hyperactive.",
-        "present_absent_bowel_hyperactive": "More than one sound every two seconds, high-pitched tinkles among them. Hyperactive.",
-        "which_head": "The diaphragm. The tinkles are high pitched and the diaphragm brings them forward."
-      },
+      "quiz_rationales": { "identify": "Sounds almost continuously, many of them high and tinkling, with rushes. That is hyperactive, not merely active.", "present_absent_bowel_active": "Sounds are present, but far more frequent and higher pitched than normal. Present, yes; active in the normal sense, no: this is hyperactive.", "present_absent_bowel_hyperactive": "More than one sound every two seconds, high-pitched tinkles among them. Hyperactive.", "which_head": "The diaphragm. The tinkles are high pitched and the diaphragm brings them forward." },
       "tiers": [1, 2, 3, 4],
       "reviewed_by": null,
       "review_date": null
@@ -326,7 +296,10 @@
           "sources": [
             { "label": "toward the chest: the heart, distant", "x": -10, "y": -130, "spread": { "l": 200, "r": 200, "u": 60, "d": 260 } }
           ],
-          "stems": { "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } }, "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } } },
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } },
+            "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } }
+          },
           "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
         },
         {
@@ -344,17 +317,9 @@
         "summary": "Long quiet stretches with an occasional soft gurgle, perhaps one every twenty to thirty seconds. Mostly you hear the distant heart and breathing.",
         "why": "The gut is moving less than usual, so gas and fluid are pushed along less often. Fewer waves, fewer sounds, and softer ones.",
         "why_squared": "Fewer than about 5 sounds a minute is hypoactive [verify]. The trap is calling a quiet abdomen absent too soon: hypoactive still has sounds if you wait. Time the listening, do not guess it. [cite Bates 13e abdomen chapter, page to verify]",
-        "sources": [
-          "Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Abdomen. [page - verify]",
-          "StatPearls. Abdominal Examination. [NBK id - verify]"
-        ]
+        "sources": ["Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Abdomen. [page - verify]", "StatPearls. Abdominal Examination. [NBK id - verify]"]
       },
-      "quiz_rationales": {
-        "identify": "Mostly silence, then one soft gurgle, then silence again. Sounds are there but few and faint: hypoactive.",
-        "present_absent_bowel_active": "Sounds are present but infrequent and soft. Not active in the normal sense; this is hypoactive.",
-        "present_absent_bowel_hypoactive": "Wait it out: one soft gurgle in twenty or thirty seconds. Hypoactive.",
-        "which_head": "The diaphragm. The few sounds there are sit in its range."
-      },
+      "quiz_rationales": { "identify": "Mostly silence, then one soft gurgle, then silence again. Sounds are there but few and faint: hypoactive.", "present_absent_bowel_active": "Sounds are present but infrequent and soft. Not active in the normal sense; this is hypoactive.", "present_absent_bowel_hypoactive": "Wait it out: one soft gurgle in twenty or thirty seconds. Hypoactive.", "which_head": "The diaphragm. The few sounds there are sit in its range." },
       "tiers": [2, 3, 4],
       "reviewed_by": null,
       "review_date": null
@@ -390,7 +355,10 @@
           "sources": [
             { "label": "toward the chest: the heart, distant", "x": -10, "y": -130, "spread": { "l": 200, "r": 200, "u": 60, "d": 260 } }
           ],
-          "stems": { "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } }, "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } } },
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } },
+            "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } }
+          },
           "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
         },
         {
@@ -408,17 +376,848 @@
         "summary": "Nothing from the gut. The distant heart and breathing are all you hear, however long you wait.",
         "why": "No peristalsis, no movement of gas and fluid, no sound. The abdomen is not silent, because the heart and lungs transmit through it, but the gut has stopped contributing.",
         "why_squared": "Absent is a finding you earn by waiting: listen for two full minutes [verify: some sources teach five] before writing it. The tool cannot make you wait, so treat thirty quiet seconds here as a prompt to keep listening, not as proof. [cite Bates 13e abdomen chapter, page to verify]",
-        "sources": [
-          "Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Abdomen. [page - verify]",
-          "StatPearls. Abdominal Examination. [NBK id - verify]"
-        ]
+        "sources": ["Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Abdomen. [page - verify]", "StatPearls. Abdominal Examination. [NBK id - verify]"]
       },
-      "quiz_rationales": {
-        "identify": "Listen through the whole clip: heart and breath only, no gurgle at all. Absent. At the bedside that verdict needs two full minutes.",
-        "present_absent_bowel_active": "No gurgle, however long you wait. Bowel sounds are not present.",
-        "present_absent_bowel_absent": "Not one sound from the gut. Absent, provided you have waited long enough to say so.",
-        "which_head": "The diaphragm, which is the head you would use to be sure you are not missing a faint high-pitched sound."
+      "quiz_rationales": { "identify": "Listen through the whole clip: heart and breath only, no gurgle at all. Absent. At the bedside that verdict needs two full minutes.", "present_absent_bowel_active": "No gurgle, however long you wait. Bowel sounds are not present.", "present_absent_bowel_absent": "Not one sound from the gut. Absent, provided you have waited long enough to say so.", "which_head": "The diaphragm, which is the head you would use to be sure you are not missing a faint high-pitched sound." },
+      "tiers": [2, 3, 4],
+      "reviewed_by": null,
+      "review_date": null
+    },
+    {
+      "id": "lung-vesicular-normal",
+      "module": "lung",
+      "view": "chest_posterior",
+      "views": ["chest_anterior", "chest_posterior"],
+      "title": "Normal breath sounds",
+      "findings": ["vesicular_normal"],
+      "answer_key": {
+        "primary_finding": "vesicular_normal",
+        "loudest_at": { "view": "chest_posterior", "x": -70, "y": 160, "radius_mm": 50 },
+        "best_head": "diaphragm",
+        "timing": null,
+        "radiates_to": []
       },
+      "clock": { "bpm": 76, "systole_ms": 300, "rr": 14 },
+      "habitus": 1.0,
+      "layers": [
+        {
+          "type": "lung_vesicular",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": -70, "y": 80, "spread": { "l": 80, "r": 60, "u": 130, "d": 140 } },
+            { "view": "chest_anterior", "x": 75, "y": 85, "spread": { "l": 60, "r": 80, "u": 130, "d": 140 } },
+            { "view": "chest_posterior", "x": -50, "y": 40, "spread": { "l": 110, "r": 60, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": 50, "y": 40, "spread": { "l": 60, "r": 110, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": -70, "y": 160, "spread": { "l": 80, "r": 70, "u": 80, "d": 90 } },
+            { "view": "chest_posterior", "x": 70, "y": 160, "spread": { "l": 70, "r": 80, "u": 80, "d": 90 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/vesicular-in.wav", "params": { "kind": "vesicular_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/vesicular-out.wav", "params": { "kind": "vesicular_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e thorax chapter [verify]; Bohadana 2014: vesicular sounds soft, low-pitched, inspiration longer and louder than expiration" }
+        },
+        {
+          "type": "lung_vesicular",
+          "label": "Tracheal breath sounds",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": 0, "y": -25, "spread": { "l": 40, "r": 40, "u": 60, "d": 60 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/bronchial-in.wav", "params": { "kind": "bronchial_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/bronchial-out.wav", "params": { "kind": "bronchial_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bohadana 2014: tracheal and bronchial sounds louder, higher, expiration longer than inspiration [verify]" }
+        },
+        {
+          "type": "boundary_heart",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the heart", "view": "chest_anterior", "x": 40, "y": 90, "spread": { "l": 80, "r": 80, "u": 80, "d": 80 } },
+            { "label": "over the heart, from behind", "view": "chest_posterior", "x": 30, "y": 120, "spread": { "l": 60, "r": 60, "u": 70, "d": 70 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } },
+            "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } }
+          },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        },
+        {
+          "type": "boundary_bowel",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the abdomen (liver)", "view": "chest_anterior", "x": 20, "y": 210, "spread": { "l": 130, "r": 130, "u": 50, "d": 250 } },
+            { "label": "over the flank, below the lungs", "view": "chest_posterior", "x": 0, "y": 225, "spread": { "l": 150, "r": 150, "u": 90, "d": 250 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/bowel.wav", "params": { "texture": "bowel" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        }
+      ],
+      "real_thing": null,
+      "card": {
+        "summary": "A soft, low rustle that swells through inspiration and fades early in expiration, the same on both sides at every level. Over the trachea it is louder and harsher, with expiration as long as inspiration.",
+        "why": "Vesicular sounds are air moving into millions of small airways; the turbulence is spread out and filtered by lung tissue, so what reaches the chest wall is soft and low. Over the trachea you hear the large airway directly, so it is louder and higher.",
+        "why_squared": "Normal is defined by symmetry: compare each spot with its mirror on the other side before moving on. Inspiration is heard for longer than expiration at the periphery; if expiration becomes as long as inspiration away from the trachea, that is no longer vesicular. [cite Bates 13e thorax chapter; Bohadana 2014]",
+        "sources": ["Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Thorax and lungs. [page - verify]", "Bohadana A, Izbicki G, Kraman SS. Fundamentals of lung auscultation. N Engl J Med. 2014;370(8):744-751.", "Sarkar M, Madabhavi I, Niranjan N, Dogra M. Auscultation of the respiratory system. Ann Thorac Med. 2015;10(3):158-168."]
+      },
+      "quiz_rationales": { "identify": "A soft rustle on breathing in, fading quickly as breathing out begins, and the same on both sides. Nothing added. Normal breath sounds.", "present_absent_vesicular_normal": "Compare side to side at the same level: equal, soft, inspiration longer than expiration. Normal.", "present_absent_fine_crackles": "Listen at the end of a breath in, at the bases: no popping. No crackles.", "present_absent_wheeze": "Listen through breathing out: no whistle, no musical note. No wheeze.", "which_head": "The diaphragm. Breath sounds are broad-band and the diaphragm gives the cleaner picture; the bell muffles the higher frequencies that carry the added sounds you are checking for.", "localize": "Breath sounds are loudest over the bases posteriorly, where the most lung sits under the head. Any base will do; the point is that every zone sounds the same as its mirror." },
+      "tiers": [1, 2, 3, 4],
+      "reviewed_by": null,
+      "review_date": null
+    },
+    {
+      "id": "lung-fine-crackles-left-base",
+      "module": "lung",
+      "view": "chest_posterior",
+      "views": ["chest_anterior", "chest_posterior"],
+      "title": "Fine crackles, left base, late inspiratory",
+      "findings": ["fine_crackles"],
+      "answer_key": {
+        "primary_finding": "fine_crackles",
+        "loudest_at": { "view": "chest_posterior", "x": 70, "y": 170, "radius_mm": 35 },
+        "best_head": "diaphragm",
+        "timing": "inspiratory",
+        "radiates_to": []
+      },
+      "clock": { "bpm": 76, "systole_ms": 300, "rr": 14 },
+      "habitus": 1.0,
+      "layers": [
+        {
+          "type": "lung_crackles",
+          "primary": true,
+          "label": "Fine crackles",
+          "intensity": "moderate",
+          "phase": "inspiratory",
+          "window": "late",
+          "events": 8,
+          "source": { "view": "chest_posterior", "x": 70, "y": 170, "spread": { "l": 45, "r": 50, "u": 55, "d": 40 } },
+          "stem": { "kind": "synth", "file": "audio/lung/crackle-fine.wav", "params": { "kind": "crackle_fine" } },
+          "provenance": { "class": "synthesized", "basis": "Bohadana 2014: fine crackles brief, high-pitched, late inspiratory, from sudden opening of small airways [verify]" }
+        },
+        {
+          "type": "lung_vesicular",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": -70, "y": 80, "spread": { "l": 80, "r": 60, "u": 130, "d": 140 } },
+            { "view": "chest_anterior", "x": 75, "y": 85, "spread": { "l": 60, "r": 80, "u": 130, "d": 140 } },
+            { "view": "chest_posterior", "x": -50, "y": 40, "spread": { "l": 110, "r": 60, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": 50, "y": 40, "spread": { "l": 60, "r": 110, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": -70, "y": 160, "spread": { "l": 80, "r": 70, "u": 80, "d": 90 } },
+            { "view": "chest_posterior", "x": 70, "y": 160, "spread": { "l": 70, "r": 80, "u": 80, "d": 90 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/vesicular-in.wav", "params": { "kind": "vesicular_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/vesicular-out.wav", "params": { "kind": "vesicular_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e thorax chapter [verify]; Bohadana 2014: vesicular sounds soft, low-pitched, inspiration longer and louder than expiration" }
+        },
+        {
+          "type": "lung_vesicular",
+          "label": "Tracheal breath sounds",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": 0, "y": -25, "spread": { "l": 40, "r": 40, "u": 60, "d": 60 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/bronchial-in.wav", "params": { "kind": "bronchial_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/bronchial-out.wav", "params": { "kind": "bronchial_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bohadana 2014: tracheal and bronchial sounds louder, higher, expiration longer than inspiration [verify]" }
+        },
+        {
+          "type": "boundary_heart",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the heart", "view": "chest_anterior", "x": 40, "y": 90, "spread": { "l": 80, "r": 80, "u": 80, "d": 80 } },
+            { "label": "over the heart, from behind", "view": "chest_posterior", "x": 30, "y": 120, "spread": { "l": 60, "r": 60, "u": 70, "d": 70 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } },
+            "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } }
+          },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        },
+        {
+          "type": "boundary_bowel",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the abdomen (liver)", "view": "chest_anterior", "x": 20, "y": 210, "spread": { "l": 130, "r": 130, "u": 50, "d": 250 } },
+            { "label": "over the flank, below the lungs", "view": "chest_posterior", "x": 0, "y": 225, "spread": { "l": 150, "r": 150, "u": 90, "d": 250 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/bowel.wav", "params": { "texture": "bowel" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        }
+      ],
+      "real_thing": null,
+      "card": {
+        "summary": "Normal breath sounds everywhere, except that at the left base each breath in ends with a burst of tiny, high-pitched pops, like hair rubbed between the fingers next to the ear. Nothing in expiration.",
+        "why": "Small airways that closed on the previous breath out snap open near the end of the next breath in. Each snap is a tiny pop. They come late in inspiration because that is when the lowest, most compressed parts of the lung finally inflate.",
+        "why_squared": "Timing within the breath is the discriminator: late inspiratory and fine points to small-airway or alveolar opening; early and coarse points to secretions in larger airways. Fine crackles at a base that do not clear with a cough are a finding to chart with the side and the level. [cite Bohadana 2014; Sarkar 2015]",
+        "sources": ["Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Thorax and lungs. [page - verify]", "Bohadana A, Izbicki G, Kraman SS. Fundamentals of lung auscultation. N Engl J Med. 2014;370(8):744-751.", "Sarkar M, Madabhavi I, Niranjan N, Dogra M. Auscultation of the respiratory system. Ann Thorac Med. 2015;10(3):158-168."]
+      },
+      "quiz_rationales": { "identify": "At the very end of breathing in, a run of tiny high pops at the left base. Fine crackles.", "present_absent_fine_crackles": "Head at the left base, listen to the last third of the breath in: a burst of tiny pops. Fine crackles present.", "present_absent_wheeze": "Breathing out is clean. The added sound is in inspiration and it pops rather than whistles. No wheeze.", "localize": "They are loudest at the left base posteriorly and fade within a few centimetres. Compare with the right base: nothing there.", "which_head": "The diaphragm. Fine crackles are high pitched; the bell hides them.", "timing": "The pops sit at the end of the breath in. Inspiratory." },
+      "tiers": [1, 2, 3, 4],
+      "reviewed_by": null,
+      "review_date": null
+    },
+    {
+      "id": "lung-coarse-crackles-right-lower",
+      "module": "lung",
+      "view": "chest_posterior",
+      "views": ["chest_anterior", "chest_posterior"],
+      "title": "Coarse crackles, right lower zone, early inspiratory",
+      "findings": ["coarse_crackles"],
+      "answer_key": {
+        "primary_finding": "coarse_crackles",
+        "loudest_at": { "view": "chest_posterior", "x": -60, "y": 130, "radius_mm": 40 },
+        "best_head": "diaphragm",
+        "timing": "inspiratory",
+        "radiates_to": []
+      },
+      "clock": { "bpm": 76, "systole_ms": 300, "rr": 14 },
+      "habitus": 1.0,
+      "layers": [
+        {
+          "type": "lung_crackles",
+          "primary": true,
+          "label": "Coarse crackles",
+          "intensity": "moderate",
+          "phase": "both",
+          "window": "early",
+          "events": 4,
+          "source": { "view": "chest_posterior", "x": -60, "y": 130, "spread": { "l": 55, "r": 50, "u": 50, "d": 60 } },
+          "stem": { "kind": "synth", "file": "audio/lung/crackle-coarse.wav", "params": { "kind": "crackle_coarse" } },
+          "provenance": { "class": "synthesized", "basis": "Bohadana 2014: coarse crackles louder, lower, longer, early inspiratory and sometimes expiratory, from air bubbling through secretions [verify]" }
+        },
+        {
+          "type": "lung_vesicular",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": -70, "y": 80, "spread": { "l": 80, "r": 60, "u": 130, "d": 140 } },
+            { "view": "chest_anterior", "x": 75, "y": 85, "spread": { "l": 60, "r": 80, "u": 130, "d": 140 } },
+            { "view": "chest_posterior", "x": -50, "y": 40, "spread": { "l": 110, "r": 60, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": 50, "y": 40, "spread": { "l": 60, "r": 110, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": -70, "y": 160, "spread": { "l": 80, "r": 70, "u": 80, "d": 90 } },
+            { "view": "chest_posterior", "x": 70, "y": 160, "spread": { "l": 70, "r": 80, "u": 80, "d": 90 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/vesicular-in.wav", "params": { "kind": "vesicular_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/vesicular-out.wav", "params": { "kind": "vesicular_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e thorax chapter [verify]; Bohadana 2014: vesicular sounds soft, low-pitched, inspiration longer and louder than expiration" }
+        },
+        {
+          "type": "lung_vesicular",
+          "label": "Tracheal breath sounds",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": 0, "y": -25, "spread": { "l": 40, "r": 40, "u": 60, "d": 60 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/bronchial-in.wav", "params": { "kind": "bronchial_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/bronchial-out.wav", "params": { "kind": "bronchial_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bohadana 2014: tracheal and bronchial sounds louder, higher, expiration longer than inspiration [verify]" }
+        },
+        {
+          "type": "boundary_heart",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the heart", "view": "chest_anterior", "x": 40, "y": 90, "spread": { "l": 80, "r": 80, "u": 80, "d": 80 } },
+            { "label": "over the heart, from behind", "view": "chest_posterior", "x": 30, "y": 120, "spread": { "l": 60, "r": 60, "u": 70, "d": 70 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } },
+            "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } }
+          },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        },
+        {
+          "type": "boundary_bowel",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the abdomen (liver)", "view": "chest_anterior", "x": 20, "y": 210, "spread": { "l": 130, "r": 130, "u": 50, "d": 250 } },
+            { "label": "over the flank, below the lungs", "view": "chest_posterior", "x": 0, "y": 225, "spread": { "l": 150, "r": 150, "u": 90, "d": 250 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/bowel.wav", "params": { "texture": "bowel" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        }
+      ],
+      "real_thing": null,
+      "card": {
+        "summary": "Lower, louder, wetter crackles at the right lower zone, starting as soon as each breath begins and often heard on breathing out as well. Fewer of them than fine crackles, and each one is longer.",
+        "why": "Air is bubbling through fluid or secretions in larger airways. That happens as soon as flow starts, so the crackles come early, and it happens in both directions, so some are heard in expiration too.",
+        "why_squared": "Coarse crackles that change or clear after a cough are secretions; the same sound that persists is not. Ask for a cough and listen again before charting. [cite Bohadana 2014; Sarkar 2015]",
+        "sources": ["Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Thorax and lungs. [page - verify]", "Bohadana A, Izbicki G, Kraman SS. Fundamentals of lung auscultation. N Engl J Med. 2014;370(8):744-751.", "Sarkar M, Madabhavi I, Niranjan N, Dogra M. Auscultation of the respiratory system. Ann Thorac Med. 2015;10(3):158-168."]
+      },
+      "quiz_rationales": { "identify": "Loud, low, bubbling pops from the start of each breath, some on the way out too, at the right lower zone. Coarse crackles.", "present_absent_coarse_crackles": "Right lower zone, start of the breath in: bubbly pops, a few per breath. Coarse crackles present.", "present_absent_fine_crackles": "These are low, wet and early, not tiny, dry and late. Coarse, not fine.", "localize": "Right lower zone posteriorly, between the mid zone and the base. Move to the left side at the same level and they are gone.", "which_head": "The diaphragm brings out the crackle; the bell rounds it off into a rumble.", "timing": "They begin with the breath in, and some carry into breathing out. Charted as inspiratory, early." },
+      "tiers": [2, 3, 4],
+      "reviewed_by": null,
+      "review_date": null
+    },
+    {
+      "id": "lung-wheeze",
+      "module": "lung",
+      "view": "chest_anterior",
+      "views": ["chest_anterior", "chest_posterior"],
+      "title": "Expiratory wheeze, diffuse",
+      "findings": ["wheeze"],
+      "answer_key": {
+        "primary_finding": "wheeze",
+        "loudest_at": { "view": "chest_anterior", "x": 75, "y": 85, "radius_mm": 70 },
+        "best_head": "diaphragm",
+        "timing": "expiratory",
+        "radiates_to": []
+      },
+      "clock": { "bpm": 76, "systole_ms": 300, "rr": 18 },
+      "habitus": 1.0,
+      "layers": [
+        {
+          "type": "lung_wheeze",
+          "primary": true,
+          "intensity": "moderate",
+          "phase": "expiratory",
+          "window": "full",
+          "sources": [
+            { "view": "chest_anterior", "x": -70, "y": 80, "spread": { "l": 90, "r": 70, "u": 120, "d": 140 } },
+            { "view": "chest_anterior", "x": 75, "y": 85, "spread": { "l": 70, "r": 90, "u": 120, "d": 140 } },
+            { "view": "chest_posterior", "x": -55, "y": 100, "spread": { "l": 80, "r": 70, "u": 110, "d": 110 } },
+            { "view": "chest_posterior", "x": 55, "y": 100, "spread": { "l": 70, "r": 80, "u": 110, "d": 110 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/lung/wheeze.wav", "params": { "kind": "wheeze" } },
+          "provenance": { "class": "synthesized", "basis": "Bohadana 2014: wheeze a musical sound, dominant frequency above about 100 Hz, longer than 100 ms, mostly expiratory; polyphonic when many airways narrow [verify]" }
+        },
+        {
+          "type": "lung_vesicular",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": -70, "y": 80, "spread": { "l": 80, "r": 60, "u": 130, "d": 140 } },
+            { "view": "chest_anterior", "x": 75, "y": 85, "spread": { "l": 60, "r": 80, "u": 130, "d": 140 } },
+            { "view": "chest_posterior", "x": -50, "y": 40, "spread": { "l": 110, "r": 60, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": 50, "y": 40, "spread": { "l": 60, "r": 110, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": -70, "y": 160, "spread": { "l": 80, "r": 70, "u": 80, "d": 90 } },
+            { "view": "chest_posterior", "x": 70, "y": 160, "spread": { "l": 70, "r": 80, "u": 80, "d": 90 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/vesicular-in.wav", "params": { "kind": "vesicular_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/vesicular-out.wav", "params": { "kind": "vesicular_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e thorax chapter [verify]; Bohadana 2014: vesicular sounds soft, low-pitched, inspiration longer and louder than expiration" }
+        },
+        {
+          "type": "lung_vesicular",
+          "label": "Tracheal breath sounds",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": 0, "y": -25, "spread": { "l": 40, "r": 40, "u": 60, "d": 60 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/bronchial-in.wav", "params": { "kind": "bronchial_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/bronchial-out.wav", "params": { "kind": "bronchial_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bohadana 2014: tracheal and bronchial sounds louder, higher, expiration longer than inspiration [verify]" }
+        },
+        {
+          "type": "boundary_heart",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the heart", "view": "chest_anterior", "x": 40, "y": 90, "spread": { "l": 80, "r": 80, "u": 80, "d": 80 } },
+            { "label": "over the heart, from behind", "view": "chest_posterior", "x": 30, "y": 120, "spread": { "l": 60, "r": 60, "u": 70, "d": 70 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } },
+            "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } }
+          },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        },
+        {
+          "type": "boundary_bowel",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the abdomen (liver)", "view": "chest_anterior", "x": 20, "y": 210, "spread": { "l": 130, "r": 130, "u": 50, "d": 250 } },
+            { "label": "over the flank, below the lungs", "view": "chest_posterior", "x": 0, "y": 225, "spread": { "l": 150, "r": 150, "u": 90, "d": 250 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/bowel.wav", "params": { "texture": "bowel" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        }
+      ],
+      "real_thing": null,
+      "card": {
+        "summary": "Every breath out carries a musical, whistling note, several pitches at once, heard over both lungs front and back. Breathing in is nearly clean.",
+        "why": "Narrowed airways flutter as air is forced through them, like a reed. Airways narrow most during expiration, when the chest squeezes them, so the note lives in expiration. Many airways narrowing at once gives several pitches together.",
+        "why_squared": "Chart wheeze by phase and distribution: expiratory and diffuse here. A single fixed note in one place is a different finding from a polyphonic chorus everywhere, and a wheeze that fades as the patient tires is a warning, not an improvement. [cite Bohadana 2014; Bates 13e]",
+        "sources": ["Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Thorax and lungs. [page - verify]", "Bohadana A, Izbicki G, Kraman SS. Fundamentals of lung auscultation. N Engl J Med. 2014;370(8):744-751.", "Sarkar M, Madabhavi I, Niranjan N, Dogra M. Auscultation of the respiratory system. Ann Thorac Med. 2015;10(3):158-168."]
+      },
+      "quiz_rationales": { "identify": "A whistling, musical note on every breath out, several pitches together, heard everywhere. Wheeze.", "present_absent_wheeze": "Listen through the breath out at any zone: a musical note. Wheeze present.", "present_absent_rhonchi": "The note is high and musical, not a low snore. Wheeze, not rhonchi.", "which_head": "The diaphragm: the note sits in the higher frequencies.", "timing": "The note rides on the breath out and stops when the next breath in begins. Expiratory." },
+      "tiers": [1, 2, 3, 4],
+      "reviewed_by": null,
+      "review_date": null
+    },
+    {
+      "id": "lung-rhonchi",
+      "module": "lung",
+      "view": "chest_anterior",
+      "views": ["chest_anterior", "chest_posterior"],
+      "title": "Rhonchi, expiratory, central",
+      "findings": ["rhonchi"],
+      "answer_key": {
+        "primary_finding": "rhonchi",
+        "loudest_at": { "view": "chest_anterior", "x": 0, "y": 60, "radius_mm": 50 },
+        "best_head": "diaphragm",
+        "timing": "expiratory",
+        "radiates_to": []
+      },
+      "clock": { "bpm": 76, "systole_ms": 300, "rr": 14 },
+      "habitus": 1.0,
+      "layers": [
+        {
+          "type": "lung_rhonchi",
+          "primary": true,
+          "intensity": "moderate",
+          "phase": "expiratory",
+          "window": "full",
+          "sources": [
+            { "view": "chest_anterior", "x": 0, "y": 60, "spread": { "l": 90, "r": 90, "u": 80, "d": 100 } },
+            { "view": "chest_posterior", "x": 0, "y": 70, "spread": { "l": 80, "r": 80, "u": 80, "d": 90 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/lung/rhonchi.wav", "params": { "kind": "rhonchi" } },
+          "provenance": { "class": "synthesized", "basis": "Bohadana 2014: rhonchi low-pitched, snoring, dominant frequency near 150 Hz or below, from secretions in large airways, often clear with cough [verify]" }
+        },
+        {
+          "type": "lung_vesicular",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": -70, "y": 80, "spread": { "l": 80, "r": 60, "u": 130, "d": 140 } },
+            { "view": "chest_anterior", "x": 75, "y": 85, "spread": { "l": 60, "r": 80, "u": 130, "d": 140 } },
+            { "view": "chest_posterior", "x": -50, "y": 40, "spread": { "l": 110, "r": 60, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": 50, "y": 40, "spread": { "l": 60, "r": 110, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": -70, "y": 160, "spread": { "l": 80, "r": 70, "u": 80, "d": 90 } },
+            { "view": "chest_posterior", "x": 70, "y": 160, "spread": { "l": 70, "r": 80, "u": 80, "d": 90 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/vesicular-in.wav", "params": { "kind": "vesicular_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/vesicular-out.wav", "params": { "kind": "vesicular_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e thorax chapter [verify]; Bohadana 2014: vesicular sounds soft, low-pitched, inspiration longer and louder than expiration" }
+        },
+        {
+          "type": "lung_vesicular",
+          "label": "Tracheal breath sounds",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": 0, "y": -25, "spread": { "l": 40, "r": 40, "u": 60, "d": 60 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/bronchial-in.wav", "params": { "kind": "bronchial_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/bronchial-out.wav", "params": { "kind": "bronchial_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bohadana 2014: tracheal and bronchial sounds louder, higher, expiration longer than inspiration [verify]" }
+        },
+        {
+          "type": "boundary_heart",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the heart", "view": "chest_anterior", "x": 40, "y": 90, "spread": { "l": 80, "r": 80, "u": 80, "d": 80 } },
+            { "label": "over the heart, from behind", "view": "chest_posterior", "x": 30, "y": 120, "spread": { "l": 60, "r": 60, "u": 70, "d": 70 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } },
+            "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } }
+          },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        },
+        {
+          "type": "boundary_bowel",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the abdomen (liver)", "view": "chest_anterior", "x": 20, "y": 210, "spread": { "l": 130, "r": 130, "u": 50, "d": 250 } },
+            { "label": "over the flank, below the lungs", "view": "chest_posterior", "x": 0, "y": 225, "spread": { "l": 150, "r": 150, "u": 90, "d": 250 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/bowel.wav", "params": { "texture": "bowel" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        }
+      ],
+      "real_thing": null,
+      "card": {
+        "summary": "A low, snoring rumble on breathing out, loudest over the centre of the chest and fading toward the periphery. It changes from breath to breath.",
+        "why": "Secretions in the large central airways vibrate as air passes over them. Large airways make low notes; because the sound comes from the centre, it is loudest near the sternum and spine and quieter out at the edges.",
+        "why_squared": "Rhonchi are the finding most changed by a cough: ask for one and listen again. If the rumble moves or clears, that is what you chart. Low and central separates rhonchi from wheeze, which is higher and more peripheral. [cite Bohadana 2014; Sarkar 2015]",
+        "sources": ["Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Thorax and lungs. [page - verify]", "Bohadana A, Izbicki G, Kraman SS. Fundamentals of lung auscultation. N Engl J Med. 2014;370(8):744-751.", "Sarkar M, Madabhavi I, Niranjan N, Dogra M. Auscultation of the respiratory system. Ann Thorac Med. 2015;10(3):158-168."]
+      },
+      "quiz_rationales": { "identify": "A low snoring rumble on breathing out, loudest over the middle of the chest. Rhonchi.", "present_absent_rhonchi": "Head near the sternum, listen through the breath out: a low rattle. Rhonchi present.", "present_absent_wheeze": "The sound is a low snore, not a high musical note. Rhonchi, not wheeze.", "localize": "Loudest over the central airways, at the manubrium in front or between the shoulder blades behind. It fades toward the axillae.", "which_head": "Either works for such a low sound; the diaphragm still gives the clearer edge on the rattle.", "timing": "The rumble is on the breath out. Expiratory." },
+      "tiers": [2, 3, 4],
+      "reviewed_by": null,
+      "review_date": null
+    },
+    {
+      "id": "lung-stridor",
+      "module": "lung",
+      "view": "chest_anterior",
+      "views": ["chest_anterior", "chest_posterior"],
+      "title": "Stridor, inspiratory, loudest at the neck",
+      "findings": ["stridor"],
+      "answer_key": {
+        "primary_finding": "stridor",
+        "loudest_at": { "view": "chest_anterior", "x": 0, "y": -30, "radius_mm": 35 },
+        "best_head": "diaphragm",
+        "timing": "inspiratory",
+        "radiates_to": []
+      },
+      "clock": { "bpm": 76, "systole_ms": 300, "rr": 22 },
+      "habitus": 1.0,
+      "layers": [
+        {
+          "type": "lung_stridor",
+          "primary": true,
+          "intensity": "pronounced",
+          "phase": "inspiratory",
+          "window": "full",
+          "source": { "view": "chest_anterior", "x": 0, "y": -30, "spread": { "l": 60, "r": 60, "u": 60, "d": 220 } },
+          "stem": { "kind": "synth", "file": "audio/lung/stridor.wav", "params": { "kind": "stridor" } },
+          "provenance": { "class": "synthesized", "basis": "Bohadana 2014: stridor a loud, harsh, high-pitched inspiratory sound from the upper airway, often audible without a stethoscope [verify]" }
+        },
+        {
+          "type": "lung_vesicular",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": -70, "y": 80, "spread": { "l": 80, "r": 60, "u": 130, "d": 140 } },
+            { "view": "chest_anterior", "x": 75, "y": 85, "spread": { "l": 60, "r": 80, "u": 130, "d": 140 } },
+            { "view": "chest_posterior", "x": -50, "y": 40, "spread": { "l": 110, "r": 60, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": 50, "y": 40, "spread": { "l": 60, "r": 110, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": -70, "y": 160, "spread": { "l": 80, "r": 70, "u": 80, "d": 90 } },
+            { "view": "chest_posterior", "x": 70, "y": 160, "spread": { "l": 70, "r": 80, "u": 80, "d": 90 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/vesicular-in.wav", "params": { "kind": "vesicular_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/vesicular-out.wav", "params": { "kind": "vesicular_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e thorax chapter [verify]; Bohadana 2014: vesicular sounds soft, low-pitched, inspiration longer and louder than expiration" }
+        },
+        {
+          "type": "lung_vesicular",
+          "label": "Tracheal breath sounds",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": 0, "y": -25, "spread": { "l": 40, "r": 40, "u": 60, "d": 60 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/bronchial-in.wav", "params": { "kind": "bronchial_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/bronchial-out.wav", "params": { "kind": "bronchial_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bohadana 2014: tracheal and bronchial sounds louder, higher, expiration longer than inspiration [verify]" }
+        },
+        {
+          "type": "boundary_heart",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the heart", "view": "chest_anterior", "x": 40, "y": 90, "spread": { "l": 80, "r": 80, "u": 80, "d": 80 } },
+            { "label": "over the heart, from behind", "view": "chest_posterior", "x": 30, "y": 120, "spread": { "l": 60, "r": 60, "u": 70, "d": 70 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } },
+            "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } }
+          },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        },
+        {
+          "type": "boundary_bowel",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the abdomen (liver)", "view": "chest_anterior", "x": 20, "y": 210, "spread": { "l": 130, "r": 130, "u": 50, "d": 250 } },
+            { "label": "over the flank, below the lungs", "view": "chest_posterior", "x": 0, "y": 225, "spread": { "l": 150, "r": 150, "u": 90, "d": 250 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/bowel.wav", "params": { "texture": "bowel" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        }
+      ],
+      "real_thing": null,
+      "card": {
+        "summary": "A loud, harsh, high crowing sound on every breath in, loudest at the front of the neck and still audible far down the chest. Breathing out is quieter.",
+        "why": "The upper airway, above the lungs, is narrowed. Breathing in pulls it narrower still, so the sound is inspiratory, and it comes from one place, the neck, which is why the neck is loudest and the chest hears it at a distance.",
+        "why_squared": "Stridor is the one lung sound where the location tells you the level: neck loudest means upper airway. It is often heard without a stethoscope, and the stethoscope's job is only to confirm where it is loudest. [cite Bohadana 2014; Bates 13e]",
+        "sources": ["Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Thorax and lungs. [page - verify]", "Bohadana A, Izbicki G, Kraman SS. Fundamentals of lung auscultation. N Engl J Med. 2014;370(8):744-751.", "Sarkar M, Madabhavi I, Niranjan N, Dogra M. Auscultation of the respiratory system. Ann Thorac Med. 2015;10(3):158-168."]
+      },
+      "quiz_rationales": { "identify": "A harsh, high crowing note on breathing in, loudest at the throat. Stridor.", "present_absent_stridor": "Head on the front of the neck, listen to the breath in: loud, harsh, high. Stridor present.", "present_absent_wheeze": "This is inspiratory and loudest at the neck; wheeze is expiratory and over the lungs. Stridor, not wheeze.", "localize": "Loudest at the front of the neck over the trachea. It fades as you go down the chest but never disappears.", "which_head": "The diaphragm. The sound is high and harsh.", "timing": "It comes with the breath in. Inspiratory." },
+      "tiers": [1, 2, 3, 4],
+      "reviewed_by": null,
+      "review_date": null
+    },
+    {
+      "id": "lung-diminished-left-base",
+      "module": "lung",
+      "view": "chest_posterior",
+      "views": ["chest_anterior", "chest_posterior"],
+      "title": "Diminished breath sounds, left base",
+      "findings": ["diminished_breath"],
+      "answer_key": {
+        "primary_finding": "diminished_breath",
+        "loudest_at": { "view": "chest_posterior", "x": 70, "y": 160, "radius_mm": 45 },
+        "best_head": "diaphragm",
+        "timing": null,
+        "radiates_to": []
+      },
+      "clock": { "bpm": 76, "systole_ms": 300, "rr": 14 },
+      "habitus": 1.0,
+      "layers": [
+        {
+          "type": "lung_vesicular",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": -70, "y": 80, "spread": { "l": 80, "r": 60, "u": 130, "d": 140 } },
+            { "view": "chest_anterior", "x": 75, "y": 85, "spread": { "l": 60, "r": 80, "u": 130, "d": 140 } },
+            { "view": "chest_posterior", "x": -50, "y": 40, "spread": { "l": 110, "r": 60, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": 50, "y": 40, "spread": { "l": 60, "r": 110, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": -70, "y": 160, "spread": { "l": 80, "r": 70, "u": 80, "d": 90 } },
+            { "view": "chest_posterior", "x": 70, "y": 160, "spread": { "l": 70, "r": 80, "u": 80, "d": 90 }, "gain": 0.3 }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/vesicular-in.wav", "params": { "kind": "vesicular_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/vesicular-out.wav", "params": { "kind": "vesicular_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e thorax chapter [verify]; Bohadana 2014: vesicular sounds soft, low-pitched, inspiration longer and louder than expiration" }
+        },
+        {
+          "type": "lung_vesicular",
+          "label": "Tracheal breath sounds",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": 0, "y": -25, "spread": { "l": 40, "r": 40, "u": 60, "d": 60 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/bronchial-in.wav", "params": { "kind": "bronchial_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/bronchial-out.wav", "params": { "kind": "bronchial_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bohadana 2014: tracheal and bronchial sounds louder, higher, expiration longer than inspiration [verify]" }
+        },
+        {
+          "type": "boundary_heart",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the heart", "view": "chest_anterior", "x": 40, "y": 90, "spread": { "l": 80, "r": 80, "u": 80, "d": 80 } },
+            { "label": "over the heart, from behind", "view": "chest_posterior", "x": 30, "y": 120, "spread": { "l": 60, "r": 60, "u": 70, "d": 70 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } },
+            "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } }
+          },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        },
+        {
+          "type": "boundary_bowel",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the abdomen (liver)", "view": "chest_anterior", "x": 20, "y": 210, "spread": { "l": 130, "r": 130, "u": 50, "d": 250 } },
+            { "label": "over the flank, below the lungs", "view": "chest_posterior", "x": 0, "y": 225, "spread": { "l": 150, "r": 150, "u": 90, "d": 250 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/bowel.wav", "params": { "texture": "bowel" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        }
+      ],
+      "real_thing": null,
+      "card": {
+        "summary": "Breath sounds are normal everywhere except the left base, where they are much quieter than the right base at the same level. Nothing is added; something is missing.",
+        "why": "Less air is reaching that part of the lung, or something between the lung and the chest wall is muffling it. Either way, less sound arrives at the stethoscope.",
+        "why_squared": "You can only hear diminished by comparison. Listen at the same level on both sides, one after the other, before you decide. A quiet base on both sides may just be a shallow breather; a quiet base on one side is a finding. [cite Bates 13e thorax chapter]",
+        "sources": ["Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Thorax and lungs. [page - verify]", "Bohadana A, Izbicki G, Kraman SS. Fundamentals of lung auscultation. N Engl J Med. 2014;370(8):744-751.", "Sarkar M, Madabhavi I, Niranjan N, Dogra M. Auscultation of the respiratory system. Ann Thorac Med. 2015;10(3):158-168."]
+      },
+      "quiz_rationales": { "identify": "Normal on the right; the same spot on the left is much quieter, with nothing added. Diminished breath sounds at the left base.", "present_absent_diminished_breath": "Compare the left base with the right base: clearly quieter on the left. Diminished.", "present_absent_fine_crackles": "Nothing is added at the quiet base; it is simply softer. No crackles.", "localize": "The left base posteriorly. Move up to the left mid zone and the sound returns to normal.", "which_head": "The diaphragm, so that you are comparing like with like on both sides." },
+      "tiers": [2, 3, 4],
+      "reviewed_by": null,
+      "review_date": null
+    },
+    {
+      "id": "lung-absent-left-base",
+      "module": "lung",
+      "view": "chest_posterior",
+      "views": ["chest_anterior", "chest_posterior"],
+      "title": "Absent breath sounds, left base",
+      "findings": ["absent_breath"],
+      "answer_key": {
+        "primary_finding": "absent_breath",
+        "loudest_at": { "view": "chest_posterior", "x": 70, "y": 165, "radius_mm": 45 },
+        "best_head": "diaphragm",
+        "timing": null,
+        "radiates_to": []
+      },
+      "clock": { "bpm": 76, "systole_ms": 300, "rr": 14 },
+      "habitus": 1.0,
+      "layers": [
+        {
+          "type": "lung_vesicular",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": -70, "y": 80, "spread": { "l": 80, "r": 60, "u": 130, "d": 140 } },
+            { "view": "chest_anterior", "x": 75, "y": 85, "spread": { "l": 60, "r": 80, "u": 130, "d": 140 } },
+            { "view": "chest_posterior", "x": -50, "y": 40, "spread": { "l": 110, "r": 60, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": 50, "y": 40, "spread": { "l": 60, "r": 110, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": -70, "y": 160, "spread": { "l": 80, "r": 70, "u": 80, "d": 90 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/vesicular-in.wav", "params": { "kind": "vesicular_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/vesicular-out.wav", "params": { "kind": "vesicular_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e thorax chapter [verify]; Bohadana 2014: vesicular sounds soft, low-pitched, inspiration longer and louder than expiration" }
+        },
+        {
+          "type": "lung_vesicular",
+          "label": "Tracheal breath sounds",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": 0, "y": -25, "spread": { "l": 40, "r": 40, "u": 60, "d": 60 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/bronchial-in.wav", "params": { "kind": "bronchial_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/bronchial-out.wav", "params": { "kind": "bronchial_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bohadana 2014: tracheal and bronchial sounds louder, higher, expiration longer than inspiration [verify]" }
+        },
+        {
+          "type": "boundary_heart",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the heart", "view": "chest_anterior", "x": 40, "y": 90, "spread": { "l": 80, "r": 80, "u": 80, "d": 80 } },
+            { "label": "over the heart, from behind", "view": "chest_posterior", "x": 30, "y": 120, "spread": { "l": 60, "r": 60, "u": 70, "d": 70 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } },
+            "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } }
+          },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        },
+        {
+          "type": "boundary_bowel",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the abdomen (liver)", "view": "chest_anterior", "x": 20, "y": 210, "spread": { "l": 130, "r": 130, "u": 50, "d": 250 } },
+            { "label": "over the flank, below the lungs", "view": "chest_posterior", "x": 0, "y": 225, "spread": { "l": 150, "r": 150, "u": 90, "d": 250 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/bowel.wav", "params": { "texture": "bowel" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        }
+      ],
+      "real_thing": null,
+      "card": {
+        "summary": "Breath sounds are present on the right and over the upper left, but at the left base there is nothing: only the distant heart and, lower down, bowel sounds.",
+        "why": "No air is moving in that region, or the lung is separated from the chest wall by air or fluid, so no breath sound reaches the surface.",
+        "why_squared": "Absent is louder than it sounds: it is one of the few chest findings that changes what you do next. Confirm it at more than one spot in the zone, and confirm the other side is normal before you chart it. [cite Bates 13e thorax chapter]",
+        "sources": ["Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Thorax and lungs. [page - verify]", "Bohadana A, Izbicki G, Kraman SS. Fundamentals of lung auscultation. N Engl J Med. 2014;370(8):744-751.", "Sarkar M, Madabhavi I, Niranjan N, Dogra M. Auscultation of the respiratory system. Ann Thorac Med. 2015;10(3):158-168."]
+      },
+      "quiz_rationales": { "identify": "The right base breathes; the left base is silent apart from the distant heart. Absent breath sounds at the left base.", "present_absent_absent_breath": "Left base: no rustle on breathing in at all. Absent.", "present_absent_diminished_breath": "This is not quieter; it is gone. Absent, not diminished.", "localize": "The left base posteriorly. The left upper zone still breathes normally.", "which_head": "The diaphragm." },
+      "tiers": [2, 3, 4],
+      "reviewed_by": null,
+      "review_date": null
+    },
+    {
+      "id": "lung-pleural-rub",
+      "module": "lung",
+      "view": "chest_anterior",
+      "views": ["chest_anterior", "chest_posterior"],
+      "title": "Pleural friction rub, left lateral lower chest",
+      "findings": ["pleural_rub"],
+      "answer_key": {
+        "primary_finding": "pleural_rub",
+        "loudest_at": { "view": "chest_anterior", "x": 120, "y": 140, "radius_mm": 40 },
+        "best_head": "diaphragm",
+        "timing": null,
+        "radiates_to": []
+      },
+      "clock": { "bpm": 76, "systole_ms": 300, "rr": 14 },
+      "habitus": 1.0,
+      "layers": [
+        {
+          "type": "lung_rub",
+          "primary": true,
+          "intensity": "moderate",
+          "phase": "both",
+          "window": "mid",
+          "sources": [
+            { "view": "chest_anterior", "x": 120, "y": 140, "spread": { "l": 50, "r": 40, "u": 50, "d": 50 } },
+            { "view": "chest_posterior", "x": 100, "y": 150, "spread": { "l": 50, "r": 50, "u": 50, "d": 50 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/lung/rub.wav", "params": { "kind": "lung_rub" } },
+          "provenance": { "class": "synthesized", "basis": "Bohadana 2014: pleural rub a creaking, grating sound in both phases, localised, unchanged by cough [verify]" }
+        },
+        {
+          "type": "lung_vesicular",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": -70, "y": 80, "spread": { "l": 80, "r": 60, "u": 130, "d": 140 } },
+            { "view": "chest_anterior", "x": 75, "y": 85, "spread": { "l": 60, "r": 80, "u": 130, "d": 140 } },
+            { "view": "chest_posterior", "x": -50, "y": 40, "spread": { "l": 110, "r": 60, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": 50, "y": 40, "spread": { "l": 60, "r": 110, "u": 120, "d": 70 } },
+            { "view": "chest_posterior", "x": -70, "y": 160, "spread": { "l": 80, "r": 70, "u": 80, "d": 90 } },
+            { "view": "chest_posterior", "x": 70, "y": 160, "spread": { "l": 70, "r": 80, "u": 80, "d": 90 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/vesicular-in.wav", "params": { "kind": "vesicular_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/vesicular-out.wav", "params": { "kind": "vesicular_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e thorax chapter [verify]; Bohadana 2014: vesicular sounds soft, low-pitched, inspiration longer and louder than expiration" }
+        },
+        {
+          "type": "lung_vesicular",
+          "label": "Tracheal breath sounds",
+          "intensity": "moderate",
+          "phase": "both",
+          "sources": [
+            { "view": "chest_anterior", "x": 0, "y": -25, "spread": { "l": 40, "r": 40, "u": 60, "d": 60 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/lung/bronchial-in.wav", "params": { "kind": "bronchial_in" } },
+            "out": { "kind": "synth", "file": "audio/lung/bronchial-out.wav", "params": { "kind": "bronchial_out" } }
+          },
+          "provenance": { "class": "synthesized", "basis": "Bohadana 2014: tracheal and bronchial sounds louder, higher, expiration longer than inspiration [verify]" }
+        },
+        {
+          "type": "boundary_heart",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the heart", "view": "chest_anterior", "x": 40, "y": 90, "spread": { "l": 80, "r": 80, "u": 80, "d": 80 } },
+            { "label": "over the heart, from behind", "view": "chest_posterior", "x": 30, "y": 120, "spread": { "l": 60, "r": 60, "u": 70, "d": 70 } }
+          ],
+          "stems": {
+            "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } },
+            "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } }
+          },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        },
+        {
+          "type": "boundary_bowel",
+          "intensity": "faint",
+          "sources": [
+            { "label": "over the abdomen (liver)", "view": "chest_anterior", "x": 20, "y": 210, "spread": { "l": 130, "r": 130, "u": 50, "d": 250 } },
+            { "label": "over the flank, below the lungs", "view": "chest_posterior", "x": 0, "y": 225, "spread": { "l": 150, "r": 150, "u": 90, "d": 250 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/bowel.wav", "params": { "texture": "bowel" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        }
+      ],
+      "real_thing": null,
+      "card": {
+        "summary": "A creaking, grating sound, like leather rubbed on leather, in the same spot on the lower left side of the chest, heard on breathing in and again on breathing out. It does not move and it does not clear.",
+        "why": "The two pleural surfaces, normally sliding silently, have become rough and rub against each other as the lung expands and recoils. It happens in both directions, so both phases carry it.",
+        "why_squared": "Both phases, one spot, unchanged by cough: those three features separate a rub from crackles. If the sound stops when the patient holds their breath, it is a pleural rub, not a pericardial one, which keeps time with the heart. [cite Bohadana 2014; Sarkar 2015]",
+        "sources": ["Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Thorax and lungs. [page - verify]", "Bohadana A, Izbicki G, Kraman SS. Fundamentals of lung auscultation. N Engl J Med. 2014;370(8):744-751.", "Sarkar M, Madabhavi I, Niranjan N, Dogra M. Auscultation of the respiratory system. Ann Thorac Med. 2015;10(3):158-168."]
+      },
+      "quiz_rationales": { "identify": "A grating creak in both phases of the breath, fixed to one spot low on the left side. Pleural rub.", "present_absent_pleural_rub": "Head low on the left lateral chest: leather on leather, in and out. Pleural rub present.", "present_absent_coarse_crackles": "It creaks continuously through the phase and is heard in both directions; crackles pop. Rub, not crackles.", "localize": "Low on the left lateral chest, toward the axilla. A few centimetres away it is gone.", "which_head": "The diaphragm brings out the grating quality.", "timing": "Heard on breathing in and on breathing out. Both phases; chart it as a rub rather than by phase." },
       "tiers": [2, 3, 4],
       "reviewed_by": null,
       "review_date": null

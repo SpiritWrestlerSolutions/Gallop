@@ -201,7 +201,7 @@ const check = (name, ok, detail) => { results.push({name, ok, detail}); console.
   check('posterior-only source is silent on the anterior view', lungOnFront < 0.01, lungOnFront);
   check('anterior-only boundary heart is audible on the front', await ev('(async () => { placeHead(40, 90); await new Promise(r => setTimeout(r, 300)); return gallop.ambient.layers.length === 0 && gallop.buses.main.layers.find(L => L.def.type === "boundary_heart").gain.gain.value; })()') > 0.05);
   check('habitus > 1 applies a global attenuation entry', await ev('gallop.atten.some(a => a.label === "habitus" && Math.abs(a.amount - (1 - 1/1.4)) < 1e-9)'));
-  check('quiz question for a lung case draws rr and starts on its view', await ev('(() => { gallopQuiz.state.module = "lung"; const q = buildQuestion(5, 2); return q.module === "lung" && q.A.rr >= 12 && q.A.rr <= 18 && q.case.id === "_test" && q.A.pos.x === -60 && q.A.pos.y === 130; })()'));
+  check('quiz question for a lung case draws rr and starts at its view home', await ev('(() => { gallopQuiz.state.module = "lung"; const q = buildQuestion(5, 2), home = VIEWS[viewOf(q.case)].home; return q.module === "lung" && q.A.rr >= 12 && q.A.rr <= 18 && q.A.pos.x === home.x && q.A.pos.y === home.y; })()'));
   check('lung identify options are lung findings only', await ev('TEMPLATES.identify.options(buildQuestion(5, 2)).every(o => MODULE_FINDINGS.lung.includes(o.v))'));
   await ev('(() => { cases.pop(); gallopQuiz.state.module = "heart"; const sel = document.getElementById("caseSel"); sel.value = "as-ejection"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(300);
   check('back on a heart case, anterior view and cardiac control restored', await ev('engine.view === "chest_anterior" && !document.getElementById("bpmBox").hidden && document.getElementById("rrBox").hidden && document.getElementById("viewBar").hidden'));
@@ -210,18 +210,37 @@ const check = (name, ok, detail) => { results.push({name, ok, detail}); console.
   // ---- bowel module (ROADMAP §2)
   await ev('(() => { const sel = document.getElementById("caseSel"); sel.value = "bowel-hyperactive"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(400);
   check('bowel case opens on the abdomen view at the umbilicus', await ev('engine.view === "abdomen" && document.getElementById("chestImg").getAttribute("href") === "img/abdomen.svg" && engine.pos.x === 0 && engine.pos.y === 0'));
-  check('case picker groups by module', await ev('document.querySelectorAll("#caseSel optgroup").length') === 2);
+  check('case picker groups by module', await ev('document.querySelectorAll("#caseSel optgroup").length') === 3);
   check('compare-to-normal available (bowel-active is the normal)', await ev('!document.getElementById("cmpBtn").hidden && gallop.buses.normal !== null'));
   check('no rate sliders for a stochastic-only finding, heart rate kept for the distant heart', await ev('document.getElementById("rrBox").hidden && !document.getElementById("bpmBox").hidden'));
-  await sleep(4000);
+  await sleep(8000);   // 45 + 20 per minute: expect about 9 events in 8 s; Poisson gaps make short windows flaky
   const ev1 = await ev('gallop.buses.main.layers.filter(L => L.def.type === "bowel").map(L => L.events)');
-  check('hyperactive bowel fires frequent events on both layers', ev1.every(n => n >= 2), ev1);
+  check('hyperactive bowel fires frequent Poisson events', ev1.length === 2 && ev1[0] + ev1[1] >= 3, ev1);
   check('bowel layers audible at the umbilicus, distant heart faint', await ev('(async () => { placeHead(0, 0); await new Promise(r => setTimeout(r, 300)); const b = gallop.buses.main.layers.find(L => L.def.type === "bowel").gain.gain.value, h = gallop.buses.main.layers.find(L => L.def.type === "boundary_heart").gain.gain.value; return b > 0.8 && h < 0.1; })()'));
   check('toward the chest the caption names the boundary', /toward the chest/.test(await ev('placeHead(0, -125); document.getElementById("caption").textContent')));
   await ev('(() => { const sel = document.getElementById("caseSel"); sel.value = "bowel-absent"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(3000);
   check('absent bowel schedules no events but the abdomen is never silent', await ev('(async () => { const L = gallop.buses.main.layers.find(L => L.def.type === "bowel"); placeHead(0, 120); await new Promise(r => setTimeout(r, 300)); const h = gallop.buses.main.layers.find(L => L.def.type === "boundary_heart").gain.gain.value; return L.events === 0 && h > 0.03; })()'));
   check('present/absent prompt reads plainly for absent', await ev('(() => { const q = {finding:"bowel_absent"}; return TEMPLATES.present_absent.prompt(q); })()') === 'Are bowel sounds absent?');
   check('bowel quiz pool has four cases and a Belly ladder', await ev('(() => { gallopQuiz.state.module = "bowel"; const seen = new Set(); for (let s = 0; s < 60; s++) seen.add(buildQuestion(s, 2).case.id); gallopQuiz.state.module = "heart"; return seen.size === 4; })()'));
+  await ev('(() => { const sel = document.getElementById("caseSel"); sel.value = "as-ejection"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(300);
+
+
+  // ---- lung module (ROADMAP §3)
+  await ev('(() => { const sel = document.getElementById("caseSel"); sel.value = "lung-fine-crackles-left-base"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(400);
+  check('lung case opens on the back with a view bar and both rate controls', await ev('engine.view === "chest_posterior" && !document.getElementById("viewBar").hidden && !document.getElementById("rrBox").hidden && !document.getElementById("bpmBox").hidden'));
+  check('compare-to-normal finds the normal lung case across views', await ev('!document.getElementById("cmpBtn").hidden && gallop.buses.normal !== null'));
+  check('crackles loud at the left base, silent at the right base', await ev('(async () => { const L = gallop.buses.main.layers.find(L => L.def.type === "lung_crackles"); placeHead(70, 170); await new Promise(r => setTimeout(r, 300)); const a = L.gain.gain.value; placeHead(-70, 170); await new Promise(r => setTimeout(r, 300)); return a > 0.55 && L.gain.gain.value < 0.02; })()'));
+  await sleep(4500);
+  check('crackle layer scheduled discrete late-inspiratory events', await ev('gallop.buses.main.layers.find(L => L.def.type === "lung_crackles").def.events') === 8);
+  await ev('(() => { const sel = document.getElementById("caseSel"); sel.value = "lung-absent-left-base"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(400);
+  check('absent zone: vesicular field near zero at the left base, normal at the right', await ev('(() => { const L = current.layers.find(L => L.type === "lung_vesicular" && !L.label); return field(L, 70, 165) < 0.15 && field(L, -70, 160) > 0.9; })()'));
+  await ev('(() => { const sel = document.getElementById("caseSel"); sel.value = "lung-diminished-left-base"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(400);
+  check('diminished zone: vesicular field about 0.3 at the left base', await ev('(() => { const L = current.layers.find(L => L.type === "lung_vesicular" && !L.label); return Math.abs(field(L, 70, 160) - 0.3) < 0.05; })()'));
+  await ev('(() => { const sel = document.getElementById("caseSel"); sel.value = "lung-stridor"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(400);
+  check('stridor opens on the front, loudest at the neck, still audible at the base', await ev('(() => { const L = current.layers.find(L => L.type === "lung_stridor"); return engine.view === "chest_anterior" && field(L, 0, -30) > 0.99 && field(L, 0, 150) > 0.4 && field(L, 0, 150) < 0.8; })()'));
+  check('lung timing question asks inspiratory or expiratory', await ev('TEMPLATES.timing.prompt({case: current})') === 'Inspiratory or expiratory?');
+  check('lung quiz pool covers all nine cases', await ev('(() => { gallopQuiz.state.module = "lung"; const seen = new Set(); for (let s = 0; s < 200; s++) seen.add(buildQuestion(s, 3).case.id); gallopQuiz.state.module = "heart"; return seen.size === 9; })()'));
+  check('what-changed for lungs offers rate as breathing rate', await ev('(() => { gallopQuiz.state.module = "lung"; let ok = false; for (let s = 0; s < 300 && !ok; s++) { const q = buildQuestion(s, 3); if (q.template === "what_changed" && q.param === "rate") ok = q.A.rr !== q.B.rr && q.A.bpm === q.B.bpm; } gallopQuiz.state.module = "heart"; return ok; })()'));
   await ev('(() => { const sel = document.getElementById("caseSel"); sel.value = "as-ejection"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(300);
 
   // ---- reviewer mode

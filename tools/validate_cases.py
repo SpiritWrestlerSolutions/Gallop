@@ -61,7 +61,7 @@ def field(sources, x, y, view, case_view):
         dx, dy = x - s["x"], y - s["y"]
         sx = s["spread"]["l"] if dx < 0 else s["spread"]["r"]
         sy = s["spread"]["u"] if dy < 0 else s["spread"]["d"]
-        best = max(best, math.exp(-(dx * dx / (sx * sx) + dy * dy / (sy * sy))))
+        best = max(best, s.get("gain", 1.0) * math.exp(-(dx * dx / (sx * sx) + dy * dy / (sy * sy))))
     return best
 
 
@@ -84,6 +84,8 @@ def check_source(cid, s, where, case_view, views):
     for d in "lrud":
         if not isinstance(s["spread"].get(d), (int, float)) or s["spread"][d] <= 0:
             err(cid, f"{where}: spread.{d} must be a positive number")
+    if "gain" in s and not (isinstance(s["gain"], (int, float)) and 0 < s["gain"] <= 1):
+        err(cid, f"{where}: source gain must be in (0, 1]")
 
 
 def check_stem(cid, where, stem):

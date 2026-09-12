@@ -18,10 +18,11 @@ replace hands-on time: Gallop builds the ear, the program's manikin and real
 patients build the hands.
 
 Status: **beta.** Engine, quiz mode, reviewer mode, and the generalised
-engine (clocks, views, attenuation) are built. Six synthesized draft cases:
-two heart, four bowel. The quiz lets drafts in behind a beta label until a
-reviewer signs off (`QUIZ_ALLOWS_DRAFTS` in `site/index.html`). Next: the
-lung module, then the remaining heart cases; see
+engine (clocks, views, attenuation) are built. Fifteen synthesized draft
+cases: two heart, four bowel, nine lung. The quiz lets drafts in behind a
+beta label until a reviewer signs off (`QUIZ_ALLOWS_DRAFTS` in
+`site/index.html`). Next: the remaining heart cases and the visual redesign;
+see
 [docs/ROADMAP.md](docs/ROADMAP.md) and [docs/CASE-AUTHORING.md](docs/CASE-AUTHORING.md). The full brief is in
 [GALLOP-HANDOVER.md](GALLOP-HANDOVER.md); the Phase 1 test script is in
 [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md).
@@ -107,7 +108,7 @@ one of four clocks: cardiac, respiratory, stochastic (Poisson events, for
 bowel sounds), or loop. Attenuation fields model breast and adipose tissue;
 habitus is the same effect over the whole body. The quiz keeps one ladder
 per module. Details in docs/CASE-AUTHORING.md; the plan in docs/ROADMAP.md.
-Heart and bowel cases ship; lung cases are next.
+Heart, bowel and lung cases ship as drafts.
 
 ## Quiz mode
 
@@ -130,7 +131,7 @@ the link. The plan for what comes next is in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Not built yet
 
-Lung cases, heart cases 3 to 12 of the v1 library, recorded PhysioNet stems,
+Heart cases 3 to 12 of the v1 library, recorded PhysioNet stems,
 ejection click, opening snap, rub, Tier 4 habitus draws (the engine supports
 habitus; the quiz does not yet draw it), respiratory S2 splitting (the breath
 phase is exposed by the engine, wired to nothing), Tier 3 lookalike

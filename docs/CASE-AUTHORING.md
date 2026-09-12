@@ -128,9 +128,11 @@ or `sources` (boundary layers).
 | `lung_wheeze`, `lung_rhonchi`, `lung_stridor`, `lung_rub` | `intensity`; `phase`; `window`; `stem` (cut at the phase end). |
 | `bowel` | `intensity`; `rate_per_min` (active 5–30, hyperactive above 30, hypoactive under 5, absent 0); `stem` one gurgle or tinkle. |
 
-**Source**: `{x, y, spread: {l, r, u, d}}`. Strength at head position is
-`exp(-(dx²/sx² + dy²/sy²))` with `sx` = `l` if the head is to the patient's
-right of the source, else `r`; `sy` = `u` if above, else `d`. Radiation is a
+**Source**: `{x, y, spread: {l, r, u, d}, gain?, view?}`. Strength at head
+position is `gain × exp(-(dx²/sx² + dy²/sy²))` with `sx` = `l` if the head is
+to the patient's right of the source, else `r`; `sy` = `u` if above, else
+`d`. `gain` defaults to 1; a lung zone with `gain: 0.3` is diminished, and a
+zone with no source at all is absent. Radiation is a
 big spread in one direction: a large `u` sends an aortic murmur to the
 carotids; a large `r` sends a mitral murmur to the axilla. A displaced apex is
 just a moved source point.
