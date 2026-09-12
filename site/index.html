@@ -206,7 +206,7 @@ body.quiz #card:not(.revealed){display:none}
         <button type="button" id="rvCancel">Close</button>
       </div>
       <div id="rvSaved" class="row" style="margin-top:.6rem" hidden>
-        <span class="muted">Saved.</span>
+        <span id="rvStatus" class="muted">Saved.</span>
         <a id="rvMail" href="#">Send by email</a>
         <a id="rvExport" href="#">Export all reviews</a>
       </div>
@@ -1013,6 +1013,12 @@ $('#importFile').onchange = async ev => {
 // Enabled by ?review in the URL or the footer link; remembered in this browser. Reviews are stored locally
 // under gallop.reviews and leave the device only by the reviewer's email or an export (no backend, §2).
 const REVIEW_EMAIL = '';   // set to the address reviews should go to; empty leaves the To: field for the reviewer
+const REVIEW_ENDPOINT = 'api/reviews';   // collector sidecar (deploy/reviews_server.py); empty string disables posting
+async function postReview(r) {
+  if (!REVIEW_ENDPOINT) return false;
+  try { const res = await fetch(REVIEW_ENDPOINT, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(r)}); return res.ok; }
+  catch { return false; }
+}
 const REVIEW_QUESTIONS = {
   heart: [
     {id:'R1', text:'Does this sound like the finding as you hear it at the bedside?', opts:['1 not at all', '2', '3', '4', '5 exactly']},
@@ -1043,7 +1049,10 @@ REVIEW_QUESTIONS.bowel = REVIEW_QUESTIONS.heart.map(q => ({...q,
 const reviews = {
   all() { try { return JSON.parse(store.get('reviews')) || []; } catch { return []; } },
   add(r) { const a = this.all(); a.push(r); store.set('reviews', JSON.stringify(a)); },
+  markSent(r) { const a = this.all(); const hit = a.find(x => x.date === r.date && x.case_id === r.case_id); if (hit) { hit.sent = true; store.set('reviews', JSON.stringify(a)); } },
   enabled() { return new URLSearchParams(location.search).has('review') || store.get('reviewer') === '1'; },
+  // Retry anything saved while the collector was unreachable.
+  async flush() { for (const r of this.all().filter(x => !x.sent)) if (await postReview(r)) this.markSent(r); renderReviewCount(); },
 };
 function setReviewer(on) {
   document.body.classList.toggle('reviewer', on);
@@ -1052,8 +1061,8 @@ function setReviewer(on) {
   renderReviewCount();
 }
 function renderReviewCount() {
-  const n = reviews.all().length;
-  $('#reviewCount').textContent = n ? `${n} review${n > 1 ? 's' : ''} stored on this device.` : '';
+  const all = reviews.all(), unsent = all.filter(r => !r.sent).length;
+  $('#reviewCount').textContent = all.length ? `${all.length} review${all.length > 1 ? 's' : ''} saved on this device${unsent ? `, ${unsent} not yet sent to the server` : ', all sent'}.` : '';
 }
 function renderReviewQuestions(module) {
   $('#rvQuestions').innerHTML = REVIEW_QUESTIONS[module].map(q =>
@@ -1081,7 +1090,9 @@ $('#reviewForm').onsubmit = ev => {
     context: {head: engine.head, bpm: engine.bpm, rr: engine.rr, view: engine.view, pos: engine.pos, headphones: store.get('headphones'), ua: navigator.userAgent},
   };
   store.set('rvName', r.reviewer); store.set('rvRole', r.role); store.set('rvEmail', r.email);
-  reviews.add(r); renderReviewCount();
+  r.sent = false; reviews.add(r); renderReviewCount();
+  $('#rvStatus').textContent = 'Sending…';
+  postReview(r).then(ok => { if (ok) reviews.markSent(r); renderReviewCount(); $('#rvStatus').textContent = ok ? 'Sent to the server. Thank you.' : 'Could not reach the server; kept on this device and will retry. You can also:'; });
   const body = JSON.stringify(r, null, 2);
   $('#rvMail').href = `mailto:${REVIEW_EMAIL}?subject=${encodeURIComponent('Gallop review: ' + r.case_id)}&body=${encodeURIComponent(body)}`;
   $('#rvExport').onclick = e => { e.preventDefault(); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(reviews.all(), null, 2)], {type: 'application/json'})); a.download = 'gallop-reviews.json'; a.click(); };
@@ -1094,6 +1105,7 @@ $('#reviewForm').onsubmit = ev => {
 (async function boot() {
   quiz.load();
   setReviewer(reviews.enabled());
+  if (reviews.enabled()) reviews.flush();
   selectView('chest_anterior', true);
   try {
     const doc = await (await fetch('data/cases.json', {cache:'no-cache'})).json();   // always revalidate: nginx caches JSON for a day

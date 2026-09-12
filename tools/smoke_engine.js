@@ -266,18 +266,26 @@ const check = (name, ok, detail) => { results.push({name, ok, detail}); console.
   check('review panel open and audio still running', await ev('document.getElementById("reviewDlg").open && gallop.ctx.state === "running"') && (await ev('gallop.cycleCount')) > cBefore);
   check('panel shows the current case', await ev('document.getElementById("rvId").textContent === document.getElementById("caseSel").value'));
   check('ten questions rendered', await ev('document.querySelectorAll("#rvQuestions .q").length') === 10);
-  await ev('document.getElementById("rvName").value = "Test Reviewer"; document.getElementById("rvRole").value = "ACP"; document.querySelector("input[name=R1][value=\'4\']").click(); document.querySelector("input[name=R10]").click(); document.getElementById("rvChange").value = "louder S2"; document.getElementById("reviewForm").requestSubmit(); true'); await sleep(100);
+  // stub the collector: first save reaches it, second does not
+  await ev('window._realFetch = window.fetch; window._collectorUp = true; window._posted = []; window.fetch = (u, o) => { if (String(u).includes("api/reviews")) { if (o) window._posted.push(JSON.parse(o.body)); return window._collectorUp ? Promise.resolve({ok:true}) : Promise.reject(new Error("down")); } return window._realFetch(u, o); }; true');
+  await ev('document.getElementById("rvName").value = "Test Reviewer"; document.getElementById("rvRole").value = "ACP"; document.querySelector("input[name=R1][value=\'4\']").click(); document.querySelector("input[name=R10]").click(); document.getElementById("rvChange").value = "louder S2"; document.getElementById("reviewForm").requestSubmit(); true'); await sleep(250);
+  check('review posted to the collector and marked sent', await ev('window._posted.length === 1 && window._posted[0].case_id === document.getElementById("caseSel").value && JSON.parse(localStorage.getItem("gallop.reviews"))[0].sent === true && /Sent to the server/.test(document.getElementById("rvStatus").textContent)'));
   const saved = await ev('JSON.parse(localStorage.getItem("gallop.reviews"))');
   check('review saved with case id, answers and context', saved.length === 1 && saved[0].case_id === (await ev('document.getElementById("caseSel").value')) && saved[0].answers.R1 === '4' && saved[0].answers.R10 === 'Sign off as is' && saved[0].change === 'louder S2' && typeof saved[0].context.bpm === 'number', saved[0].answers);
   check('send-by-email link carries the review', await ev('document.getElementById("rvMail").href.startsWith("mailto:") && decodeURIComponent(document.getElementById("rvMail").href).includes("louder S2")'));
   check('reviewer name remembered', await ev('localStorage.getItem("gallop.rvName")') === 'Test Reviewer');
+  await ev('window._collectorUp = false; document.querySelector("input[name=R10]").click(); document.getElementById("reviewForm").requestSubmit(); true'); await sleep(250);
+  check('collector down: review kept locally, marked unsent, fallback offered', await ev('(() => { const a = JSON.parse(localStorage.getItem("gallop.reviews")); return a.length === 2 && a[1].sent === false && /Could not reach/.test(document.getElementById("rvStatus").textContent) && /1 not yet sent/.test(document.getElementById("reviewCount").textContent); })()'));
+  await ev('window._collectorUp = true; true');
+  check('flush retries unsent reviews when the collector is back', await ev('reviews.flush().then(() => JSON.parse(localStorage.getItem("gallop.reviews")).every(r => r.sent) && window._posted.length === 3)'));
+  await ev('window.fetch = window._realFetch; true');
   await ev('document.getElementById("rvCancel").click(); true');
 
   // master gain never changed
   check('master gain unchanged at end', Math.abs(await ev('gallop.master.gain.value') - 0.7) < 1e-6);
   // reset clears localStorage keys
   await ev('window.confirm = () => true; location.reload = () => {}; document.getElementById("resetBtn").click(); Object.keys(localStorage).filter(k=>k.startsWith("gallop.") && !/reviews|rvName|rvRole|rvEmail|reviewer/.test(k)).length').then(n => check('reset clears learner keys', n === 0, n));
-  check('reset keeps stored reviews', await ev('JSON.parse(localStorage.getItem("gallop.reviews")).length') === 1);
+  check('reset keeps stored reviews', await ev('JSON.parse(localStorage.getItem("gallop.reviews")).length') === 2);
 
   check('no console errors / exceptions', consoleErrors.length === 0, consoleErrors);
   const failed = results.filter(r => !r.ok).length;

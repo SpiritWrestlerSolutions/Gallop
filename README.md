@@ -132,10 +132,14 @@ combination instead until the case library grows.
 Open the site with `?review` on the URL, or use the "Reviewer mode" link in
 the footer. A "Review this case" button appears in practice mode and opens a
 panel with ten fixed questions and a free-text box. Audio and the head keep
-working while it is open. Reviews are stored in the reviewer's browser and
-reach you only by "Send by email" or "Export all reviews"; a learner reset
-does not delete them. Set `REVIEW_EMAIL` in `site/index.html` before sharing
-the link. The plan for what comes next is in [docs/ROADMAP.md](docs/ROADMAP.md).
+working while it is open. On Save the review is posted to the collector that
+runs alongside the site (`deploy/reviews_server.py`, see `deploy/DEPLOY.md`)
+and kept in the reviewer's browser; if the server is unreachable it is kept
+locally, retried on the next visit, and can be sent by email or exported. A
+learner reset does not delete reviews. `python tools/reviews_report.py`
+summarises the collected file per case. Learner progress never leaves the
+browser; reviews are the one thing that does, and only when a reviewer presses
+Save. The plan for what comes next is in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Not built yet
 

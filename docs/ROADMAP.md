@@ -13,9 +13,12 @@ paramedic conference the week of 14 September.
   working) with ten fixed questions R1 to R10, a free-text "what would you
   change", reviewer name, role, optional email, and the engine state at the
   time (head, rate, position, headphone answer, user agent).
-- Stored in the reviewer's browser under `gallop.reviews`. Leaves the device
-  only by "Send by email" (mailto with the JSON in the body) or "Export all
-  reviews" (JSON file). No backend, per the non-goals.
+- Posted to a small collector alongside nginx (`deploy/reviews_server.py`,
+  one JSON line per review on a Docker volume, token-guarded GET to pull the
+  file) and kept in the reviewer's browser under `gallop.reviews`. If the
+  collector is unreachable the review waits locally and is retried; "Send by
+  email" and "Export all reviews" remain as fallbacks. Learner data still
+  never leaves the browser; reviews are the one deliberate exception.
 - Set `REVIEW_EMAIL` in `site/index.html` to the address reviews should go
   to before sending the link out. Share the link as
   `https://gallop.yeomanops.com/?review`.

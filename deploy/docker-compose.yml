@@ -8,6 +8,27 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - caddy_net
+    depends_on:
+      - reviews
+
+  # Review collector: appends reviewer submissions to a file on the gallop_reviews volume.
+  # Set REVIEWS_TOKEN in deploy/.env (see .env.example); it guards the GET that returns the file.
+  reviews:
+    image: python:3.12-alpine
+    container_name: gallop-reviews
+    restart: unless-stopped
+    command: python /app/reviews_server.py
+    environment:
+      - REVIEWS_TOKEN=${REVIEWS_TOKEN:?set REVIEWS_TOKEN in deploy/.env}
+      - REVIEWS_FILE=/data/reviews.jsonl
+    volumes:
+      - ./reviews_server.py:/app/reviews_server.py:ro
+      - gallop_reviews:/data
+    networks:
+      - caddy_net
+
+volumes:
+  gallop_reviews:
 
 networks:
   caddy_net:
