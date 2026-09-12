@@ -29,6 +29,7 @@ const check = (name, ok, detail) => { results.push({name, ok, detail}); console.
   await send('Runtime.enable'); await send('Page.enable');
   await send('Page.navigate', {url: URL});
   await sleep(1500);
+  await ev('localStorage.clear(); true'); await send('Page.reload'); await sleep(1500);   // start from a clean profile
 
   // gate present, nothing playing before tap
   check('no AudioContext before tap', await ev('gallop.ctx === null'));
@@ -121,7 +122,7 @@ const check = (name, ok, detail) => { results.push({name, ok, detail}); console.
   await send('Input.dispatchKeyEvent', {type: 'keyUp', key: 'n', code: 'KeyN'});
   await sleep(80);
   check('N key holds compare and releases', nHeld === true && (await ev('gallop.compare')) === false);
-  check('every control labelled', await ev('[...document.querySelectorAll("button,select,input")].every(el => el.disabled || el.closest("[hidden]") || el.textContent.trim() || el.getAttribute("aria-label") || document.querySelector(`label[for="${el.id}"]`))'));
+  check('every control labelled', await ev('[...document.querySelectorAll("button,select,input")].every(el => el.disabled || el.closest("[hidden]") || el.textContent.trim() || el.getAttribute("aria-label") || el.closest("label") || document.querySelector(`label[for="${el.id}"]`))'));
 
 
   // ---- quiz mode (§9)
@@ -166,10 +167,28 @@ const check = (name, ok, detail) => { results.push({name, ok, detail}); console.
   await ev('document.getElementById("modePractice").click(); true'); await sleep(300);
   check('back to practice restores controls', await ev('getComputedStyle(document.getElementById("caseSel").closest("fieldset")).display !== "none" && document.getElementById("quiz").hidden'));
 
+
+  // ---- reviewer mode
+  check('reviewer mode off by default', await ev('!document.body.classList.contains("reviewer") && getComputedStyle(document.getElementById("reviewBtn").closest(".reviewer-only")).display === "none"'));
+  await ev('document.getElementById("reviewerToggle").click(); true'); await sleep(100);
+  check('footer link enables reviewer mode', await ev('document.body.classList.contains("reviewer") && getComputedStyle(document.getElementById("reviewBtn").closest(".reviewer-only")).display !== "none" && localStorage.getItem("gallop.reviewer") === "1"'));
+  await ev('document.getElementById("reviewBtn").click(); true'); await sleep(100);
+  const cBefore = await ev('gallop.cycleCount'); await sleep(1200);
+  check('review panel open and audio still running', await ev('document.getElementById("reviewDlg").open && gallop.ctx.state === "running"') && (await ev('gallop.cycleCount')) > cBefore);
+  check('panel shows the current case', await ev('document.getElementById("rvId").textContent === document.getElementById("caseSel").value'));
+  check('ten questions rendered', await ev('document.querySelectorAll("#rvQuestions .q").length') === 10);
+  await ev('document.getElementById("rvName").value = "Test Reviewer"; document.getElementById("rvRole").value = "ACP"; document.querySelector("input[name=R1][value=\'4\']").click(); document.querySelector("input[name=R10]").click(); document.getElementById("rvChange").value = "louder S2"; document.getElementById("reviewForm").requestSubmit(); true'); await sleep(100);
+  const saved = await ev('JSON.parse(localStorage.getItem("gallop.reviews"))');
+  check('review saved with case id, answers and context', saved.length === 1 && saved[0].case_id === (await ev('document.getElementById("caseSel").value')) && saved[0].answers.R1 === '4' && saved[0].answers.R10 === 'Sign off as is' && saved[0].change === 'louder S2' && typeof saved[0].context.bpm === 'number', saved[0].answers);
+  check('send-by-email link carries the review', await ev('document.getElementById("rvMail").href.startsWith("mailto:") && decodeURIComponent(document.getElementById("rvMail").href).includes("louder S2")'));
+  check('reviewer name remembered', await ev('localStorage.getItem("gallop.rvName")') === 'Test Reviewer');
+  await ev('document.getElementById("rvCancel").click(); true');
+
   // master gain never changed
   check('master gain unchanged at end', Math.abs(await ev('gallop.master.gain.value') - 0.7) < 1e-6);
   // reset clears localStorage keys
-  await ev('window.confirm = () => true; location.reload = () => {}; document.getElementById("resetBtn").click(); Object.keys(localStorage).filter(k=>k.startsWith("gallop.")).length').then(n => check('reset clears gallop.* keys', n === 0, n));
+  await ev('window.confirm = () => true; location.reload = () => {}; document.getElementById("resetBtn").click(); Object.keys(localStorage).filter(k=>k.startsWith("gallop.") && !/reviews|rvName|rvRole|rvEmail|reviewer/.test(k)).length').then(n => check('reset clears learner keys', n === 0, n));
+  check('reset keeps stored reviews', await ev('JSON.parse(localStorage.getItem("gallop.reviews")).length') === 1);
 
   check('no console errors / exceptions', consoleErrors.length === 0, consoleErrors);
   const failed = results.filter(r => !r.ok).length;

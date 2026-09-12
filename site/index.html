@@ -60,6 +60,20 @@ details summary{cursor:pointer;font-weight:500}
 #cardBody ul{padding-left:1.2rem}
 kbd{font-family:inherit;border:1px solid var(--line);border-radius:4px;padding:0 .3rem;background:#fff}
 .err{color:#9b1c1c}
+/* reviewer mode: a non-modal panel so the reviewer can keep listening and dragging while answering */
+#reviewDlg{position:fixed;right:1rem;bottom:1rem;top:auto;left:auto;margin:0;width:min(420px,92vw);max-height:85vh;overflow:auto;border:1px solid var(--line);border-radius:14px;padding:1rem 1.1rem;box-shadow:0 10px 30px rgba(0,0,0,.18);z-index:6;font-size:.92rem}
+#reviewDlg h2{margin:0 0 .2rem;font-size:1.1rem;color:var(--blue)}
+#reviewDlg .q{margin:.7rem 0 0}
+#reviewDlg .q p{margin:0 0 .25rem;font-weight:500}
+#reviewDlg .opts label{display:inline-block;margin-right:.7rem;font-weight:400}
+#reviewDlg input[type=text],#reviewDlg textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:6px;padding:.3rem .45rem}
+#reviewDlg textarea{min-height:4rem}
+#reviewBtn{border-color:#7a5200;color:#7a5200}
+@media(min-width:1100px){
+  body.reviewing main{grid-template-columns:minmax(0,1fr) 320px 380px;max-width:1400px}
+  #reviewDlg[open]{position:static;width:auto;max-height:none;box-shadow:none;align-self:start}
+}
+body:not(.reviewer) .reviewer-only{display:none!important}
 /* quiz mode */
 body.quiz .practice-only{display:none!important}
 body.quiz #card:not(.revealed){display:none}
@@ -128,6 +142,10 @@ body.quiz #card:not(.revealed){display:none}
       <label for="caseSel">Case</label>
       <div class="row"><select id="caseSel"></select><span id="draftPill" class="pill draft" hidden>draft</span></div>
       <p id="caseFindings" class="muted" style="margin:.4rem 0 0"></p>
+      <div class="reviewer-only" style="margin-top:.5rem">
+        <button id="reviewBtn">Review this case</button>
+        <p id="reviewCount" class="muted" style="margin:.3rem 0 0;font-size:.85rem"></p>
+      </div>
     </fieldset>
 
     <fieldset><legend>Stethoscope</legend>
@@ -151,11 +169,32 @@ body.quiz #card:not(.revealed){display:none}
     <p class="muted practice-only" style="font-size:.85rem">Keys: arrows move 5 mm · <kbd>B</kbd> / <kbd>D</kbd> bell / diaphragm · hold <kbd>N</kbd> to compare to normal</p>
     <button id="resetBtn">Reset progress</button>
   </aside>
+<dialog id="reviewDlg" aria-label="Case review">
+    <form method="dialog" id="reviewForm">
+      <h2>Review: <span id="rvTitle"></span></h2>
+      <p class="muted" style="margin:0 0 .4rem;font-size:.85rem">Case <code id="rvId"></code>. Listen as long as you like; the panel stays open while you drag and switch heads. Answers are saved on this device and sent to Brendan by email or export.</p>
+      <div class="q"><label for="rvName"><p>Your name</p></label><input type="text" id="rvName" required autocomplete="name"></div>
+      <div class="q"><label for="rvRole"><p>Role / credentials</p></label><input type="text" id="rvRole" placeholder="e.g. ACP, MIH; cardiologist; RN"></div>
+      <div class="q"><label for="rvEmail"><p>Email (optional, so Brendan can follow up)</p></label><input type="text" id="rvEmail" inputmode="email" autocomplete="email"></div>
+      <div id="rvQuestions"></div>
+      <div class="q"><label for="rvChange"><p>What would you change?</p></label><textarea id="rvChange"></textarea></div>
+      <div class="row" style="margin-top:.8rem">
+        <button type="submit" class="primary">Save review</button>
+        <button type="button" id="rvCancel">Close</button>
+      </div>
+      <div id="rvSaved" class="row" style="margin-top:.6rem" hidden>
+        <span class="muted">Saved.</span>
+        <a id="rvMail" href="#">Send by email</a>
+        <a id="rvExport" href="#">Export all reviews</a>
+      </div>
+    </form>
+  </dialog>
 </main>
 
 <div id="pop" role="dialog" aria-label="Landmark note" hidden></div>
 
-<footer>Gallop · © 2026 Brendan Hood. Code MIT, content CC BY 4.0. · <a href="https://cairn.yeomanops.com">Cairn</a></footer>
+<footer>Gallop · © 2026 Brendan Hood. Code MIT, content CC BY 4.0. · <a href="https://cairn.yeomanops.com">Cairn</a> · <a href="#" id="reviewerToggle">Reviewer mode</a></footer>
+
 
 <div id="gate">
   <div class="card">
@@ -362,7 +401,7 @@ let cases = [], current = null, normalCase = null, diaphragmOnly = false, draggi
 const store = {
   get(k) { try { return localStorage.getItem('gallop.' + k); } catch { return null; } },
   set(k, v) { try { localStorage.setItem('gallop.' + k, v); } catch {} },
-  clear() { try { for (const k of Object.keys(localStorage)) if (k.startsWith('gallop.')) localStorage.removeItem(k); } catch {} },
+  clear() { try { for (const k of Object.keys(localStorage)) if (k.startsWith('gallop.') && !/^gallop\.(reviews|rvName|rvRole|rvEmail|reviewer)$/.test(k)) localStorage.removeItem(k); } catch {} },   // reviews survive a learner reset
 };
 
 // ---- chest / head -------------------------------------------------------------
@@ -757,10 +796,74 @@ $('#importFile').onchange = async ev => {
   catch (e) { alert('Could not import that file: ' + e.message); }
 };
 
+// ---- reviewer mode --------------------------------------------------------------------
+// Enabled by ?review in the URL or the footer link; remembered in this browser. Reviews are stored locally
+// under gallop.reviews and leave the device only by the reviewer's email or an export (no backend, §2).
+const REVIEW_EMAIL = '';   // set to the address reviews should go to; empty leaves the To: field for the reviewer
+const REVIEW_QUESTIONS = [
+  {id:'R1', text:'Does this sound like the finding as you hear it at the bedside?', opts:['1 not at all', '2', '3', '4', '5 exactly']},
+  {id:'R2', text:'Is it loudest where it should be?', opts:['Yes', 'No', 'Unsure'], note:'If no: where should it be loudest?'},
+  {id:'R3', text:'Does it radiate where it should, and nowhere it should not?', opts:['Yes', 'No', 'Not applicable']},
+  {id:'R4', text:'Does the bell / diaphragm difference behave as it should?', opts:['Yes', 'No', 'Unsure']},
+  {id:'R5', text:'Relative to S1 and S2, the finding is', opts:['Too soft', 'About right', 'Too loud']},
+  {id:'R6', text:'Does it still sound right at 60, 90 and 110 bpm?', opts:['Yes', 'No']},
+  {id:'R7', text:'Walking off the heart: do the breath and bowel cues feel right?', opts:['Yes', 'No']},
+  {id:'R8', text:'Is the case card accurate and free of diagnosis language?', opts:['Yes', 'No'], note:'If no: what is wrong?'},
+  {id:'R9', text:'Would the quiz rationales help someone who answered wrong?', opts:['Yes', 'No']},
+  {id:'R10', text:'Sign-off', opts:['Sign off as is', 'Sign off with the changes below', 'Not yet']},
+];
+const reviews = {
+  all() { try { return JSON.parse(store.get('reviews')) || []; } catch { return []; } },
+  add(r) { const a = this.all(); a.push(r); store.set('reviews', JSON.stringify(a)); },
+  enabled() { return new URLSearchParams(location.search).has('review') || store.get('reviewer') === '1'; },
+};
+function setReviewer(on) {
+  document.body.classList.toggle('reviewer', on);
+  store.set('reviewer', on ? '1' : '0');
+  $('#reviewerToggle').textContent = on ? 'Leave reviewer mode' : 'Reviewer mode';
+  renderReviewCount();
+}
+function renderReviewCount() {
+  const n = reviews.all().length;
+  $('#reviewCount').textContent = n ? `${n} review${n > 1 ? 's' : ''} stored on this device.` : '';
+}
+$('#reviewerToggle').onclick = ev => { ev.preventDefault(); setReviewer(!document.body.classList.contains('reviewer')); };
+$('#rvQuestions').innerHTML = REVIEW_QUESTIONS.map(q =>
+  `<div class="q"><p>${q.id}. ${q.text}</p><div class="opts">` +
+  q.opts.map((o, i) => `<label><input type="radio" name="${q.id}" value="${o}" ${q.id === 'R10' ? 'required' : ''}> ${o}</label>`).join('') +
+  `</div>${q.note ? `<input type="text" id="${q.id}note" placeholder="${q.note}" aria-label="${q.note}" style="margin-top:.25rem">` : ''}</div>`).join('');
+$('#reviewBtn').onclick = () => {
+  $('#rvTitle').textContent = current.title; $('#rvId').textContent = current.id;
+  $('#rvName').value = store.get('rvName') || ''; $('#rvRole').value = store.get('rvRole') || ''; $('#rvEmail').value = store.get('rvEmail') || '';
+  $('#rvSaved').hidden = true;
+  $('#reviewDlg').show(); document.body.classList.add('reviewing');   // non-modal: playback and the head keep working (§8)
+};
+$('#rvCancel').onclick = () => $('#reviewDlg').close();
+$('#reviewDlg').addEventListener('close', () => document.body.classList.remove('reviewing'));
+$('#reviewForm').onsubmit = ev => {
+  ev.preventDefault();
+  const f = ev.target, answers = {};
+  for (const q of REVIEW_QUESTIONS) { const v = f.querySelector(`input[name="${q.id}"]:checked`); answers[q.id] = v ? v.value : null; if (q.note) answers[q.id + '_note'] = $('#' + q.id + 'note').value.trim(); }
+  const r = {
+    case_id: current.id, case_title: current.title, reviewer: $('#rvName').value.trim(), role: $('#rvRole').value.trim(), email: $('#rvEmail').value.trim(),
+    date: new Date().toISOString(), answers, change: $('#rvChange').value.trim(),
+    context: {head: engine.head, bpm: engine.bpm, pos: engine.pos, headphones: store.get('headphones'), ua: navigator.userAgent},
+  };
+  store.set('rvName', r.reviewer); store.set('rvRole', r.role); store.set('rvEmail', r.email);
+  reviews.add(r); renderReviewCount();
+  const body = JSON.stringify(r, null, 2);
+  $('#rvMail').href = `mailto:${REVIEW_EMAIL}?subject=${encodeURIComponent('Gallop review: ' + r.case_id)}&body=${encodeURIComponent(body)}`;
+  $('#rvExport').onclick = e => { e.preventDefault(); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(reviews.all(), null, 2)], {type: 'application/json'})); a.download = 'gallop-reviews.json'; a.click(); };
+  $('#rvSaved').hidden = false;
+  f.querySelectorAll('input[type=radio]').forEach(i => i.checked = false); $('#rvChange').value = '';
+  REVIEW_QUESTIONS.filter(q => q.note).forEach(q => $('#' + q.id + 'note').value = '');
+};
+
 // ---- boot ---------------------------------------------------------------------------
 (async function boot() {
   drawLandmarks();
   quiz.load();
+  setReviewer(reviews.enabled());
   placeHead(25, 70);
   try {
     const doc = await (await fetch('data/cases.json')).json();

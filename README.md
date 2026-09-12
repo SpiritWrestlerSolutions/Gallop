@@ -103,6 +103,16 @@ Everything is stored in the browser only. With two cases the "no repeat within
 15 questions" rule cannot be met; the generator takes the least-recent
 combination instead until the case library grows.
 
+## Reviewer mode
+
+Open the site with `?review` on the URL, or use the "Reviewer mode" link in
+the footer. A "Review this case" button appears in practice mode and opens a
+panel with ten fixed questions and a free-text box. Audio and the head keep
+working while it is open. Reviews are stored in the reviewer's browser and
+reach you only by "Send by email" or "Export all reviews"; a learner reset
+does not delete them. Set `REVIEW_EMAIL` in `site/index.html` before sharing
+the link. The plan for what comes next is in [docs/ROADMAP.md](docs/ROADMAP.md).
+
 ## Not built yet
 
 Cases 3 to 12 of the v1 library, recorded PhysioNet stems, ejection click,
