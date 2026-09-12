@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-170 -150 340 300" width="340" height="300">
+  <!-- Gallop abdomen silhouette (placeholder until the visual redesign).
+       Units are millimetres. Origin = umbilicus. x positive toward the patient's left
+       (viewer's right), y positive inferior. CC BY 4.0 Brendan Hood. -->
+  <defs>
+    <style>
+      .skin{fill:#f6f9fb;stroke:#9fb4c4;stroke-width:1.2}
+      .bone{fill:#e6eef4;stroke:none}
+      .line{fill:none;stroke:#b7c8d5;stroke-width:1;stroke-linecap:round}
+      .faint{fill:none;stroke:#d8e2ea;stroke-width:0.9;stroke-dasharray:3 5}
+    </style>
+  </defs>
+  <!-- trunk from costal margin to the pelvis -->
+  <path class="skin" d="M-150,-150 L150,-150 L152,20 C154,70 140,110 110,150 L-110,150 C-140,110 -154,70 -152,20 Z"/>
+  <!-- xiphoid and costal margins -->
+  <path class="bone" d="M-10,-150 L10,-150 L6,-120 C3,-112 -3,-112 -6,-120 Z"/>
+  <path class="line" d="M-6,-120 C-40,-95 -95,-85 -145,-70"/>
+  <path class="line" d="M6,-120 C40,-95 95,-85 145,-70"/>
+  <!-- umbilicus -->
+  <circle cx="0" cy="0" r="4" class="line"/>
+  <!-- quadrant guides -->
+  <path class="faint" d="M0,-115 L0,140"/>
+  <path class="faint" d="M-150,0 L150,0"/>
+  <!-- iliac crests and pelvis hint -->
+  <path class="line" d="M-150,60 C-125,70 -105,95 -95,130"/>
+  <path class="line" d="M150,60 C125,70 105,95 95,130"/>
+</svg>

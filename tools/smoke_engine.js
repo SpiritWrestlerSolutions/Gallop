@@ -134,8 +134,8 @@ const check = (name, ok, detail) => { results.push({name, ok, detail}); console.
   check('tier 1 starts on the correct landmark at 70 bpm', await ev('(() => { const q = buildQuestion(7, 1); const la = q.case.answer_key.loudest_at; return q.A.pos.x === la.x && q.A.pos.y === la.y && q.A.bpm === 70; })()'));
   check('tier 3 rate within 60-110 over 50 seeds', await ev('(() => { for (let s = 0; s < 50; s++) { const q = buildQuestion(s, 3); if (q.A.bpm < 60 || q.A.bpm > 110) return false; } return true; })()'));
   check('what-changed clips differ in exactly one parameter', await ev('(() => { let seen = 0; for (let s = 0; s < 300; s++) { const q = buildQuestion(s, 3); if (q.template !== "what_changed") continue; seen++; const A = q.A, B = q.B; const diffs = ["bpm","head","level"].filter(k => A[k] !== B[k]).concat(A.pos.x !== B.pos.x || A.pos.y !== B.pos.y ? ["pos"] : []); if (diffs.length !== 1) return false; } return seen > 0; })()'));
-  const answerRight = `(() => { const q = gallopQuiz.q, T = TEMPLATES[q.template]; if (q.template === 'localize') { const la = q.case.answer_key.loudest_at; placeHead(la.x, la.y); } gallopQuiz.answer(T.answer(q)); return gallopQuiz.state; })()`;
-  const answerWrong = `(() => { const q = gallopQuiz.q, T = TEMPLATES[q.template]; if (q.template === 'localize') placeHead(-140, 230); const opts = T.options(q).map(o => o.v).filter(v => v !== T.answer(q)); gallopQuiz.answer(opts[0] || 'submit'); return gallopQuiz.state; })()`;
+  const answerRight = `(() => { const q = gallopQuiz.q, T = TEMPLATES[q.template]; if (q.template === 'localize') { const la = q.case.answer_key.loudest_at; placeHead(la.x, la.y); } gallopQuiz.answer(T.answer(q)); return gallopQuiz.s; })()`;
+  const answerWrong = `(() => { const q = gallopQuiz.q, T = TEMPLATES[q.template]; if (q.template === 'localize') placeHead(-140, 230); const opts = T.options(q).map(o => o.v).filter(v => v !== T.answer(q)); gallopQuiz.answer(opts[0] || 'submit'); return gallopQuiz.s; })()`;
   let st;
   for (let i = 0; i < 8; i++) { st = await ev(answerRight); await ev('document.getElementById("qNext").click(); true'); await sleep(150); }
   check('8 in a row advances to tier 2', st.tier === 2 && st.unlocked === 2 && st.streak === 0, {tier: st.tier, unlocked: st.unlocked});
@@ -149,7 +149,7 @@ const check = (name, ok, detail) => { results.push({name, ok, detail}); console.
   let servedAt = null;
   for (let i = 0; i < 4; i++) {
     await ev('document.getElementById("qNext").click(); true'); await sleep(150);
-    const cur = await ev('({seed: gallopQuiz.q.seed, count: gallopQuiz.state.count, fromQueue: !!gallopQuiz.fromQueue})');
+    const cur = await ev('({seed: gallopQuiz.q.seed, count: gallopQuiz.s.count, fromQueue: !!gallopQuiz.fromQueue})');
     if (cur.seed === missed.seed && cur.fromQueue) { servedAt = cur.count; break; }
     await ev(answerRight);
   }
@@ -160,13 +160,51 @@ const check = (name, ok, detail) => { results.push({name, ok, detail}); console.
   for (let i = 0; i < 6; i++) { await ev('document.getElementById("qNext").click(); true'); await sleep(150); st = await ev(answerWrong); if (st.tier === 1) { dropped = i + 1; break; } }
   check('4 misses in 10 drops a tier', st.tier === 1 && dropped !== null, {dropped, tier: st.tier});
   check('drop message uses the ladder line', /Back to Tier 1/.test(await ev('document.getElementById("ladderMsg").textContent')));
-  check('state persisted to localStorage', await ev('JSON.parse(localStorage.getItem("gallop.quiz")).count') === st.count);
+  check('state persisted to localStorage', await ev('JSON.parse(localStorage.getItem("gallop.quiz")).ladders.heart.count') === st.count);
   check('no totals or percentages on the ladder', !/%|\d+ \/ \d+|total/i.test(await ev('document.getElementById("quiz").querySelector("fieldset").textContent')));
-  check('replay of a missed question is unscored', await ev('(() => { const before = gallopQuiz.state.count; document.querySelector("#replayList button").click(); const q = gallopQuiz.q, T = TEMPLATES[q.template]; if (q.template === "localize") placeHead(-140, 230); gallopQuiz.answer("nope"); return gallopQuiz.replay && gallopQuiz.state.count === before; })()'));
+  check('replay of a missed question is unscored', await ev('(() => { const before = gallopQuiz.s.count; document.querySelector("#replayList button").click(); const q = gallopQuiz.q, T = TEMPLATES[q.template]; if (q.template === "localize") placeHead(-140, 230); gallopQuiz.answer("nope"); return gallopQuiz.replay && gallopQuiz.s.count === before; })()'));
   check('master gain unchanged through quiz', Math.abs(await ev('gallop.master.gain.value') - 0.7) < 1e-6);
   await ev('document.getElementById("modePractice").click(); true'); await sleep(300);
   check('back to practice restores controls', await ev('getComputedStyle(document.getElementById("caseSel").closest("fieldset")).display !== "none" && document.getElementById("quiz").hidden'));
 
+
+
+  // ---- engine generalisation (ROADMAP §1): clocks, views, attenuation, proven with an in-test case
+  await ev(`(async () => {
+    const s1 = 'audio/stems/s1-f90.wav', s2 = 'audio/stems/s2-f120.wav';
+    const c = {id:'_test', title:'t', module:'lung', view:'chest_posterior', views:['chest_anterior','chest_posterior'], findings:['fine_crackles'], answer_key:{primary_finding:'fine_crackles', loudest_at:{x:-75,y:175,radius_mm:25}, best_head:'diaphragm', timing:'inspiratory', radiates_to:[]},
+      clock:{bpm:72, systole_ms:300, rr:20}, habitus:1.4, attenuation:[{label:'breast', x:60, y:100, spread:{l:40,r:40,u:40,d:40}, amount:0.8, lowpass_hz:300}],
+      layers:[
+        {type:'lung_vesicular', intensity:'moderate', phase:'both', sources:[{x:-75,y:100,spread:{l:80,r:80,u:120,d:120}},{x:75,y:100,spread:{l:80,r:80,u:120,d:120}},{view:'chest_anterior',x:0,y:80,spread:{l:150,r:150,u:150,d:150}}], stems:{in:s1, out:s2}, provenance:{class:'synthesized', basis:'test'}},
+        {type:'lung_crackles', primary:true, intensity:'pronounced', phase:'inspiratory', window:'late', events:5, source:{x:-75,y:175,spread:{l:40,r:40,u:40,d:40}}, stem:{file:s1}, provenance:{class:'synthesized', basis:'test'}},
+        {type:'bowel', intensity:'moderate', rate_per_min:600, source:{x:0,y:200,spread:{l:100,r:100,u:100,d:100}}, stem:{file:s2}, provenance:{class:'synthesized', basis:'test'}},
+        {type:'boundary_heart', intensity:'faint', sources:[{label:'heart', view:'chest_anterior', x:40,y:90,spread:{l:80,r:80,u:80,d:80}}], stem:{file:s1}, provenance:{class:'synthesized', basis:'test'}},
+      ], card:{summary:'', why:'', why_squared:'', sources:[]}, quiz_rationales:{identify:'x'}, tiers:[1,2,3,4], reviewed_by:null, review_date:null};
+    cases.push(c); window._testCase = c;
+    selectCase(c); engine.rr = 20;
+  })()`); await sleep(300);
+  check('case with two views shows the view bar and opens on its primary view', await ev('!document.getElementById("viewBar").hidden && engine.view === "chest_posterior" && document.getElementById("chestImg").getAttribute("href") === "img/back.svg"'));
+  check('posterior view is mirrored on screen', await ev('(() => { placeHead(-75, 175); return headEl.getAttribute("transform") === "translate(75 175)"; })()'));
+  check('respiratory rate control shown (heart rate stays: the case has a distant-heart layer)', await ev('!document.getElementById("rrBox").hidden && !document.getElementById("bpmBox").hidden'));
+  await sleep(4500);   // let the pending 14/min boundary pass: rate changes land on the next breath, never mid-breath
+  const b0 = await ev('gallop.breathCount'); await sleep(6200);
+  const b1 = await ev('gallop.breathCount');
+  check('respiratory clock advances at 20/min', b1 - b0 >= 2 && b1 - b0 <= 3, {breaths: b1 - b0});
+  check('crackles scheduled as discrete events', await ev('gallop.buses.main.layers.find(L => L.def.type === "lung_crackles").clock') === 'respiratory');
+  check('stochastic layer fired Poisson events', await ev('gallop.buses.main.layers.find(L => L.def.type === "bowel").events') > 10);
+  const lungAtBase = await ev('(async () => { placeHead(-75, 175); await new Promise(r => setTimeout(r, 300)); return gallop.buses.main.layers.find(L => L.def.type === "lung_crackles").gain.gain.value; })()');
+  check('primary layer at its source = 1 × habitus attenuation (1 − 1/1.4)', Math.abs(lungAtBase - (1 / 1.4)) < 0.01, lungAtBase);
+  const muffle = await ev('(async () => { placeHead(60, 100); await new Promise(r => setTimeout(r, 300)); const inField = gallop.muffle.frequency.value; placeHead(-100, 20); await new Promise(r => setTimeout(r, 300)); return [inField, gallop.muffle.frequency.value]; })()');
+  check('attenuation field lowers the muffle corner locally', muffle[0] < 1500 && muffle[1] > muffle[0] * 2, muffle);
+  await ev('selectView("chest_anterior", true); true'); await sleep(300);
+  const lungOnFront = await ev('(async () => { placeHead(-75, 175); await new Promise(r => setTimeout(r, 300)); return gallop.buses.main.layers.find(L => L.def.type === "lung_crackles").gain.gain.value; })()');
+  check('posterior-only source is silent on the anterior view', lungOnFront < 0.01, lungOnFront);
+  check('anterior-only boundary heart is audible on the front', await ev('(async () => { placeHead(40, 90); await new Promise(r => setTimeout(r, 300)); return gallop.ambient.layers.length === 0 && gallop.buses.main.layers.find(L => L.def.type === "boundary_heart").gain.gain.value; })()') > 0.05);
+  check('habitus > 1 applies a global attenuation entry', await ev('gallop.atten.some(a => a.label === "habitus" && Math.abs(a.amount - (1 - 1/1.4)) < 1e-9)'));
+  check('quiz question for a lung case draws rr and starts on its view', await ev('(() => { gallopQuiz.state.module = "lung"; const q = buildQuestion(5, 2); return q.module === "lung" && q.A.rr >= 12 && q.A.rr <= 18 && q.case.id === "_test" && q.A.pos.x === -60 && q.A.pos.y === 130; })()'));
+  check('lung identify options are lung findings only', await ev('TEMPLATES.identify.options(buildQuestion(5, 2)).every(o => MODULE_FINDINGS.lung.includes(o.v))'));
+  await ev('(() => { cases.pop(); gallopQuiz.state.module = "heart"; const sel = document.getElementById("caseSel"); sel.value = "as-ejection"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(300);
+  check('back on a heart case, anterior view and cardiac control restored', await ev('engine.view === "chest_anterior" && !document.getElementById("bpmBox").hidden && document.getElementById("rrBox").hidden && document.getElementById("viewBar").hidden'));
 
   // ---- reviewer mode
   check('reviewer mode off by default', await ev('!document.body.classList.contains("reviewer") && getComputedStyle(document.getElementById("reviewBtn").closest(".reviewer-only")).display === "none"'));

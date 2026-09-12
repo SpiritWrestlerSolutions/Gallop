@@ -36,6 +36,7 @@ the engine as `window.gallop` for the console checks below.
 | A2 | Page weight | `python tools/validate_cases.py --weight` | total of `site/**` under 2 000 000 bytes |
 | A3 | Never-silent field | included in A1 | validator reports minimum field ≥ 0.10 at every point on the silhouette grid |
 | A4 | Radiation geometry | included in A1 | for `as-ejection`, murmur field at carotid point > field at apex > field at axilla |
+| A6 | Engine generalisation (ROADMAP §1) | included in A5 | an in-test lung case on the posterior view: view bar and mirroring, respiratory clock at the set rate with changes landing on the breath boundary, discrete crackle events, Poisson bowel events, per-view sources silent on the other view, local attenuation lowers the muffle corner, habitus scales gain by 1 − 1/h, per-module quiz ladder and finding options |
 | A5 | Engine smoke test | `node tools/smoke_engine.js` (header explains the two prerequisite processes) | 34/34 checks pass: fixed master gain, clock rate and look-ahead, field blend at A/M/axilla/carotids, boundary captions, 30 ms head crossfade, rate change, compare hold/release, keyboard, reset, no console errors |
 
 ## Listening tests

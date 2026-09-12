@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-170 -80 340 340" width="340" height="340">
+  <!-- Gallop posterior thorax silhouette (placeholder until the visual redesign).
+       Units are millimetres. Origin = spinous process of C7. The engine mirrors this view so
+       the patient's left appears on the viewer's left, as it does when standing behind them.
+       CC BY 4.0 Brendan Hood. -->
+  <defs>
+    <style>
+      .skin{fill:#f6f9fb;stroke:#9fb4c4;stroke-width:1.2}
+      .bone{fill:#e6eef4;stroke:none}
+      .line{fill:none;stroke:#b7c8d5;stroke-width:1;stroke-linecap:round}
+      .rib{fill:none;stroke:#cfdbe5;stroke-width:0.9;stroke-linecap:round}
+    </style>
+  </defs>
+  <path class="skin" d="M-36,-80 L-36,-14 C-60,-8 -110,-4 -150,14 C-166,22 -170,40 -170,60
+    L-160,260 L160,260 L170,60 C170,40 166,22 150,14 C110,-4 60,-8 36,-14 L36,-80 Z"/>
+  <!-- spine -->
+  <path class="bone" d="M-7,-10 L7,-10 L7,235 L-7,235 Z"/>
+  <path class="line" d="M0,0 L0,230" stroke-dasharray="2 6"/>
+  <!-- scapulae -->
+  <path class="line" d="M-30,8 C-70,4 -120,20 -128,60 C-132,90 -110,118 -75,120 C-55,110 -40,60 -30,8 Z"/>
+  <path class="line" d="M30,8 C70,4 120,20 128,60 C132,90 110,118 75,120 C55,110 40,60 30,8 Z"/>
+  <!-- rib-space hints -->
+  <path class="rib" d="M-8,40 Q-80,50 -140,90"/> <path class="rib" d="M8,40 Q80,50 140,90"/>
+  <path class="rib" d="M-8,70 Q-85,82 -150,125"/> <path class="rib" d="M8,70 Q85,82 150,125"/>
+  <path class="rib" d="M-8,100 Q-88,114 -152,160"/> <path class="rib" d="M8,100 Q88,114 152,160"/>
+  <path class="rib" d="M-8,130 Q-90,146 -150,195"/> <path class="rib" d="M8,130 Q90,146 150,195"/>
+  <path class="rib" d="M-8,160 Q-88,178 -140,225"/> <path class="rib" d="M8,160 Q88,178 140,225"/>
+  <!-- lung bases hint -->
+  <path class="line" d="M-150,200 C-100,215 -40,215 -8,205"/>
+  <path class="line" d="M150,200 C100,215 40,215 8,205"/>
+</svg>

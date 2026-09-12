@@ -93,6 +93,20 @@ Chosen in Phase 1 without a source, tune by ear:
 - S4 placed 80 ms before the next S1.
 - Boundary geometry: three breath sources (right lung field, left lung field toward the axilla, upper lobes over the neck) rather than the two named in handover §5.5, because two lung sources did not reach the neck region; one bowel source at (20, 205).
 - Head crossfade 30 ms; compare-to-normal crossfade 20 ms; per-layer gain smoothing time constant 20 ms.
+- Respiratory clock: inspiration 40 % of the cycle; phase windows early 0–40 %, mid 30–70 %, late 60–100 %. Breathing-rate bands per quiz tier 14 / 12–18 / 10–22 / 8–28.
+- Lung stem spectra: vesicular 220 Hz in, 180 Hz out, expiration at 55 % level; bronchial 500 Hz; fine crackle 12 ms at 650 Hz, coarse 35 ms at 260 Hz; wheeze tones near 420, 650, 940 Hz with 5.5 Hz vibrato; rhonchi 150 Hz with 20 Hz flutter; stridor 720 Hz plus 900 Hz noise; pleural rub 300 Hz with a 25 Hz creak; bowel gurgle 250–400 sweeping to 70–120 Hz; tinkle 900 sweeping to 550 Hz.
+- Attenuation: habitus h applies 1 − 1/h everywhere with a 400 Hz corner; local fields default to a 400 Hz corner. Stochastic events use playback-rate jitter 0.85–1.2.
+- Posterior and abdomen view landmark coordinates (see docs/CASE-AUTHORING.md) and the two placeholder silhouettes.
+
+## Modules and views
+
+The engine is not cardiac-specific. A case declares a module (heart, lungs,
+belly), a body view (front of chest, back, abdomen), and each layer runs on
+one of four clocks: cardiac, respiratory, stochastic (Poisson events, for
+bowel sounds), or loop. Attenuation fields model breast and adipose tissue;
+habitus is the same effect over the whole body. The quiz keeps one ladder
+per module. Details in docs/CASE-AUTHORING.md; the plan in docs/ROADMAP.md.
+Only heart cases ship so far; bowel and lung cases are next.
 
 ## Quiz mode
 

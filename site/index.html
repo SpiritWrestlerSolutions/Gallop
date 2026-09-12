@@ -27,6 +27,7 @@ main{display:grid;gap:1rem;padding:1rem;max-width:1100px;margin:0 auto}
 #headDot{transition:r .08s}
 #headDot.beat{r:6}
 #caption{font-size:9px;fill:var(--muted)}
+#viewBar{margin:.4rem 0 0}
 .panel{display:flex;flex-direction:column;gap:.9rem}
 fieldset{border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;margin:0}
 legend{font-weight:500;padding:0 .3rem}
@@ -95,12 +96,13 @@ body.quiz #card:not(.revealed){display:none}
 <main>
   <section>
     <svg id="chest" class="chest" viewBox="-170 -80 340 340" tabindex="0" role="application"
-         aria-label="Chest. Drag the stethoscope head, or use the arrow keys to move it 5 millimetres at a time.">
-      <image href="img/chest.svg" x="-170" y="-80" width="340" height="340"/>
+         aria-label="Body surface. Drag the stethoscope head, or use the arrow keys to move it 5 millimetres at a time.">
+      <image id="chestImg" href="img/chest.svg" x="-170" y="-80" width="340" height="340"/>
       <g id="landmarks"></g>
       <g id="head"><circle r="13" fill="rgba(33,90,125,.18)" stroke="#215a7d" stroke-width="1.5"/><circle id="headDot" r="4" fill="#215a7d"/></g>
       <text id="caption" x="0" y="252" text-anchor="middle"></text>
     </svg>
+    <div id="viewBar" class="row" role="group" aria-label="View" hidden></div>
     <p class="muted" aria-live="polite"><span id="posOut"></span> · <span id="nearOut"></span></p>
     <div class="note">Gallop builds the ear: the repetitions that make a sound recognisable. The program's manikin and real patients build the hands: placement, pressure, technique. Use both. The tool never names a diagnosis; it teaches findings.</div>
   </section>
@@ -114,6 +116,7 @@ body.quiz #card:not(.revealed){display:none}
     <div id="quiz" hidden>
       <p id="betaNote" class="muted" style="margin:0 0 .6rem;font-size:.85rem" hidden><span class="pill draft" style="margin:0">beta</span> These cases have not yet been clinically reviewed.</p>
       <fieldset><legend>Your ladder</legend>
+        <label for="quizModule" id="quizModuleLabel" hidden>Module <select id="quizModule"></select></label>
         <div id="ladder"></div>
         <p id="streak" style="margin:.2rem 0"></p>
         <p id="missedList" class="muted" style="margin:.2rem 0;font-size:.9rem"></p>
@@ -156,8 +159,14 @@ body.quiz #card:not(.revealed){display:none}
       </div>
       <p id="headNote" class="muted" style="margin:.3rem 0 0;font-size:.85rem" hidden></p>
       <div class="practice-only">
-        <label for="bpm" style="margin-top:.6rem">Heart rate <output id="bpmOut" for="bpm">72</output> bpm</label>
-        <input id="bpm" type="range" min="50" max="130" step="1" value="72">
+        <div id="bpmBox">
+          <label for="bpm" style="margin-top:.6rem">Heart rate <output id="bpmOut" for="bpm">72</output> bpm</label>
+          <input id="bpm" type="range" min="50" max="130" step="1" value="72">
+        </div>
+        <div id="rrBox" hidden>
+          <label for="rr" style="margin-top:.6rem">Breathing rate <output id="rrOut" for="rr">14</output> per minute</label>
+          <input id="rr" type="range" min="8" max="30" step="1" value="14">
+        </div>
         <button id="cmpBtn" aria-pressed="false" style="margin-top:.5rem">Hold: compare to normal (N)</button>
       </div>
     </fieldset>
@@ -169,7 +178,7 @@ body.quiz #card:not(.revealed){display:none}
     <p class="muted practice-only" style="font-size:.85rem">Keys: arrows move 5 mm · <kbd>B</kbd> / <kbd>D</kbd> bell / diaphragm · hold <kbd>N</kbd> to compare to normal</p>
     <button id="resetBtn">Reset progress</button>
   </aside>
-<dialog id="reviewDlg" aria-label="Case review">
+  <dialog id="reviewDlg" aria-label="Case review">
     <form method="dialog" id="reviewForm">
       <h2>Review: <span id="rvTitle"></span></h2>
       <p class="muted" style="margin:0 0 .4rem;font-size:.85rem">Case <code id="rvId"></code>. Listen as long as you like; the panel stays open while you drag and switch heads. Answers are saved on this device and sent to Brendan by email or export.</p>
@@ -194,7 +203,6 @@ body.quiz #card:not(.revealed){display:none}
 <div id="pop" role="dialog" aria-label="Landmark note" hidden></div>
 
 <footer>Gallop · © 2026 Brendan Hood. Code MIT, content CC BY 4.0. · <a href="https://cairn.yeomanops.com">Cairn</a> · <a href="#" id="reviewerToggle">Reviewer mode</a></footer>
-
 
 <div id="gate">
   <div class="card">
@@ -227,38 +235,87 @@ body.quiz #card:not(.revealed){display:none}
 'use strict';
 const $ = s => document.querySelector(s);
 
-// ---- constants -------------------------------------------------------------
-// Landmarks: handover §6, provisional coordinates [inference]. Labels only; not sound sources.
-const LANDMARKS = [
-  {id:'A', name:'Aortic', x:-20, y:45, anchor:'end',
-   note:'2nd intercostal space, right sternal border. S2 (A2) is normally loudest here. Aortic ejection murmurs peak here and carry up to the carotids. StatPearls NBK541010; Bates 13e [page, verify].'},
-  {id:'P', name:'Pulmonic', x:20, y:45, anchor:'start',
-   note:'2nd intercostal space, left sternal border. P2 and physiological splitting of S2 are best heard here on the diaphragm. StatPearls NBK541010.'},
-  {id:'E', name:"Erb's point", x:25, y:70, anchor:'start',
-   note:"3rd intercostal space, left sternal border. No source of its own: the aortic and pulmonic fields overlap here, so S1 and S2 are both well heard. Early diastolic murmurs are often best here. StatPearls NBK541010."},
-  {id:'T', name:'Tricuspid', x:28, y:110, anchor:'start',
-   note:'4th to 5th intercostal space, left lower sternal border. S1 is strong; right-sided sounds and holosystolic murmurs of the lower sternal border are best here. StatPearls NBK541010.'},
-  {id:'M', name:'Mitral (apex)', x:85, y:125, anchor:'start',
-   note:'5th intercostal space, midclavicular line. S1 is loudest here. S3 and S4 are best on the bell at the apex. Mitral murmurs peak here and carry toward the axilla. StatPearls NBK541010; Healio Learn the Heart.'},
-];
-const BOX = {x0:-150, x1:150, y0:-60, y1:240};      // head clamp box (mm); mirrored in tools/validate_cases.py
+// ---- views: a body surface = silhouette, landmarks, clamp box, home position (ROADMAP §1) ----
+// Coordinates are millimetres. x positive toward the patient's left, y positive inferior. The posterior view is
+// mirrored on screen so the patient's left is on the viewer's left, as it is when standing behind them.
+// Landmark coordinates are provisional [inference] until the illustration work fixes them.
+const VIEWS = {
+  chest_anterior: {name:'Chest, front', svg:'img/chest.svg', viewBox:[-170,-80,340,340], box:{x0:-150,x1:150,y0:-60,y1:240}, home:{x:25,y:70}, mirror:false,
+    offHeart:[[-90,70],[130,90],[0,-35],[40,200]],
+    landmarks:[
+      {id:'A', name:'Aortic', x:-20, y:45, anchor:'end',
+       note:'2nd intercostal space, right sternal border. S2 (A2) is normally loudest here. Aortic ejection murmurs peak here and carry up to the carotids. StatPearls NBK541010; Bates 13e [page, verify].'},
+      {id:'P', name:'Pulmonic', x:20, y:45, anchor:'start',
+       note:'2nd intercostal space, left sternal border. P2 and physiological splitting of S2 are best heard here on the diaphragm. StatPearls NBK541010.'},
+      {id:'E', name:"Erb's point", x:25, y:70, anchor:'start',
+       note:"3rd intercostal space, left sternal border. No source of its own: the aortic and pulmonic fields overlap here, so S1 and S2 are both well heard. Early diastolic murmurs are often best here. StatPearls NBK541010."},
+      {id:'T', name:'Tricuspid', x:28, y:110, anchor:'start',
+       note:'4th to 5th intercostal space, left lower sternal border. S1 is strong; right-sided sounds and holosystolic murmurs of the lower sternal border are best here. StatPearls NBK541010.'},
+      {id:'M', name:'Mitral (apex)', x:85, y:125, anchor:'start',
+       note:'5th intercostal space, midclavicular line. S1 is loudest here. S3 and S4 are best on the bell at the apex. Mitral murmurs peak here and carry toward the axilla. StatPearls NBK541010; Healio Learn the Heart.'},
+    ]},
+  chest_posterior: {name:'Back', svg:'img/back.svg', viewBox:[-170,-80,340,340], box:{x0:-150,x1:150,y0:-60,y1:240}, home:{x:-60,y:130}, mirror:true,
+    offHeart:[[0,-40],[-140,230],[140,230],[0,240]],
+    landmarks:[
+      {id:'RU', name:'Right upper zone', x:-45, y:30, anchor:'end', note:'Above the scapular spine, between the spine and the scapula. Upper lobe. Compare with the other side at the same level.'},
+      {id:'LU', name:'Left upper zone', x:45, y:30, anchor:'start', note:'Above the scapular spine, between the spine and the scapula. Upper lobe.'},
+      {id:'RM', name:'Right mid zone', x:-50, y:95, anchor:'end', note:'Between the scapulae, T3 to T7. Lower lobe begins here posteriorly.'},
+      {id:'LM', name:'Left mid zone', x:50, y:95, anchor:'start', note:'Between the scapulae, T3 to T7.'},
+      {id:'RB', name:'Right base', x:-75, y:175, anchor:'end', note:'Below the scapula, T8 to T10. Lower lobe. Crackles of fluid and atelectasis are heard here first.'},
+      {id:'LB', name:'Left base', x:75, y:175, anchor:'start', note:'Below the scapula, T8 to T10. Lower lobe.'},
+    ]},
+  abdomen: {name:'Abdomen', svg:'img/abdomen.svg', viewBox:[-170,-150,340,300], box:{x0:-140,x1:140,y0:-130,y1:130}, home:{x:0,y:0}, mirror:false,
+    offHeart:[[-130,-120],[130,-120],[0,120],[-130,100]],
+    landmarks:[
+      {id:'RUQ', name:'Right upper quadrant', x:-60, y:-50, anchor:'end', note:'Liver and gallbladder region. Bowel sounds transmit across the abdomen; one quadrant is enough to say they are present.'},
+      {id:'LUQ', name:'Left upper quadrant', x:60, y:-50, anchor:'start', note:'Stomach and spleen region.'},
+      {id:'RLQ', name:'Right lower quadrant', x:-60, y:60, anchor:'end', note:'Caecum and ascending colon. Listen here first: it is the usual starting point.'},
+      {id:'LLQ', name:'Left lower quadrant', x:60, y:60, anchor:'start', note:'Sigmoid colon.'},
+    ]},
+};
 const REF = 0.7;                                     // master gain: set once at init, never changed (§5.6)
-// ponytail: intensity → gain map is a starting point; tuned by ear in Phase 2 (README "Provisional values")
+// ponytail: intensity → gain map is a starting point; tuned by ear against the manikin (README "Provisional values")
 const GAIN = {
   prominence: {faint:.35, moderate:.6, pronounced:1},
   grade: [0, .12, .25, .45, .7, .7, .7],             // Levine I–III meaningful; IV–VI rendered "loud" (§5.2)
   boundary: {faint:.1, moderate:.18, pronounced:.3},
 };
 const HEADS = {bell:{type:'lowpass', frequency:200}, diaphragm:{type:'highpass', frequency:125}}; // §5.4 [verify]
-const FINDING_LABEL = {normal:'Normal S1, S2', s3:'S3', s4:'S4', split_s2:'Split S2', systolic_murmur:'Systolic murmur',
-  diastolic_murmur:'Diastolic murmur', click:'Click', rub:'Rub'};
-const LAYER_LABEL = {s1:'S1', s2:'S2', s3:'S3', s4:'S4', murmur:'Murmur', boundary_breath:'Breath sounds (boundary)', boundary_bowel:'Bowel sounds (boundary)'};
+const INSP_FRACTION = 0.4;                           // inspiration : expiration about 1 : 1.5 [verify]
+const WINDOW = {early:[0, .4], mid:[.3, .7], late:[.6, 1], full:[0, 1]};   // fraction of a respiratory phase
+const FINDING_LABEL = {
+  normal:'Normal S1, S2', s3:'S3', s4:'S4', split_s2:'Split S2', systolic_murmur:'Systolic murmur', diastolic_murmur:'Diastolic murmur', click:'Click', rub:'Rub',
+  vesicular_normal:'Normal breath sounds', diminished_breath:'Diminished breath sounds', absent_breath:'Absent breath sounds', fine_crackles:'Fine crackles',
+  coarse_crackles:'Coarse crackles', wheeze:'Wheeze', rhonchi:'Rhonchi', stridor:'Stridor', pleural_rub:'Pleural rub',
+  bowel_active:'Active bowel sounds', bowel_hyperactive:'Hyperactive bowel sounds', bowel_hypoactive:'Hypoactive bowel sounds', bowel_absent:'Absent bowel sounds',
+};
+const MODULE_FINDINGS = {
+  heart: ['normal', 's3', 's4', 'split_s2', 'systolic_murmur', 'diastolic_murmur', 'click', 'rub'],
+  lung: ['vesicular_normal', 'diminished_breath', 'absent_breath', 'fine_crackles', 'coarse_crackles', 'wheeze', 'rhonchi', 'stridor', 'pleural_rub'],
+  bowel: ['bowel_active', 'bowel_hyperactive', 'bowel_hypoactive', 'bowel_absent'],
+};
+const MODULE_NAME = {heart:'Heart', lung:'Lungs', bowel:'Belly'};
+const NORMAL_FINDINGS = new Set(['normal', 'vesicular_normal', 'bowel_active']);
+const LAYER_LABEL = {s1:'S1', s2:'S2', s3:'S3', s4:'S4', murmur:'Murmur', boundary_breath:'Breath sounds (boundary)', boundary_bowel:'Bowel sounds (boundary)',
+  boundary_heart:'Heart, distant (boundary)', lung_vesicular:'Breath sounds', lung_crackles:'Crackles', lung_wheeze:'Wheeze', lung_rhonchi:'Rhonchi',
+  lung_stridor:'Stridor', lung_rub:'Pleural rub', bowel:'Bowel sounds'};
+const stemFile = s => typeof s === 'string' ? s : s.file;   // stems.in / stems.out may be a path or {file}
+const moduleOf = cs => cs.module || 'heart';
+const viewOf = cs => cs.view || 'chest_anterior';
+const isNormal = cs => NORMAL_FINDINGS.has(cs.answer_key.primary_finding);
+function layerClock(def) {
+  if (def.clock) return def.clock;
+  if (def.type === 'boundary_heart') return 'cardiac';   // the distant thump keeps the beat; it is a boundary only in where it sits
+  return def.type.startsWith('boundary') ? 'loop' : def.type.startsWith('lung') ? 'respiratory' : def.type === 'bowel' ? 'stochastic' : 'cardiac';
+}
 
 // ---- source-field maths (§5.3) ----------------------------------------------
-function field(layer, x, y) {
+// A source without a view belongs to the case's primary view; sources on other views contribute nothing.
+function field(layer, x, y, view = engine.view, caseView = engine.caseView) {
   const srcs = layer.sources || [layer.source];
   let best = 0;
   for (const s of srcs) {
+    if ((s.view || caseView) !== view) continue;
     const dx = x - s.x, dy = y - s.y;
     const sx = dx < 0 ? s.spread.l : s.spread.r;
     const sy = dy < 0 ? s.spread.u : s.spread.d;
@@ -279,18 +336,23 @@ function ramp(param, v, now, dur) {
   param.linearRampToValueAtTime(v, now + dur);
 }
 
-// ---- engine: clock → layers → field blend → head filter → fixed master (§5) --
+// ---- engine: clocks → layers → field blend → attenuation → head filter → fixed master (§5) --
 const engine = {
-  ctx:null, master:null, pre:null, paths:{}, buffers:new Map(), buses:{main:null, normal:null}, ambient:null,
-  bpm:72, systole:0.3, head:'diaphragm', pos:{x:25, y:70}, compare:false,
-  nextCycle:0, cycleCount:0, timer:null, onBeat:null,
-  // Respiratory modulator, ~4 s period. Built in, wired to nothing until Phase 3 (§5.1).
-  resp(t) { return Math.sin(2*Math.PI*t/4); },
+  ctx:null, master:null, pre:null, muffle:null, paths:{}, buffers:new Map(), buses:{main:null, normal:null}, ambient:null,
+  bpm:72, systole:0.3, rr:14, head:'diaphragm', pos:{x:25, y:70}, compare:false,
+  view:'chest_anterior', caseView:'chest_anterior', atten:[],
+  nextCycle:0, cycleCount:0, nextBreath:0, breathCount:0, timer:null, onBeat:null,
+  get box() { return VIEWS[this.view].box; },
+  // Respiratory phase 0..1 at time t (0 = start of inspiration). Available for S2 splitting and right-sided augmentation (Phase 4).
+  breathPhase(t) { const cycle = 60 / this.rr; return ((t - this.nextBreath) / cycle + 1) % 1; },
 
   init() {
     const c = this.ctx = new (window.AudioContext || window.webkitAudioContext)();
     this.master = c.createGain(); this.master.gain.value = REF; this.master.connect(c.destination);
     this.pre = c.createGain(); this.pre.gain.value = 1;
+    // Attenuation (habitus, breast, adipose): every bus passes through one low-pass whose corner drops as the head enters a field.
+    this.muffle = c.createBiquadFilter(); this.muffle.type = 'lowpass'; this.muffle.frequency.value = 20000; this.muffle.Q.value = 0.5;
+    this.muffle.connect(this.pre);
     // Two parallel filter paths; toggling crossfades over 30 ms rather than reconfiguring one node (§5.4).
     for (const [name, spec] of Object.entries(HEADS)) {
       const f = c.createBiquadFilter(); f.type = spec.type; f.frequency.value = spec.frequency; f.Q.value = 0.7;
@@ -302,25 +364,30 @@ const engine = {
   decode(url, arrayBuffer) {
     return new Promise((res, rej) => this.ctx.decodeAudioData(arrayBuffer, b => { this.buffers.set(url, b); res(b); }, rej));
   },
+  layerRecord(def) {
+    const c = this.ctx, g = c.createGain(); g.gain.value = 0;
+    const buffers = {any: def.stem ? this.buffers.get(def.stem.file) : null};
+    if (def.stems) { buffers.inspiratory = this.buffers.get(stemFile(def.stems.in)); buffers.expiratory = this.buffers.get(stemFile(def.stems.out)); }
+    return {def, gain:g, peak:peakOf(def), clock:layerClock(def), buffers, nextEvent:null, events:0};
+  },
   makeBus(cs) {
-    const c = this.ctx, bus = {gain:c.createGain(), layers:[]};
-    bus.gain.connect(this.pre);
+    const bus = {gain:this.ctx.createGain(), layers:[]};
+    bus.gain.connect(this.muffle);
     for (const def of cs.layers) {
-      if (def.type.startsWith('boundary')) continue;
-      const g = c.createGain(); g.gain.value = 0; g.connect(bus.gain);
-      bus.layers.push({def, gain:g, peak:peakOf(def), buffer:this.buffers.get(def.stem.file)});
+      if (layerClock(def) === 'loop') continue;
+      const L = this.layerRecord(def); L.gain.connect(bus.gain); bus.layers.push(L);
     }
     return bus;
   },
   makeAmbient(cs) {
-    // Boundary sounds loop independently of the clock (§5.5); the field blend still applies.
+    // Loop layers (boundary textures) run independently of every clock (§5.5); the field blend still applies.
     const c = this.ctx, amb = {gain:c.createGain(), layers:[], sources:[]};
-    amb.gain.connect(this.pre);
+    amb.gain.connect(this.muffle);
     for (const def of cs.layers) {
-      if (!def.type.startsWith('boundary')) continue;
-      const g = c.createGain(); g.gain.value = 0; g.connect(amb.gain);
-      const s = c.createBufferSource(); s.buffer = this.buffers.get(def.stem.file); s.loop = true; s.connect(g); s.start();
-      amb.layers.push({def, gain:g, peak:peakOf(def)}); amb.sources.push(s);
+      if (layerClock(def) !== 'loop') continue;
+      const L = this.layerRecord(def); L.gain.connect(amb.gain);
+      const s = c.createBufferSource(); s.buffer = L.buffers.any; s.loop = true; s.connect(L.gain); s.start();
+      amb.layers.push(L); amb.sources.push(s);
     }
     return amb;
   },
@@ -331,6 +398,9 @@ const engine = {
   },
   setCase(cs, normal) {
     this.retire(this.buses.main); this.retire(this.buses.normal); this.retire(this.ambient);
+    this.caseView = viewOf(cs);
+    this.atten = [...(cs.attenuation || [])];
+    if (cs.habitus > 1) this.atten.push({label:'habitus', global:true, x:0, y:0, spread:{l:1e4, r:1e4, u:1e4, d:1e4}, amount: 1 - 1 / cs.habitus, lowpass_hz: 400});
     this.buses.main = this.makeBus(cs);
     this.buses.normal = normal && normal.id !== cs.id ? this.makeBus(normal) : null;
     this.buses.main.gain.gain.value = this.compare && this.buses.normal ? 0 : 1;
@@ -340,45 +410,89 @@ const engine = {
   },
   start() {
     if (this.timer) return;
-    this.nextCycle = this.ctx.currentTime + 0.05;
+    this.nextCycle = this.nextBreath = this.ctx.currentTime + 0.05;
     this.timer = setInterval(() => this.tick(), 25);   // look-ahead scheduler, "tale of two clocks" (§5.1)
   },
   tick() {
-    while (this.nextCycle < this.ctx.currentTime + 0.1) {
+    const horizon = this.ctx.currentTime + 0.1, buses = [this.buses.main, this.buses.normal].filter(Boolean);
+    while (this.nextCycle < horizon) {                     // cardiac clock
       const t0 = this.nextCycle, cycle = 60 / this.bpm;   // bpm read once per cycle: changes land on the boundary
-      for (const bus of [this.buses.main, this.buses.normal]) if (bus) this.scheduleCycle(bus, t0, cycle);
+      for (const bus of buses) this.scheduleCycle(bus, t0, cycle);
       if (this.onBeat) this.onBeat(t0);
       this.nextCycle += cycle; this.cycleCount++;
     }
+    while (this.nextBreath < horizon) {                    // respiratory clock
+      const t0 = this.nextBreath, cycle = 60 / this.rr;
+      for (const bus of buses) this.scheduleBreath(bus, t0, cycle);
+      this.nextBreath += cycle; this.breathCount++;
+    }
+    for (const bus of buses) this.scheduleEvents(bus, horizon);   // stochastic layers
   },
-  play(L, t, scale) {
-    if (!L.buffer) return;
-    const c = this.ctx, s = c.createBufferSource(); s.buffer = L.buffer;
-    if (scale !== undefined) { const g = c.createGain(); g.gain.value = scale; s.connect(g); g.connect(L.gain); }
-    else s.connect(L.gain);
+  play(L, t, o = {}) {
+    const buf = o.buffer || L.buffers.any;
+    if (!buf) return;
+    const c = this.ctx, s = c.createBufferSource(); s.buffer = buf;
+    if (o.rate) s.playbackRate.value = o.rate;
+    const g = c.createGain(); g.gain.value = o.scale ?? 1; s.connect(g); g.connect(L.gain);
     s.start(t);
+    if (o.until && o.until < t + buf.duration / (o.rate || 1)) {   // cut at the phase end with a 30 ms fade, never a hard stop
+      g.gain.setValueAtTime(o.scale ?? 1, o.until - 0.03); g.gain.linearRampToValueAtTime(0, o.until); s.stop(o.until);
+    }
   },
   scheduleCycle(bus, t0, cycle) {
     const s2 = t0 + this.systole, next = t0 + cycle;   // systole fixed; diastole absorbs rate (§5.1)
     for (const L of bus.layers) {
+      if (L.clock !== 'cardiac') continue;
       const d = L.def;
       switch (d.type) {
-        case 's1': this.play(L, t0); break;
-        case 's2': this.play(L, s2); if (d.split_ms > 0) this.play(L, s2 + d.split_ms/1000, 0.7); break;   // A2 then P2
+        case 's1': case 'boundary_heart': this.play(L, t0); if (d.type === 'boundary_heart' && L.buffers.expiratory) this.play(L, s2, {buffer:L.buffers.expiratory}); break;
+        case 's2': this.play(L, s2); if (d.split_ms > 0) this.play(L, s2 + d.split_ms/1000, {scale:0.7}); break;   // A2 then P2
         case 's3': this.play(L, Math.min(s2 + (d.offset_from_s2_ms ?? 150)/1000, next - 0.03)); break;
         case 's4': this.play(L, Math.max(s2 + 0.06, next - (d.offset_before_s1_ms ?? 80)/1000)); break;    // merges with S3 as diastole shrinks
         case 'murmur': this.play(L, d.phase === 'diastolic' ? s2 : t0); break;
-        // ponytail: click, snap, rub are Phase 3 layers; ignored until then
+        // ponytail: click, snap, rub are later layers; ignored until then
       }
     }
   },
+  scheduleBreath(bus, t0, cycle) {
+    const insp = cycle * INSP_FRACTION, span = {inspiratory:[t0, t0 + insp], expiratory:[t0 + insp, t0 + cycle]};
+    for (const L of bus.layers) {
+      if (L.clock !== 'respiratory') continue;
+      const d = L.def, phases = !d.phase || d.phase === 'both' ? ['inspiratory', 'expiratory'] : [d.phase];
+      for (const ph of phases) {
+        const [a, b] = span[ph], [wa, wb] = WINDOW[d.window || 'full'], s = a + (b - a) * wa, e = a + (b - a) * wb;
+        const buffer = L.buffers[ph] || L.buffers.any;
+        if (d.events) for (let i = 0; i < d.events; i++) this.play(L, s + Math.random() * (e - s), {buffer, rate: 0.9 + Math.random() * 0.2});
+        else this.play(L, s, {buffer, until:e});
+      }
+    }
+  },
+  scheduleEvents(bus, horizon) {
+    for (const L of bus.layers) {
+      if (L.clock !== 'stochastic') continue;
+      const rate = L.def.rate_per_min || 0;
+      if (!rate) continue;                                    // absent: nothing is scheduled
+      if (L.nextEvent === null) L.nextEvent = this.ctx.currentTime + Math.random() * 60 / rate;
+      while (L.nextEvent < horizon) {
+        this.play(L, L.nextEvent, {rate: 0.85 + Math.random() * 0.35});
+        L.nextEvent += -Math.log(1 - Math.random()) * 60 / rate;   // Poisson gaps
+        L.events++;
+      }
+    }
+  },
+  attenAt(x, y) {
+    let a = 0, lp = 400;
+    for (const f of this.atten) { const v = (f.amount ?? 0.5) * (f.global ? 1 : field({sources:[f]}, x, y)); if (v > a) { a = v; lp = f.lowpass_hz || 400; } }
+    return {a, lp};
+  },
   updateMix() {
     if (!this.ctx) return;
-    const now = this.ctx.currentTime, {x, y} = this.pos;
+    const now = this.ctx.currentTime, {x, y} = this.pos, {a, lp} = this.attenAt(x, y);
     for (const b of [this.buses.main, this.buses.normal, this.ambient]) if (b)
-      for (const L of b.layers) L.gain.gain.setTargetAtTime(L.peak * field(L.def, x, y), now, 0.02);
+      for (const L of b.layers) L.gain.gain.setTargetAtTime(L.peak * field(L.def, x, y) * (1 - a), now, 0.02);
+    this.muffle.frequency.setTargetAtTime(20000 * Math.pow(lp / 20000, a), now, 0.02);   // log interpolation toward the field's corner
   },
-  setPos(x, y) { this.pos = {x:clamp(x, BOX.x0, BOX.x1), y:clamp(y, BOX.y0, BOX.y1)}; this.updateMix(); },
+  setPos(x, y) { const b = this.box; this.pos = {x:clamp(x, b.x0, b.x1), y:clamp(y, b.y0, b.y1)}; this.updateMix(); },
   setHead(h) {
     this.head = h;
     if (!this.ctx) return;
@@ -403,19 +517,35 @@ const store = {
   set(k, v) { try { localStorage.setItem('gallop.' + k, v); } catch {} },
   clear() { try { for (const k of Object.keys(localStorage)) if (k.startsWith('gallop.') && !/^gallop\.(reviews|rvName|rvRole|rvEmail|reviewer)$/.test(k)) localStorage.removeItem(k); } catch {} },   // reviews survive a learner reset
 };
-
-// ---- chest / head -------------------------------------------------------------
-const svg = $('#chest'), headEl = $('#head'), headDot = $('#headDot');
-function drawLandmarks() {
-  $('#landmarks').innerHTML = LANDMARKS.map(l =>
-    `<g class="lm" data-id="${l.id}"><circle cx="${l.x}" cy="${l.y}" r="4.5"/>` +
-    `<text x="${l.x + (l.anchor === 'end' ? -7 : 7)}" y="${l.y + 3}" text-anchor="${l.anchor}">${l.id} · ${l.name}</text></g>`).join('');
-  for (const g of document.querySelectorAll('.lm')) g.addEventListener('click', () => showPop(LANDMARKS.find(l => l.id === g.dataset.id)));
+function normalFor(cs) {
+  return cases.find(c => c !== cs && moduleOf(c) === moduleOf(cs) && viewOf(c) === viewOf(cs) && isNormal(c)) || null;
 }
-function nearestLandmark(x, y) {
+
+// ---- surface / head -------------------------------------------------------------
+const svg = $('#chest'), headEl = $('#head'), headDot = $('#headDot');
+const V = () => VIEWS[engine.view];
+const sx = x => V().mirror ? -x : x;   // patient x → screen x
+function drawLandmarks() {
+  $('#landmarks').innerHTML = V().landmarks.map(l =>
+    `<g class="lm" data-id="${l.id}"><circle cx="${sx(l.x)}" cy="${l.y}" r="4.5"/>` +
+    `<text x="${sx(l.x) + (l.anchor === 'end' ? -7 : 7)}" y="${l.y + 3}" text-anchor="${l.anchor}">${l.id} · ${l.name}</text></g>`).join('');
+  for (const g of document.querySelectorAll('.lm')) g.addEventListener('click', () => showPop(V().landmarks.find(l => l.id === g.dataset.id)));
+}
+function nearestLandmark(x, y, view = engine.view) {
   let best = null, bd = Infinity;
-  for (const l of LANDMARKS) { const d = Math.hypot(x - l.x, y - l.y); if (d < bd) { bd = d; best = l; } }
+  for (const l of VIEWS[view].landmarks) { const d = Math.hypot(x - l.x, y - l.y); if (d < bd) { bd = d; best = l; } }
   return best;
+}
+function selectView(key, goHome) {
+  const v = VIEWS[key]; engine.view = key;
+  const [x, y, w, h] = v.viewBox;
+  svg.setAttribute('viewBox', v.viewBox.join(' '));
+  const img = $('#chestImg'); img.setAttribute('href', v.svg); img.setAttribute('x', x); img.setAttribute('y', y); img.setAttribute('width', w); img.setAttribute('height', h);
+  $('#caption').setAttribute('y', y + h - 8);
+  svg.setAttribute('aria-label', `${v.name}. Drag the stethoscope head, or use the arrow keys to move it 5 millimetres at a time.`);
+  drawLandmarks();
+  for (const b of $('#viewBar').querySelectorAll('button')) b.setAttribute('aria-pressed', b.dataset.view === key);
+  placeHead(goHome ? v.home.x : engine.pos.x, goHome ? v.home.y : engine.pos.y);
 }
 function captionFor(cs, x, y) {
   if (!cs || quiz.active) return '';   // region captions are a practice-mode cue (§8)
@@ -429,7 +559,7 @@ function captionFor(cs, x, y) {
 function placeHead(x, y) {
   engine.setPos(x, y);
   const p = engine.pos;
-  headEl.setAttribute('transform', `translate(${p.x} ${p.y})`);
+  headEl.setAttribute('transform', `translate(${sx(p.x)} ${p.y})`);
   $('#posOut').textContent = `x ${Math.round(p.x)}, y ${Math.round(p.y)} mm`;
   const near = nearestLandmark(p.x, p.y);
   for (const g of document.querySelectorAll('.lm')) g.classList.toggle('near', g.dataset.id === near.id);
@@ -437,7 +567,8 @@ function placeHead(x, y) {
   $('#caption').textContent = captionFor(current, p.x, p.y);
 }
 function toMM(ev) {
-  return new DOMPoint(ev.clientX, ev.clientY).matrixTransform(svg.getScreenCTM().inverse());
+  const p = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(svg.getScreenCTM().inverse());
+  return {x: sx(p.x), y: p.y};
 }
 let headLocked = false;   // what-changed questions hide and freeze the head
 svg.addEventListener('pointerdown', ev => { if (headLocked) return; svg.setPointerCapture(ev.pointerId); dragging = true; const p = toMM(ev); placeHead(p.x, p.y); ev.preventDefault(); });
@@ -462,6 +593,7 @@ function setHead(h) {
 $('#bellBtn').onclick = () => setHead('bell');
 $('#diaBtn').onclick = () => setHead('diaphragm');
 $('#bpm').addEventListener('input', ev => { engine.bpm = +ev.target.value; $('#bpmOut').textContent = ev.target.value; });
+$('#rr').addEventListener('input', ev => { engine.rr = +ev.target.value; $('#rrOut').textContent = ev.target.value; });
 
 const cmpBtn = $('#cmpBtn');
 function setCompare(on) { if (on && quiz.active) return; engine.setCompare(on); cmpBtn.setAttribute('aria-pressed', on); }
@@ -473,10 +605,10 @@ window.addEventListener('blur', () => setCompare(false));
 
 document.addEventListener('keydown', ev => {
   if (/^(INPUT|SELECT|TEXTAREA)$/.test(ev.target.tagName)) return;
-  const p = engine.pos, k = ev.key.toLowerCase();
+  const p = engine.pos, k = ev.key.toLowerCase(), left = V().mirror ? 5 : -5;   // screen-left is patient-right, except on the back view
   if (headLocked && ev.key.startsWith('Arrow')) return;
-  if (ev.key === 'ArrowLeft') placeHead(p.x - 5, p.y);
-  else if (ev.key === 'ArrowRight') placeHead(p.x + 5, p.y);
+  if (ev.key === 'ArrowLeft') placeHead(p.x + left, p.y);
+  else if (ev.key === 'ArrowRight') placeHead(p.x - left, p.y);
   else if (ev.key === 'ArrowUp') placeHead(p.x, p.y - 5);
   else if (ev.key === 'ArrowDown') placeHead(p.x, p.y + 5);
   else if (k === 'b') setHead('bell');
@@ -495,25 +627,37 @@ document.addEventListener('visibilitychange', () => {
 // ---- case UI ---------------------------------------------------------------------
 function selectCase(cs) {
   current = cs;
-  if (engine.ctx) engine.setCase(cs, normalCase);
+  if (engine.ctx) engine.setCase(cs, normalFor(cs));
+  const views = cs.views || [viewOf(cs)];
+  $('#viewBar').hidden = views.length < 2;
+  $('#viewBar').innerHTML = views.map(v => `<button data-view="${v}" aria-pressed="false">${VIEWS[v].name}</button>`).join('');
+  for (const b of $('#viewBar').querySelectorAll('button')) b.onclick = () => selectView(b.dataset.view, true);
+  selectView(viewOf(cs), engine.view !== viewOf(cs));   // open on the case's primary view; go home only if the view changed
   $('#draftPill').hidden = cs.reviewed_by !== null;
   $('#caseFindings').textContent = 'Findings: ' + cs.findings.map(f => FINDING_LABEL[f] || f).join(', ');
+  $('#bpmBox').hidden = !cs.layers.some(L => layerClock(L) === 'cardiac');
+  $('#rrBox').hidden = !cs.layers.some(L => layerClock(L) === 'respiratory');
+  $('#cmpBtn').hidden = !normalFor(cs);
   renderLayers(cs); renderCard(cs);
-  placeHead(engine.pos.x, engine.pos.y);
+}
+function layerDetail(L) {
+  if (L.type === 'murmur') return `${L.phase}, ${L.timing}, ${L.shape}, ${L.pitch}, ${L.quality}`;
+  if (layerClock(L) === 'respiratory') return [L.phase || 'both phases', L.window && L.window !== 'full' ? L.window : '', L.events ? `${L.events} per breath` : ''].filter(Boolean).join(', ');
+  if (layerClock(L) === 'stochastic') return L.rate_per_min ? `about ${L.rate_per_min} per minute` : 'none';
+  return '';
 }
 function renderLayers(cs) {
   const box = $('#layers'); box.innerHTML = '';
   cs.layers.forEach((L, i) => {
     const row = document.createElement('div'); row.className = 'layer';
-    const name = LAYER_LABEL[L.type] || L.type;
-    const detail = L.type === 'murmur' ? ` <small>${L.phase}, ${L.timing}, ${L.shape}, ${L.pitch}, ${L.quality}</small>` : '';
-    const pill = `<span class="pill">${L.provenance.class.replace(/_/g, ' ')}</span>`;
+    const name = L.label || LAYER_LABEL[L.type] || L.type, detail = layerDetail(L);
+    const pill = `<span class="pill">${L.provenance.class.replace(/_/g, ' ')}</span>${detail ? ` <small>${detail}</small>` : ''}`;
     if (L.type.startsWith('boundary')) { row.innerHTML = `<span>${name}${pill}</span><span class="muted">${L.intensity}</span>`; box.appendChild(row); return; }
     const id = 'lay' + i;
     const opts = L.type === 'murmur'
       ? [1,2,3,4,5,6].map(g => `<option value="${g}" ${g === L.grade ? 'selected' : ''}>grade ${'I II III IV V VI'.split(' ')[g-1]}${g >= 4 ? ' (loud)' : ''}</option>`)
       : ['faint','moderate','pronounced'].map(v => `<option ${v === L.intensity ? 'selected' : ''}>${v}</option>`);
-    row.innerHTML = `<label for="${id}">${name}${pill}${detail}</label><select id="${id}">${opts.join('')}</select>`;
+    row.innerHTML = `<label for="${id}">${name}${pill}</label><select id="${id}">${opts.join('')}</select>`;
     row.querySelector('select').addEventListener('change', ev => {
       if (L.type === 'murmur') L.grade = +ev.target.value; else L.intensity = ev.target.value;
       engine.refreshPeaks();
@@ -522,20 +666,20 @@ function renderLayers(cs) {
   });
 }
 function renderCard(cs) {
-  const c = cs.card, esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const c = cs.card, esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const draft = cs.reviewed_by === null ? '<span class="pill draft">draft: not yet reviewed</span>' : `<span class="pill">reviewed by ${esc(cs.reviewed_by)}, ${esc(cs.review_date)}</span>`;
   $('#cardBody').innerHTML =
     `<p><strong>${esc(cs.title)}</strong> ${draft}</p>` +
     `<p>${esc(c.summary)}</p><p><strong>Why.</strong> ${esc(c.why)}</p>` +
     `<details><summary>Why squared</summary><p>${esc(c.why_squared)}</p></details>` +
-    `<p><strong>Layers</strong></p><ul>` + cs.layers.map(L => `<li>${LAYER_LABEL[L.type] || L.type} <span class="pill">${L.provenance.class.replace(/_/g,' ')}</span><br><small>${esc(L.provenance.basis || (L.provenance.dataset + ' ' + L.provenance.record))}</small></li>`).join('') + `</ul>` +
+    `<p><strong>Layers</strong></p><ul>` + cs.layers.map(L => `<li>${esc(L.label || LAYER_LABEL[L.type] || L.type)} <span class="pill">${L.provenance.class.replace(/_/g,' ')}</span><br><small>${esc(L.provenance.basis || (L.provenance.dataset + ' ' + L.provenance.record))}</small></li>`).join('') + `</ul>` +
     `<p><strong>Sources</strong></p><ul>` + c.sources.map(s => `<li>${esc(s)}</li>`).join('') + `</ul>` +
     (cs.real_thing ? `<p><strong>Hear the real thing.</strong> <audio controls src="${cs.real_thing.file}"></audio><br><small>${esc(cs.real_thing.dataset)} record ${esc(cs.real_thing.record)}, ${esc(cs.real_thing.licence)}</small></p>` : '');
 }
 $('#caseSel').addEventListener('change', ev => selectCase(cases.find(c => c.id === ev.target.value)));
 
 $('#resetBtn').onclick = () => {
-  if (confirm('Clear Gallop progress stored in this browser? (Calibration and headphone answers.)')) { store.clear(); location.reload(); }
+  if (confirm('Clear Gallop progress stored in this browser? (Calibration, headphone answer, quiz ladder.)')) { store.clear(); location.reload(); }
 };
 
 // ---- calibration gate (§5.6) -----------------------------------------------------
@@ -561,7 +705,7 @@ $('#startBtn').onclick = async () => {
     await engine.ctx.resume();                       // must happen inside the tap on iOS
     await Promise.all([...stemBytes].map(([url, ab]) => engine.decode(url, ab.slice(0))));
     engine.bpm = 72; $('#bpm').value = 72; $('#bpmOut').textContent = '72';
-    setHead('diaphragm'); placeHead(25, 70);
+    setHead('diaphragm'); selectView('chest_anterior', true);
     engine.setCase(normalCase, null);                // reference sequence: normal S1/S2 at 72 bpm
     engine.start();
     step('volume');
@@ -588,15 +732,28 @@ engine.onBeat = t0 => setTimeout(() => { headDot.classList.add('beat'); setTimeo
 const QUIZ_ALLOWS_DRAFTS = true;   // beta: unreviewed cases may enter the quiz. Set false once a reviewer has signed off (§7).
 const ADVANCE_STREAK = 8, DROP_MISSES = 4;   // §9.2 [inference: Brendan to confirm]
 const TIER_NAME = {1:'Foundations', 2:'Recognition', 3:'Localisation', 4:'Field conditions'};
-const TIER_RATE = {1:[70,70], 2:[60,90], 3:[60,110], 4:[60,130]};
+const TIER_RATE = {1:[70,70], 2:[60,90], 3:[60,110], 4:[60,130]};        // heart rate band per tier
+const TIER_RR = {1:[14,14], 2:[12,18], 3:[10,22], 4:[8,28]};             // breathing rate band per tier [inference]
 const TIER_INTENSITY = {1:{prom:2, grades:[3]}, 2:{prom:1, grades:[2]}, 3:{prom:0, grades:[1,2]}, 4:{prom:0, grades:[1,2]}};
 const PROM = ['faint', 'moderate', 'pronounced'];
-const OFF_HEART = [[-90,70], [130,90], [0,-35], [40,200]];
 const WHAT_CHANGED = {
-  rate: 'The rate changed. Listen to the gap after S2: it shortened or lengthened while S1 to S2 stayed the same.',
-  head: 'The head changed. On the bell the low end fills in and high-pitched sounds soften; on the diaphragm the reverse.',
-  intensity: 'The finding got louder or softer while everything else, including S1 and S2, stayed where it was.',
-  position: 'The head moved. What was loudest is no longer loudest, and the boundary sounds changed with it.',
+  heart: {
+    rate: 'The rate changed. Listen to the gap after S2: it shortened or lengthened while S1 to S2 stayed the same.',
+    head: 'The head changed. On the bell the low end fills in and high-pitched sounds soften; on the diaphragm the reverse.',
+    intensity: 'The finding got louder or softer while everything else, including S1 and S2, stayed where it was.',
+    position: 'The head moved. What was loudest is no longer loudest, and the boundary sounds changed with it.',
+  },
+  lung: {
+    rate: 'The breathing rate changed. Each breath got shorter or longer; the finding kept its place within the breath.',
+    head: 'The head changed. The diaphragm sharpens crackles and wheeze; the bell dulls them and brings up low rumbles.',
+    intensity: 'The finding got louder or softer while the underlying breath sounds stayed the same.',
+    position: 'The head moved. The finding is regional: it was louder in one zone than the other.',
+  },
+  bowel: {
+    head: 'The head changed. Bowel sounds are mid to high pitched, so the diaphragm brings them forward.',
+    intensity: 'The sounds got louder or softer, not more or less frequent.',
+    position: 'The head moved. Bowel sounds carry across the abdomen, but each quadrant has its own balance.',
+  },
 };
 const RADIATION_LABEL = {axilla:'Axilla', carotids:'Carotids', nowhere:'Nowhere'};
 function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -604,11 +761,16 @@ const pick = (rng, arr) => arr[Math.floor(rng() * arr.length)];
 const irange = (rng, a, b) => a + Math.floor(rng() * (b - a + 1));
 const YESNO = [{v:'yes', l:'Yes'}, {v:'no', l:'No'}];
 
-function primaryLayer(cs) { return cs.layers.find(L => L.type === 'murmur') || cs.layers.find(L => L.type === 's3' || L.type === 's4') || cs.layers.find(L => L.type === 's1'); }
+// The layer that carries the finding: authored with primary:true, else the first non-baseline layer.
+function primaryLayer(cs) {
+  return cs.layers.find(L => L.primary) || cs.layers.find(L => L.type === 'murmur') || cs.layers.find(L => L.type === 's3' || L.type === 's4')
+    || cs.layers.find(L => L.type.startsWith('lung') && L.type !== 'lung_vesicular') || cs.layers.find(L => L.type === 'bowel' || L.type === 'lung_vesicular')
+    || cs.layers.find(L => L.type === 's1');
+}
 function paFindings(c) {
   const fs = Object.keys(c.quiz_rationales).filter(k => k.startsWith('present_absent_')).map(k => k.slice(15));
   const pf = c.answer_key.primary_finding;
-  if (pf !== 'normal' && !fs.includes(pf)) fs.push(pf);
+  if (!NORMAL_FINDINGS.has(pf) && !fs.includes(pf)) fs.push(pf);
   return fs;
 }
 function caseAtLevel(cs, level) {
@@ -619,62 +781,69 @@ function caseAtLevel(cs, level) {
 // A template: which tiers, whether it applies to a case, how to ask, how to score, and the hand-written rationale.
 const TEMPLATES = {
   identify: {tiers:[1,2,3,4], applies: c => !!c.quiz_rationales.identify, prompt: () => 'What do you hear?',
-    options: () => Object.entries(FINDING_LABEL).map(([v, l]) => ({v, l})), answer: q => q.case.answer_key.primary_finding,
+    options: q => MODULE_FINDINGS[moduleOf(q.case)].map(v => ({v, l: FINDING_LABEL[v]})), answer: q => q.case.answer_key.primary_finding,
     rationale: q => q.case.quiz_rationales.identify, label: v => FINDING_LABEL[v]},
   present_absent: {tiers:[1,2,3,4], applies: c => paFindings(c).length > 0, draw: (q, rng) => { q.finding = pick(rng, paFindings(q.case)); },
-    prompt: q => { const l = FINDING_LABEL[q.finding], shown = /^S\d/.test(l) ? l : l[0].toLowerCase() + l.slice(1); return `Is there ${/^[aeiou]/i.test(l) ? 'an' : 'a'} ${shown}?`; }, options: () => YESNO,
+    prompt: q => { const l = FINDING_LABEL[q.finding], shown = /^S\d/.test(l) ? l : l[0].toLowerCase() + l.slice(1); return /s$/.test(shown) && !/^S\d/.test(l) ? `Are there ${shown}?` : `Is there ${/^[aeiou]/i.test(l) ? 'an' : 'a'} ${shown}?`; }, options: () => YESNO,
     answer: q => q.case.findings.includes(q.finding) ? 'yes' : 'no',
     rationale: q => q.case.quiz_rationales['present_absent_' + q.finding] || q.case.quiz_rationales.identify, label: v => v === 'yes' ? 'Yes' : 'No'},
   localize: {tiers:[2,3,4], applies: c => !!c.quiz_rationales.localize, prompt: () => 'Drag the head to where it is loudest, then submit.',
     options: () => [{v:'submit', l:'Submit position'}], answer: () => 'submit', rationale: q => q.case.quiz_rationales.localize,
-    score: q => { const la = q.case.answer_key.loudest_at, d = Math.hypot(engine.pos.x - la.x, engine.pos.y - la.y); return d <= la.radius_mm ? 'full' : d <= 2 * la.radius_mm ? 'partial' : 'miss'; },
-    label: (v, q) => 'near the ' + nearestLandmark(q.case.answer_key.loudest_at.x, q.case.answer_key.loudest_at.y).name.toLowerCase() + ' area'},
+    score: q => { const la = q.case.answer_key.loudest_at; if ((la.view || viewOf(q.case)) !== engine.view) return 'miss'; const d = Math.hypot(engine.pos.x - la.x, engine.pos.y - la.y); return d <= la.radius_mm ? 'full' : d <= 2 * la.radius_mm ? 'partial' : 'miss'; },
+    label: (v, q) => { const la = q.case.answer_key.loudest_at; return 'near the ' + nearestLandmark(la.x, la.y, la.view || viewOf(q.case)).name.toLowerCase(); }},
   which_head: {tiers:[1,2,3,4], applies: c => !!c.quiz_rationales.which_head && c.answer_key.best_head !== 'either' && !diaphragmOnly, prompt: () => 'Which head makes this clearest?',
     options: () => [{v:'bell', l:'Bell'}, {v:'diaphragm', l:'Diaphragm'}], answer: q => q.case.answer_key.best_head,
     rationale: q => q.case.quiz_rationales.which_head, label: v => v === 'bell' ? 'Bell' : 'Diaphragm'},
-  timing: {tiers:[2,3,4], applies: c => !!c.quiz_rationales.timing && !!c.answer_key.timing, prompt: () => 'Systolic or diastolic?',
-    options: () => [{v:'systolic', l:'Systolic'}, {v:'diastolic', l:'Diastolic'}], answer: q => q.case.answer_key.timing,
+  timing: {tiers:[2,3,4], applies: c => !!c.quiz_rationales.timing && !!c.answer_key.timing, prompt: q => moduleOf(q.case) === 'lung' ? 'Inspiratory or expiratory?' : 'Systolic or diastolic?',
+    options: q => moduleOf(q.case) === 'lung' ? [{v:'inspiratory', l:'Inspiratory'}, {v:'expiratory', l:'Expiratory'}] : [{v:'systolic', l:'Systolic'}, {v:'diastolic', l:'Diastolic'}], answer: q => q.case.answer_key.timing,
     rationale: q => q.case.quiz_rationales.timing, label: v => v[0].toUpperCase() + v.slice(1)},
   radiation: {tiers:[3,4], applies: c => !!c.quiz_rationales.radiation, prompt: () => 'Where else can you hear this?',
     options: () => Object.entries(RADIATION_LABEL).map(([v, l]) => ({v, l})), answer: q => q.case.answer_key.radiates_to[0] || 'nowhere',
     rationale: q => q.case.quiz_rationales.radiation, label: v => RADIATION_LABEL[v]},
   what_changed: {tiers:[3,4], applies: () => true, prompt: () => 'Two clips of the same case. One thing differs between A and B. What changed?',
-    options: () => [{v:'rate', l:'Rate'}, {v:'head', l:'Head'}, {v:'intensity', l:'Intensity'}, {v:'position', l:'Position'}],
-    answer: q => q.param, rationale: q => WHAT_CHANGED[q.param], label: v => v[0].toUpperCase() + v.slice(1),
+    options: q => Object.keys(WHAT_CHANGED[moduleOf(q.case)]).map(v => ({v, l: v[0].toUpperCase() + v.slice(1)})),
+    answer: q => q.param, rationale: q => WHAT_CHANGED[moduleOf(q.case)][q.param], label: v => v[0].toUpperCase() + v.slice(1),
     draw: (q, rng) => {
-      q.param = pick(rng, ['rate', 'intensity', 'position'].concat(diaphragmOnly ? [] : ['head']));
-      const [lo, hi] = TIER_RATE[q.tier], A = q.A, B = q.B = {...A, pos: {...A.pos}};
-      if (q.param === 'rate') { const d = irange(rng, 15, 30); B.bpm = A.bpm + d <= hi ? A.bpm + d : A.bpm - d; }
+      const m = moduleOf(q.case);
+      q.param = pick(rng, Object.keys(WHAT_CHANGED[m]).filter(p => !(p === 'head' && diaphragmOnly)));
+      const A = q.A, B = q.B = {...A, pos: {...A.pos}};
+      if (q.param === 'rate') {
+        if (m === 'lung') { const [lo, hi] = TIER_RR[q.tier], d = irange(rng, 4, 8); B.rr = A.rr + d <= hi ? A.rr + d : Math.max(8, A.rr - d); }
+        else { const [lo, hi] = TIER_RATE[q.tier], d = irange(rng, 15, 30); B.bpm = A.bpm + d <= hi ? A.bpm + d : A.bpm - d; }
+      }
       if (q.param === 'head') B.head = A.head === 'bell' ? 'diaphragm' : 'bell';
       if (q.param === 'intensity') { const top = primaryLayer(q.case).type === 'murmur' ? 6 : 2, lo2 = top === 6 ? 1 : 0; B.level = A.level + 1 <= top ? A.level + 1 : A.level - 1; B.level = clamp(B.level, lo2, top); }
-      if (q.param === 'position') { const lm = pick(rng, LANDMARKS.filter(l => Math.hypot(l.x - A.pos.x, l.y - A.pos.y) > 40)); B.pos = {x: lm.x, y: lm.y}; }
+      if (q.param === 'position') { const lm = pick(rng, VIEWS[viewOf(q.case)].landmarks.filter(l => Math.hypot(l.x - A.pos.x, l.y - A.pos.y) > 40)); B.pos = {x: lm.x, y: lm.y}; }
     }},
 };
 
-// Everything about a question follows from (seed, tier), so a stored seed replays it exactly (§9.4).
-function buildQuestion(seed, tier) {
+// Everything about a question follows from (seed, tier, module), so a stored seed replays it exactly (§9.4).
+function buildQuestion(seed, tier, module = quiz.state.module) {
   const rng = mulberry32(seed);
-  const pool = cases.filter(c => c.tiers.includes(tier) && (QUIZ_ALLOWS_DRAFTS || c.reviewed_by));
-  const normals = pool.filter(c => c.findings.includes('normal')), others = pool.filter(c => !c.findings.includes('normal'));
+  const pool = cases.filter(c => moduleOf(c) === module && c.tiers.includes(tier) && (QUIZ_ALLOWS_DRAFTS || c.reviewed_by));
+  const normals = pool.filter(isNormal), others = pool.filter(c => !isNormal(c));
   const cs = tier >= 2 && normals.length && others.length ? (rng() < 0.2 ? pick(rng, normals) : pick(rng, others)) : pick(rng, pool);
   const names = Object.keys(TEMPLATES).filter(k => TEMPLATES[k].tiers.includes(tier) && TEMPLATES[k].applies(cs));
   const template = pick(rng, names);
-  const q = {seed, tier, case: cs, template, key: cs.id + '|' + template};
-  const [lo, hi] = TIER_RATE[tier], band = TIER_INTENSITY[tier], L = primaryLayer(cs);
-  const level = cs.findings.includes('normal') ? PROM.indexOf(L.intensity) : L.type === 'murmur' ? pick(rng, band.grades) : band.prom;
+  const q = {seed, tier, module, case: cs, template, key: cs.id + '|' + template};
+  const [lo, hi] = TIER_RATE[tier], [rlo, rhi] = TIER_RR[tier], band = TIER_INTENSITY[tier], L = primaryLayer(cs), view = VIEWS[viewOf(cs)];
+  const level = isNormal(cs) ? PROM.indexOf(L.intensity) : L.type === 'murmur' ? pick(rng, band.grades) : band.prom;
   let pos;
   if (tier === 1) pos = {x: cs.answer_key.loudest_at.x, y: cs.answer_key.loudest_at.y};
-  else if (tier === 2) pos = {x: 25, y: 70};
-  else if (tier === 3) { const [x, y] = pick(rng, OFF_HEART); pos = {x: x + irange(rng, -15, 15), y: y + irange(rng, -15, 15)}; }
-  else pos = {x: irange(rng, BOX.x0, BOX.x1), y: irange(rng, BOX.y0, BOX.y1)};
+  else if (tier === 2) pos = {...view.home};
+  else if (tier === 3) { const [x, y] = pick(rng, view.offHeart); pos = {x: x + irange(rng, -15, 15), y: y + irange(rng, -15, 15)}; }
+  else pos = {x: irange(rng, view.box.x0, view.box.x1), y: irange(rng, view.box.y0, view.box.y1)};
   const head = tier === 1 && cs.answer_key.best_head !== 'either' ? cs.answer_key.best_head : 'diaphragm';
-  q.A = {bpm: irange(rng, lo, hi), head: diaphragmOnly ? 'diaphragm' : head, pos, level};
+  q.A = {bpm: irange(rng, lo, hi), rr: irange(rng, rlo, rhi), head: diaphragmOnly ? 'diaphragm' : head, pos, level};
   if (TEMPLATES[template].draw) TEMPLATES[template].draw(q, rng);
   return q;
 }
 function applyVariant(q, v) {
-  engine.bpm = v.bpm; setHead(v.head);
-  if (engine.ctx) engine.setCase(caseAtLevel(q.case, v.level), null);
+  engine.bpm = v.bpm; engine.rr = v.rr; setHead(v.head);
+  const cs = caseAtLevel(q.case, v.level), view = q.case.answer_key.loudest_at.view || viewOf(q.case);
+  if (engine.ctx) engine.setCase(cs, null);
+  $('#viewBar').hidden = true;
+  selectView(view, false);
   placeHead(v.pos.x, v.pos.y);
 }
 function lockHead(on) {
@@ -686,11 +855,13 @@ const quiz = {
   active: false, q: null, answered: false, fromQueue: null, replay: false, state: null,
   load() {
     let s = null; try { s = JSON.parse(store.get('quiz')); } catch {}
-    this.state = Object.assign({tier:1, unlocked:1, streak:0, last10:[], missed:[], recent:[], queue:[], count:0, log:[]}, s || {});
+    this.state = Object.assign({module:'heart', ladders:{}}, s && s.ladders ? s : {});
   },
+  // One ladder per module: Tier 3 in lungs is not Tier 3 in heart.
+  get s() { const l = this.state.ladders; return l[this.state.module] || (l[this.state.module] = {tier:1, unlocked:1, streak:0, last10:[], missed:[], recent:[], queue:[], count:0, log:[]}); },
   save() { store.set('quiz', JSON.stringify(this.state)); },
   next() {
-    const s = this.state; this.fromQueue = null; this.replay = false;
+    const s = this.s; this.fromQueue = null; this.replay = false;
     const due = s.queue.find(it => it.dues.length && it.dues[0] <= s.count);
     if (due) { due.dues.shift(); this.fromQueue = due; this.show(buildQuestion(due.seed, due.tier)); return; }
     const seed = (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
@@ -698,7 +869,7 @@ const quiz = {
     for (let i = 0; i < 40; i++) {
       const cand = buildQuestion((seed + i) >>> 0, s.tier), idx = s.recent.lastIndexOf(cand.key);
       if (idx < 0) { best = cand; break; }
-      if (idx < bestIdx) { bestIdx = idx; best = cand; }   // ponytail: a two-case pool cannot avoid repeats within 15; take the least recent
+      if (idx < bestIdx) { bestIdx = idx; best = cand; }   // ponytail: a small pool cannot avoid repeats within 15; take the least recent
     }
     this.show(best);
   },
@@ -733,7 +904,7 @@ const quiz = {
     if (!this.replay) this.record(correct);
   },
   record(correct) {
-    const s = this.state, q = this.q;
+    const s = this.s, q = this.q;
     s.count++;
     s.last10.push(correct); if (s.last10.length > 10) s.last10.shift();
     s.recent.push(q.key); if (s.recent.length > 15) s.recent.shift();
@@ -758,7 +929,9 @@ const quiz = {
 window.gallopQuiz = quiz;   // for tools/smoke_engine.js
 
 function renderLadder(msg) {
-  const s = quiz.state;
+  const s = quiz.s, modules = [...new Set(cases.map(moduleOf))];
+  $('#quizModuleLabel').hidden = modules.length < 2;
+  $('#quizModule').innerHTML = modules.map(m => `<option value="${m}" ${m === quiz.state.module ? 'selected' : ''}>${MODULE_NAME[m]}</option>`).join('');
   $('#ladder').innerHTML = [1,2,3,4].map(t => `<button data-t="${t}" aria-pressed="${t === s.tier}" ${t > s.unlocked ? 'disabled' : ''}>Tier ${t}<br><small>${TIER_NAME[t]}</small></button>`).join('');
   for (const b of $('#ladder').querySelectorAll('button')) b.onclick = () => { s.tier = +b.dataset.t; s.streak = 0; s.last10 = []; quiz.save(); renderLadder(''); quiz.next(); };
   $('#streak').innerHTML = `Streak: ` + Array.from({length: ADVANCE_STREAK}, (_, i) => `<span class="dot ${i < s.streak ? 'on' : ''}"></span>`).join('') + ` <small>${ADVANCE_STREAK} in a row moves you up</small>`;
@@ -768,6 +941,7 @@ function renderLadder(msg) {
   $('#replayList').innerHTML = missedLog.length ? 'Replay a missed question: ' + missedLog.map(e => `<button data-seed="${e.seed}" data-tier="${e.tier}" style="padding:.1rem .5rem;margin:.1rem">${e.key.split('|')[1].replace(/_/g, ' ')}</button>`).join('') : '';
   for (const b of $('#replayList').querySelectorAll('button')) b.onclick = () => quiz.replayFrom(+b.dataset.seed, +b.dataset.tier);
 }
+$('#quizModule').addEventListener('change', ev => { quiz.state.module = ev.target.value; quiz.save(); renderLadder(''); quiz.next(); });
 function setMode(m) {
   quiz.active = m === 'quiz';
   document.body.classList.toggle('quiz', quiz.active);
@@ -775,11 +949,12 @@ function setMode(m) {
   $('#quiz').hidden = !quiz.active;
   if (quiz.active) {
     setCompare(false);
+    if (!cases.some(c => moduleOf(c) === quiz.state.module)) quiz.state.module = moduleOf(cases[0]);
     $('#betaNote').hidden = !cases.some(c => c.reviewed_by === null && c.tiers.length);
     renderLadder(''); quiz.next();
   } else {
     lockHead(false); $('#card').classList.remove('revealed');
-    engine.bpm = +$('#bpm').value; selectCase(current);
+    engine.bpm = +$('#bpm').value; engine.rr = +$('#rr').value; selectCase(current);
   }
 }
 $('#modePractice').onclick = () => setMode('practice');
@@ -800,18 +975,33 @@ $('#importFile').onchange = async ev => {
 // Enabled by ?review in the URL or the footer link; remembered in this browser. Reviews are stored locally
 // under gallop.reviews and leave the device only by the reviewer's email or an export (no backend, §2).
 const REVIEW_EMAIL = '';   // set to the address reviews should go to; empty leaves the To: field for the reviewer
-const REVIEW_QUESTIONS = [
-  {id:'R1', text:'Does this sound like the finding as you hear it at the bedside?', opts:['1 not at all', '2', '3', '4', '5 exactly']},
-  {id:'R2', text:'Is it loudest where it should be?', opts:['Yes', 'No', 'Unsure'], note:'If no: where should it be loudest?'},
-  {id:'R3', text:'Does it radiate where it should, and nowhere it should not?', opts:['Yes', 'No', 'Not applicable']},
-  {id:'R4', text:'Does the bell / diaphragm difference behave as it should?', opts:['Yes', 'No', 'Unsure']},
-  {id:'R5', text:'Relative to S1 and S2, the finding is', opts:['Too soft', 'About right', 'Too loud']},
-  {id:'R6', text:'Does it still sound right at 60, 90 and 110 bpm?', opts:['Yes', 'No']},
-  {id:'R7', text:'Walking off the heart: do the breath and bowel cues feel right?', opts:['Yes', 'No']},
-  {id:'R8', text:'Is the case card accurate and free of diagnosis language?', opts:['Yes', 'No'], note:'If no: what is wrong?'},
-  {id:'R9', text:'Would the quiz rationales help someone who answered wrong?', opts:['Yes', 'No']},
-  {id:'R10', text:'Sign-off', opts:['Sign off as is', 'Sign off with the changes below', 'Not yet']},
-];
+const REVIEW_QUESTIONS = {
+  heart: [
+    {id:'R1', text:'Does this sound like the finding as you hear it at the bedside?', opts:['1 not at all', '2', '3', '4', '5 exactly']},
+    {id:'R2', text:'Is it loudest where it should be?', opts:['Yes', 'No', 'Unsure'], note:'If no: where should it be loudest?'},
+    {id:'R3', text:'Does it radiate where it should, and nowhere it should not?', opts:['Yes', 'No', 'Not applicable']},
+    {id:'R4', text:'Does the bell / diaphragm difference behave as it should?', opts:['Yes', 'No', 'Unsure']},
+    {id:'R5', text:'Relative to S1 and S2, the finding is', opts:['Too soft', 'About right', 'Too loud']},
+    {id:'R6', text:'Does it still sound right at 60, 90 and 110 bpm?', opts:['Yes', 'No']},
+    {id:'R7', text:'Walking off the heart: do the breath and bowel cues feel right?', opts:['Yes', 'No']},
+    {id:'R8', text:'Is the case card accurate and free of diagnosis language?', opts:['Yes', 'No'], note:'If no: what is wrong?'},
+    {id:'R9', text:'Would the quiz rationales help someone who answered wrong?', opts:['Yes', 'No']},
+    {id:'R10', text:'Sign-off', opts:['Sign off as is', 'Sign off with the changes below', 'Not yet']},
+  ],
+};
+REVIEW_QUESTIONS.lung = REVIEW_QUESTIONS.heart.map(q => ({...q,
+  ...(q.id === 'R3' ? {text:'Is it heard in the right zone, and not elsewhere?'} : {}),
+  ...(q.id === 'R5' ? {text:'Relative to the underlying breath sounds, the finding is'} : {}),
+  ...(q.id === 'R6' ? {text:'Does it still sound right at 10, 16 and 24 breaths per minute?'} : {}),
+  ...(q.id === 'R7' ? {text:'Walking off the lung fields: do the boundary cues feel right?'} : {}),
+}));
+REVIEW_QUESTIONS.bowel = REVIEW_QUESTIONS.heart.map(q => ({...q,
+  ...(q.id === 'R2' ? {text:'Are the sounds heard where they should be?'} : {}),
+  ...(q.id === 'R3' ? {text:'Is the frequency of sounds right for the finding?', opts:['Yes', 'No', 'Unsure']} : {}),
+  ...(q.id === 'R5' ? {text:'Relative to a normal abdomen, the sounds are', opts:['Too soft', 'About right', 'Too loud']} : {}),
+  ...(q.id === 'R6' ? {text:'Is the pitch and character right for the finding?', opts:['Yes', 'No']} : {}),
+  ...(q.id === 'R7' ? {text:'Moving toward the chest: do the boundary cues feel right?'} : {}),
+}));
 const reviews = {
   all() { try { return JSON.parse(store.get('reviews')) || []; } catch { return []; } },
   add(r) { const a = this.all(); a.push(r); store.set('reviews', JSON.stringify(a)); },
@@ -827,13 +1017,16 @@ function renderReviewCount() {
   const n = reviews.all().length;
   $('#reviewCount').textContent = n ? `${n} review${n > 1 ? 's' : ''} stored on this device.` : '';
 }
+function renderReviewQuestions(module) {
+  $('#rvQuestions').innerHTML = REVIEW_QUESTIONS[module].map(q =>
+    `<div class="q"><p>${q.id}. ${q.text}</p><div class="opts">` +
+    q.opts.map(o => `<label><input type="radio" name="${q.id}" value="${o}" ${q.id === 'R10' ? 'required' : ''}> ${o}</label>`).join('') +
+    `</div>${q.note ? `<input type="text" id="${q.id}note" placeholder="${q.note}" aria-label="${q.note}" style="margin-top:.25rem">` : ''}</div>`).join('');
+}
 $('#reviewerToggle').onclick = ev => { ev.preventDefault(); setReviewer(!document.body.classList.contains('reviewer')); };
-$('#rvQuestions').innerHTML = REVIEW_QUESTIONS.map(q =>
-  `<div class="q"><p>${q.id}. ${q.text}</p><div class="opts">` +
-  q.opts.map((o, i) => `<label><input type="radio" name="${q.id}" value="${o}" ${q.id === 'R10' ? 'required' : ''}> ${o}</label>`).join('') +
-  `</div>${q.note ? `<input type="text" id="${q.id}note" placeholder="${q.note}" aria-label="${q.note}" style="margin-top:.25rem">` : ''}</div>`).join('');
 $('#reviewBtn').onclick = () => {
   $('#rvTitle').textContent = current.title; $('#rvId').textContent = current.id;
+  renderReviewQuestions(moduleOf(current));
   $('#rvName').value = store.get('rvName') || ''; $('#rvRole').value = store.get('rvRole') || ''; $('#rvEmail').value = store.get('rvEmail') || '';
   $('#rvSaved').hidden = true;
   $('#reviewDlg').show(); document.body.classList.add('reviewing');   // non-modal: playback and the head keep working (§8)
@@ -842,12 +1035,12 @@ $('#rvCancel').onclick = () => $('#reviewDlg').close();
 $('#reviewDlg').addEventListener('close', () => document.body.classList.remove('reviewing'));
 $('#reviewForm').onsubmit = ev => {
   ev.preventDefault();
-  const f = ev.target, answers = {};
-  for (const q of REVIEW_QUESTIONS) { const v = f.querySelector(`input[name="${q.id}"]:checked`); answers[q.id] = v ? v.value : null; if (q.note) answers[q.id + '_note'] = $('#' + q.id + 'note').value.trim(); }
+  const f = ev.target, answers = {}, qs = REVIEW_QUESTIONS[moduleOf(current)];
+  for (const q of qs) { const v = f.querySelector(`input[name="${q.id}"]:checked`); answers[q.id] = v ? v.value : null; if (q.note) answers[q.id + '_note'] = $('#' + q.id + 'note').value.trim(); }
   const r = {
-    case_id: current.id, case_title: current.title, reviewer: $('#rvName').value.trim(), role: $('#rvRole').value.trim(), email: $('#rvEmail').value.trim(),
+    case_id: current.id, case_title: current.title, module: moduleOf(current), reviewer: $('#rvName').value.trim(), role: $('#rvRole').value.trim(), email: $('#rvEmail').value.trim(),
     date: new Date().toISOString(), answers, change: $('#rvChange').value.trim(),
-    context: {head: engine.head, bpm: engine.bpm, pos: engine.pos, headphones: store.get('headphones'), ua: navigator.userAgent},
+    context: {head: engine.head, bpm: engine.bpm, rr: engine.rr, view: engine.view, pos: engine.pos, headphones: store.get('headphones'), ua: navigator.userAgent},
   };
   store.set('rvName', r.reviewer); store.set('rvRole', r.role); store.set('rvEmail', r.email);
   reviews.add(r); renderReviewCount();
@@ -856,23 +1049,24 @@ $('#reviewForm').onsubmit = ev => {
   $('#rvExport').onclick = e => { e.preventDefault(); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(reviews.all(), null, 2)], {type: 'application/json'})); a.download = 'gallop-reviews.json'; a.click(); };
   $('#rvSaved').hidden = false;
   f.querySelectorAll('input[type=radio]').forEach(i => i.checked = false); $('#rvChange').value = '';
-  REVIEW_QUESTIONS.filter(q => q.note).forEach(q => $('#' + q.id + 'note').value = '');
+  qs.filter(q => q.note).forEach(q => $('#' + q.id + 'note').value = '');
 };
 
 // ---- boot ---------------------------------------------------------------------------
 (async function boot() {
-  drawLandmarks();
   quiz.load();
   setReviewer(reviews.enabled());
-  placeHead(25, 70);
+  selectView('chest_anterior', true);
   try {
     const doc = await (await fetch('data/cases.json')).json();
     cases = doc.cases;
-    normalCase = cases.find(c => c.id === 'normal-72') || cases[0];
+    normalCase = cases.find(c => c.id === 'normal-72') || cases.find(c => moduleOf(c) === 'heart' && isNormal(c)) || cases[0];
     current = normalCase;
-    $('#caseSel').innerHTML = cases.map(c => `<option value="${c.id}">${c.title}${c.reviewed_by === null ? ' (draft)' : ''}</option>`).join('');
+    const byModule = m => cases.filter(c => moduleOf(c) === m);
+    $('#caseSel').innerHTML = Object.keys(MODULE_NAME).filter(m => byModule(m).length).map(m =>
+      `<optgroup label="${MODULE_NAME[m]}">` + byModule(m).map(c => `<option value="${c.id}">${c.title}${c.reviewed_by === null ? ' (draft)' : ''}</option>`).join('') + `</optgroup>`).join('');
     selectCase(current);
-    const files = [...new Set(cases.flatMap(c => c.layers.map(L => L.stem.file)))];
+    const files = [...new Set(cases.flatMap(c => c.layers.flatMap(L => [L.stem && L.stem.file, ...(L.stems ? Object.values(L.stems).map(stemFile) : [])].filter(Boolean))))];
     await Promise.all(files.map(async f => stemBytes.set(f, await (await fetch(f)).arrayBuffer())));
   } catch (e) {
     $('#loadErr').hidden = false; $('#loadErr').textContent = 'Could not load cases or stems: ' + e.message + '. Serve this folder over http (see README).';
