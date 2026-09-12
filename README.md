@@ -110,6 +110,14 @@ habitus is the same effect over the whole body. The quiz keeps one ladder
 per module. Details in docs/CASE-AUTHORING.md; the plan in docs/ROADMAP.md.
 Heart, bowel and lung cases ship as drafts.
 
+## Layers and Blind
+
+The Layers slider under the body fades rough anatomy outlines (lungs, heart)
+in under the skin, so a learner can see why a sound is loud where it is.
+Blind hides the landmark labels and region captions in practice mode until
+you press Reveal; Tier 4 quiz questions are blind until answered. Both work
+against the placeholder silhouettes; the illustrations are still to come.
+
 ## Quiz mode
 
 Four tiers, a personal mastery ladder (8 in a row to advance, 4 misses in 10
@@ -136,8 +144,8 @@ ejection click, opening snap, rub, Tier 4 habitus draws (the engine supports
 habitus; the quiz does not yet draw it), respiratory S2 splitting (the breath
 phase is exposed by the engine, wired to nothing), Tier 3 lookalike
 distractors, the Tier 1 "the S3 dropped out" head-switch note, proper
-anatomical illustrations, Layers and Blind modes, logo, by-ear tuning against
-the manikin, clinical review.
+anatomical illustrations and accurate overlay shapes, logo, by-ear tuning
+against the manikin, clinical review.
 
 ## Licence
 

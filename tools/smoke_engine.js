@@ -162,6 +162,7 @@ const check = (name, ok, detail) => { results.push({name, ok, detail}); console.
   check('drop message uses the ladder line', /Back to Tier 1/.test(await ev('document.getElementById("ladderMsg").textContent')));
   check('state persisted to localStorage', await ev('JSON.parse(localStorage.getItem("gallop.quiz")).ladders.heart.count') === st.count);
   check('no totals or percentages on the ladder', !/%|\d+ \/ \d+|total/i.test(await ev('document.getElementById("quiz").querySelector("fieldset").textContent')));
+  check('Tier 4 questions are blind until answered', await ev('(() => { gallopQuiz.s.unlocked = 4; gallopQuiz.s.tier = 4; gallopQuiz.next(); const during = document.body.classList.contains("blind"); const q = gallopQuiz.q, T = TEMPLATES[q.template]; if (q.template === "localize") placeHead(-140, 230); gallopQuiz.answer(T.options(q)[0].v); const after = document.body.classList.contains("blind"); gallopQuiz.s.tier = 1; gallopQuiz.s.unlocked = 2; gallopQuiz.save(); return during && !after; })()'));
   check('replay of a missed question is unscored', await ev('(() => { const before = gallopQuiz.s.count; document.querySelector("#replayList button").click(); const q = gallopQuiz.q, T = TEMPLATES[q.template]; if (q.template === "localize") placeHead(-140, 230); gallopQuiz.answer("nope"); return gallopQuiz.replay && gallopQuiz.s.count === before; })()'));
   check('master gain unchanged through quiz', Math.abs(await ev('gallop.master.gain.value') - 0.7) < 1e-6);
   await ev('document.getElementById("modePractice").click(); true'); await sleep(300);
@@ -242,6 +243,19 @@ const check = (name, ok, detail) => { results.push({name, ok, detail}); console.
   check('lung quiz pool covers all nine cases', await ev('(() => { gallopQuiz.state.module = "lung"; const seen = new Set(); for (let s = 0; s < 200; s++) seen.add(buildQuestion(s, 3).case.id); gallopQuiz.state.module = "heart"; return seen.size === 9; })()'));
   check('what-changed for lungs offers rate as breathing rate', await ev('(() => { gallopQuiz.state.module = "lung"; let ok = false; for (let s = 0; s < 300 && !ok; s++) { const q = buildQuestion(s, 3); if (q.template === "what_changed" && q.param === "rate") ok = q.A.rr !== q.B.rr && q.A.bpm === q.B.bpm; } gallopQuiz.state.module = "heart"; return ok; })()'));
   await ev('(() => { const sel = document.getElementById("caseSel"); sel.value = "as-ejection"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(300);
+
+
+  // ---- Layers overlay and Blind mode (ROADMAP §4)
+  check('anatomy overlay present on the chest and hidden at opacity 0', await ev('engine.view === "chest_anterior" && document.querySelectorAll("#anatomy path").length >= 3 && document.getElementById("anatomy").getAttribute("opacity") === "0"'));
+  await ev('(() => { const r = document.getElementById("anatomyOpacity"); r.value = 0.6; r.dispatchEvent(new Event("input")); })(); true');
+  check('Layers slider fades the overlay in', await ev('document.getElementById("anatomy").getAttribute("opacity")') === '0.6');
+  await ev('(() => { const sel = document.getElementById("caseSel"); sel.value = "bowel-active"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(300);
+  check('no overlay or Layers control on the abdomen', await ev('document.getElementById("anatomyBox").hidden && document.querySelectorAll("#anatomy path").length === 0'));
+  await ev('(() => { const sel = document.getElementById("caseSel"); sel.value = "as-ejection"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(300);
+  await ev('document.getElementById("blindBtn").click(); true');
+  check('Blind hides landmarks and captions', await ev('document.body.classList.contains("blind") && getComputedStyle(document.getElementById("landmarks")).visibility === "hidden" && document.getElementById("blindBtn").textContent === "Reveal"'));
+  await ev('document.getElementById("blindBtn").click(); true');
+  check('Reveal restores them', await ev('!document.body.classList.contains("blind") && getComputedStyle(document.getElementById("landmarks")).visibility === "visible"'));
 
   // ---- reviewer mode
   check('reviewer mode off by default', await ev('!document.body.classList.contains("reviewer") && getComputedStyle(document.getElementById("reviewBtn").closest(".reviewer-only")).display === "none"'));

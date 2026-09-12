@@ -74,9 +74,12 @@ now.
   over a region.
 - New quiz template: compare side to side ("Which side is diminished?").
 
-## 4. Visual redesign
+## 4. Visual redesign (Layers and Blind shipped; illustrations open)
 
 Can run in parallel with 2 and 3 once views are defined; touches SVGs only.
+Layers and Blind are built against the placeholder silhouettes with rough
+anatomy outlines; the illustrations and the overlay shapes are the open
+item, and need an illustrator or a careful SVG session.
 
 - Proper anatomical illustration for each view, replacing the placeholder
   silhouette. Worth an illustrator or a careful SVG session; it is what

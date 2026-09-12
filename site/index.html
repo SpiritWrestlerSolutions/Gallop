@@ -28,6 +28,14 @@ main{display:grid;gap:1rem;padding:1rem;max-width:1100px;margin:0 auto}
 #headDot.beat{r:6}
 #caption{font-size:9px;fill:var(--muted)}
 #viewBar{margin:.4rem 0 0}
+#anatomy path{fill:none;stroke:#8aa7bf;stroke-width:1.4;stroke-linejoin:round}
+#anatomy .heart{stroke:#b0605a}
+#anatomy .lung{stroke:#6f9bb8}
+#anatomy .fill{fill:currentColor;stroke:none;opacity:.12}
+body.blind #landmarks,body.blind #caption{visibility:hidden}
+#surfaceTools{margin:.4rem 0 0;font-size:.9rem}
+#surfaceTools label{display:inline-flex;align-items:center;gap:.4rem}
+#surfaceTools input[type=range]{width:7rem}
 .panel{display:flex;flex-direction:column;gap:.9rem}
 fieldset{border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;margin:0}
 legend{font-weight:500;padding:0 .3rem}
@@ -99,11 +107,16 @@ body.quiz #card:not(.revealed){display:none}
     <svg id="chest" class="chest" viewBox="-170 -80 340 340" tabindex="0" role="application"
          aria-label="Body surface. Drag the stethoscope head, or use the arrow keys to move it 5 millimetres at a time.">
       <image id="chestImg" href="img/chest.svg" x="-170" y="-80" width="340" height="340"/>
+      <g id="anatomy" opacity="0"></g>
       <g id="landmarks"></g>
       <g id="head"><circle r="13" fill="rgba(33,90,125,.18)" stroke="#215a7d" stroke-width="1.5"/><circle id="headDot" r="4" fill="#215a7d"/></g>
       <text id="caption" x="0" y="252" text-anchor="middle"></text>
     </svg>
     <div id="viewBar" class="row" role="group" aria-label="View" hidden></div>
+    <div id="surfaceTools" class="row">
+      <label id="anatomyBox">Layers <input id="anatomyOpacity" type="range" min="0" max="1" step="0.05" value="0" aria-label="Anatomy overlay opacity"></label>
+      <button id="blindBtn" aria-pressed="false" class="practice-only">Blind</button>
+    </div>
     <p class="muted" aria-live="polite"><span id="posOut"></span> · <span id="nearOut"></span></p>
     <div class="note">Gallop builds the ear: the repetitions that make a sound recognisable. The program's manikin and real patients build the hands: placement, pressure, technique. Use both. The tool never names a diagnosis; it teaches findings.</div>
   </section>
@@ -274,6 +287,16 @@ const VIEWS = {
       {id:'LLQ', name:'Left lower quadrant', x:60, y:60, anchor:'start', note:'Sigmoid colon.'},
     ]},
 };
+// Anatomy overlays for the Layers control: rough outlines in patient space, provisional until the illustration work.
+VIEWS.chest_anterior.anatomy = `
+  <path class="lung" d="M-25,5 C-70,10 -125,40 -135,110 C-140,150 -120,200 -85,215 C-55,210 -35,180 -30,150 C-28,110 -30,60 -25,5 Z"/>
+  <path class="lung" d="M25,5 C70,10 125,40 135,110 C140,150 120,200 90,215 C70,205 60,180 55,160 C60,130 50,110 50,60 C45,30 35,15 25,5 Z"/>
+  <path class="heart" d="M5,45 C30,25 70,35 85,60 C100,90 90,125 65,140 C40,150 20,140 0,120 C-15,100 -20,70 5,45 Z"/>
+  <path class="heart" d="M15,10 C10,25 12,40 20,45 M30,12 C25,30 28,42 32,44"/>`;
+VIEWS.chest_posterior.anatomy = `
+  <path class="lung" d="M-15,0 C-60,5 -120,40 -140,110 C-150,160 -130,205 -90,225 C-55,225 -25,205 -18,170 C-14,120 -12,60 -15,0 Z"/>
+  <path class="lung" d="M15,0 C60,5 120,40 140,110 C150,160 130,205 90,225 C55,225 25,205 18,170 C14,120 12,60 15,0 Z"/>`;
+VIEWS.abdomen.anatomy = '';
 const REF = 0.7;                                     // master gain: set once at init, never changed (§5.6)
 // ponytail: intensity → gain map is a starting point; tuned by ear against the manikin (README "Provisional values")
 const GAIN = {
@@ -549,6 +572,8 @@ function selectView(key, goHome) {
   const img = $('#chestImg'); img.setAttribute('href', v.svg); img.setAttribute('x', x); img.setAttribute('y', y); img.setAttribute('width', w); img.setAttribute('height', h);
   $('#caption').setAttribute('y', y + h - 8);
   svg.setAttribute('aria-label', `${v.name}. Drag the stethoscope head, or use the arrow keys to move it 5 millimetres at a time.`);
+  $('#anatomy').innerHTML = v.anatomy ? `<g transform="scale(${v.mirror ? -1 : 1} 1)">${v.anatomy}</g>` : '';
+  $('#anatomyBox').hidden = !v.anatomy;
   drawLandmarks();
   for (const b of $('#viewBar').querySelectorAll('button')) b.setAttribute('aria-pressed', b.dataset.view === key);
   placeHead(goHome ? v.home.x : engine.pos.x, goHome ? v.home.y : engine.pos.y);
@@ -596,6 +621,12 @@ function setHead(h) {
   $('#diaBtn').setAttribute('aria-pressed', h === 'diaphragm');
   $('#headIcon').textContent = h === 'bell' ? '●' : '◐';
 }
+// Layers: the anatomy overlay fades in under the skin so the learner sees why a sound is loud where it is (ROADMAP §4).
+$('#anatomyOpacity').addEventListener('input', ev => $('#anatomy').setAttribute('opacity', ev.target.value));
+// Blind: landmarks and captions off; find it by ear, then reveal.
+let blind = false;
+function setBlind(on) { blind = on; document.body.classList.toggle('blind', on); $('#blindBtn').setAttribute('aria-pressed', on); $('#blindBtn').textContent = on ? 'Reveal' : 'Blind'; $('#nearOut').hidden = on; }
+$('#blindBtn').onclick = () => setBlind(!blind);
 $('#bellBtn').onclick = () => setHead('bell');
 $('#diaBtn').onclick = () => setHead('diaphragm');
 $('#bpm').addEventListener('input', ev => { engine.bpm = +ev.target.value; $('#bpmOut').textContent = ev.target.value; });
@@ -887,6 +918,7 @@ const quiz = {
     $('#qHint').textContent = q.tier === 1 && q.template !== 'which_head' ? `Head set to the ${q.A.head} for you, and you are on the right spot.` : '';
     $('#qClips').hidden = q.template !== 'what_changed';
     lockHead(q.template === 'what_changed');
+    setBlind(q.tier === 4);   // field conditions: no labels until you have answered
     $('#qAnswers').innerHTML = T.options(q).map(o => `<button data-v="${o.v}">${o.l}</button>`).join('');
     for (const b of $('#qAnswers').querySelectorAll('button')) b.onclick = () => this.answer(b.dataset.v);
     $('#qFeedback').hidden = true; $('#card').classList.remove('revealed'); $('#card').open = false;
@@ -906,7 +938,7 @@ const quiz = {
     $('#qWhy2').textContent = q.case.card.why_squared;
     renderCard(q.case); $('#card').classList.add('revealed');
     $('#qFeedback').hidden = false;
-    lockHead(false);
+    lockHead(false); setBlind(false);
     if (!this.replay) this.record(correct);
   },
   record(correct) {
@@ -959,7 +991,7 @@ function setMode(m) {
     $('#betaNote').hidden = !cases.some(c => c.reviewed_by === null && c.tiers.length);
     renderLadder(''); quiz.next();
   } else {
-    lockHead(false); $('#card').classList.remove('revealed');
+    lockHead(false); setBlind(false); $('#card').classList.remove('revealed');
     engine.bpm = +$('#bpm').value; engine.rr = +$('#rr').value; selectCase(current);
   }
 }
