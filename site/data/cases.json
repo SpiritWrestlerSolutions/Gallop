@@ -157,6 +157,271 @@
       "tiers": [1, 2, 3, 4],
       "reviewed_by": null,
       "review_date": null
+    },
+    {
+      "id": "bowel-active",
+      "module": "bowel",
+      "view": "abdomen",
+      "title": "Active bowel sounds",
+      "findings": ["bowel_active"],
+      "answer_key": {
+        "primary_finding": "bowel_active",
+        "loudest_at": { "x": -20, "y": 20, "radius_mm": 60 },
+        "best_head": "diaphragm",
+        "timing": null,
+        "radiates_to": []
+      },
+      "clock": { "bpm": 72, "systole_ms": 300 },
+      "habitus": 1.0,
+      "layers": [
+        {
+          "type": "bowel",
+          "primary": true,
+          "intensity": "moderate",
+          "rate_per_min": 12,
+          "source": { "x": -20, "y": 20, "spread": { "l": 130, "r": 130, "u": 120, "d": 120 } },
+          "stem": { "kind": "synth", "file": "audio/bowel/gurgle.wav", "params": { "kind": "bowel_gurgle" } },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e, abdomen chapter [verify]: normal bowel sounds 5-34 per minute, gurgles and clicks, transmitted widely" }
+        },
+        {
+          "type": "boundary_heart",
+          "intensity": "faint",
+          "sources": [
+            { "label": "toward the chest: the heart, distant", "x": -10, "y": -130, "spread": { "l": 200, "r": 200, "u": 60, "d": 260 } }
+          ],
+          "stems": { "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } }, "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        },
+        {
+          "type": "boundary_breath",
+          "intensity": "faint",
+          "sources": [
+            { "label": "toward the chest: breath sounds", "x": 0, "y": -130, "spread": { "l": 200, "r": 200, "u": 60, "d": 220 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/vesicular.wav", "params": { "texture": "vesicular" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        }
+      ],
+      "real_thing": null,
+      "card": {
+        "summary": "Soft, irregular gurgles and clicks every few seconds, varying in pitch, heard much the same anywhere on the abdomen. Between them, quiet.",
+        "why": "Each gurgle is gas and fluid being pushed along by a wave of peristalsis. The gut moves in irregular bursts, so the sounds come in irregular bursts. They travel through the abdomen, so one listening spot hears the whole gut.",
+        "why_squared": "Normal is about 5 to 34 sounds a minute [verify], with wide variation by time since a meal. Because sounds transmit across the abdomen, hearing them in one quadrant is enough to chart them as present; you do not need all four. [cite Bates 13e abdomen chapter, page to verify]",
+        "sources": [
+          "Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Abdomen. [page - verify]",
+          "StatPearls. Abdominal Examination. [NBK id - verify]"
+        ]
+      },
+      "quiz_rationales": {
+        "identify": "Gurgles every few seconds, irregular, mixed pitch, no long silences. That is an active, normal bowel.",
+        "present_absent_bowel_active": "Wait a few seconds and a gurgle comes. Bowel sounds are present and active.",
+        "which_head": "The diaphragm. Bowel sounds are mid to high pitched clicks and gurgles; the bell dulls them."
+      },
+      "tiers": [1, 2, 3, 4],
+      "reviewed_by": null,
+      "review_date": null
+    },
+    {
+      "id": "bowel-hyperactive",
+      "module": "bowel",
+      "view": "abdomen",
+      "title": "Hyperactive bowel sounds",
+      "findings": ["bowel_hyperactive"],
+      "answer_key": {
+        "primary_finding": "bowel_hyperactive",
+        "loudest_at": { "x": -20, "y": 20, "radius_mm": 60 },
+        "best_head": "diaphragm",
+        "timing": null,
+        "radiates_to": []
+      },
+      "clock": { "bpm": 84, "systole_ms": 300 },
+      "habitus": 1.0,
+      "layers": [
+        {
+          "type": "bowel",
+          "primary": true,
+          "label": "Bowel sounds, high-pitched tinkles",
+          "intensity": "pronounced",
+          "rate_per_min": 45,
+          "source": { "x": -20, "y": 20, "spread": { "l": 130, "r": 130, "u": 120, "d": 120 } },
+          "stem": { "kind": "synth", "file": "audio/bowel/tinkle.wav", "params": { "kind": "bowel_tinkle" } },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e, abdomen chapter [verify]: hyperactive bowel sounds are frequent, loud, high-pitched; rushes and tinkles" }
+        },
+        {
+          "type": "bowel",
+          "label": "Bowel sounds, gurgles",
+          "intensity": "pronounced",
+          "rate_per_min": 20,
+          "source": { "x": 0, "y": 0, "spread": { "l": 130, "r": 130, "u": 120, "d": 120 } },
+          "stem": { "kind": "synth", "file": "audio/bowel/gurgle.wav", "params": { "kind": "bowel_gurgle" } },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e, abdomen chapter [verify]" }
+        },
+        {
+          "type": "boundary_heart",
+          "intensity": "faint",
+          "sources": [
+            { "label": "toward the chest: the heart, distant", "x": -10, "y": -130, "spread": { "l": 200, "r": 200, "u": 60, "d": 260 } }
+          ],
+          "stems": { "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } }, "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        },
+        {
+          "type": "boundary_breath",
+          "intensity": "faint",
+          "sources": [
+            { "label": "toward the chest: breath sounds", "x": 0, "y": -130, "spread": { "l": 200, "r": 200, "u": 60, "d": 220 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/vesicular.wav", "params": { "texture": "vesicular" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        }
+      ],
+      "real_thing": null,
+      "card": {
+        "summary": "Frequent, loud sounds with barely a pause: high-pitched tinkles mixed with rushes of gurgling. The whole abdomen is busy.",
+        "why": "The gut is contracting harder and more often than usual, pushing gas and fluid through with force. The higher pitch comes from gas squeezed through narrower, tighter loops of bowel.",
+        "why_squared": "Chart what you hear: frequent, high-pitched, with rushes. Do not chart what it might mean; the same sounds appear in very different situations, and the rest of the assessment decides. Loud, high-pitched tinkles above 30 a minute [verify] is the pattern to name. [cite Bates 13e abdomen chapter, page to verify]",
+        "sources": [
+          "Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Abdomen. [page - verify]",
+          "StatPearls. Abdominal Examination. [NBK id - verify]"
+        ]
+      },
+      "quiz_rationales": {
+        "identify": "Sounds almost continuously, many of them high and tinkling, with rushes. That is hyperactive, not merely active.",
+        "present_absent_bowel_active": "Sounds are present, but far more frequent and higher pitched than normal. Present, yes; active in the normal sense, no: this is hyperactive.",
+        "present_absent_bowel_hyperactive": "More than one sound every two seconds, high-pitched tinkles among them. Hyperactive.",
+        "which_head": "The diaphragm. The tinkles are high pitched and the diaphragm brings them forward."
+      },
+      "tiers": [1, 2, 3, 4],
+      "reviewed_by": null,
+      "review_date": null
+    },
+    {
+      "id": "bowel-hypoactive",
+      "module": "bowel",
+      "view": "abdomen",
+      "title": "Hypoactive bowel sounds",
+      "findings": ["bowel_hypoactive"],
+      "answer_key": {
+        "primary_finding": "bowel_hypoactive",
+        "loudest_at": { "x": -20, "y": 20, "radius_mm": 60 },
+        "best_head": "diaphragm",
+        "timing": null,
+        "radiates_to": []
+      },
+      "clock": { "bpm": 72, "systole_ms": 300 },
+      "habitus": 1.0,
+      "layers": [
+        {
+          "type": "bowel",
+          "primary": true,
+          "intensity": "faint",
+          "rate_per_min": 3,
+          "source": { "x": -20, "y": 20, "spread": { "l": 130, "r": 130, "u": 120, "d": 120 } },
+          "stem": { "kind": "synth", "file": "audio/bowel/gurgle.wav", "params": { "kind": "bowel_gurgle" } },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e, abdomen chapter [verify]: hypoactive bowel sounds are infrequent and soft" }
+        },
+        {
+          "type": "boundary_heart",
+          "intensity": "faint",
+          "sources": [
+            { "label": "toward the chest: the heart, distant", "x": -10, "y": -130, "spread": { "l": 200, "r": 200, "u": 60, "d": 260 } }
+          ],
+          "stems": { "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } }, "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        },
+        {
+          "type": "boundary_breath",
+          "intensity": "faint",
+          "sources": [
+            { "label": "toward the chest: breath sounds", "x": 0, "y": -130, "spread": { "l": 200, "r": 200, "u": 60, "d": 220 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/vesicular.wav", "params": { "texture": "vesicular" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        }
+      ],
+      "real_thing": null,
+      "card": {
+        "summary": "Long quiet stretches with an occasional soft gurgle, perhaps one every twenty to thirty seconds. Mostly you hear the distant heart and breathing.",
+        "why": "The gut is moving less than usual, so gas and fluid are pushed along less often. Fewer waves, fewer sounds, and softer ones.",
+        "why_squared": "Fewer than about 5 sounds a minute is hypoactive [verify]. The trap is calling a quiet abdomen absent too soon: hypoactive still has sounds if you wait. Time the listening, do not guess it. [cite Bates 13e abdomen chapter, page to verify]",
+        "sources": [
+          "Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Abdomen. [page - verify]",
+          "StatPearls. Abdominal Examination. [NBK id - verify]"
+        ]
+      },
+      "quiz_rationales": {
+        "identify": "Mostly silence, then one soft gurgle, then silence again. Sounds are there but few and faint: hypoactive.",
+        "present_absent_bowel_active": "Sounds are present but infrequent and soft. Not active in the normal sense; this is hypoactive.",
+        "present_absent_bowel_hypoactive": "Wait it out: one soft gurgle in twenty or thirty seconds. Hypoactive.",
+        "which_head": "The diaphragm. The few sounds there are sit in its range."
+      },
+      "tiers": [2, 3, 4],
+      "reviewed_by": null,
+      "review_date": null
+    },
+    {
+      "id": "bowel-absent",
+      "module": "bowel",
+      "view": "abdomen",
+      "title": "Absent bowel sounds",
+      "findings": ["bowel_absent"],
+      "answer_key": {
+        "primary_finding": "bowel_absent",
+        "loudest_at": { "x": -20, "y": 20, "radius_mm": 60 },
+        "best_head": "diaphragm",
+        "timing": null,
+        "radiates_to": []
+      },
+      "clock": { "bpm": 96, "systole_ms": 300 },
+      "habitus": 1.0,
+      "layers": [
+        {
+          "type": "bowel",
+          "primary": true,
+          "intensity": "faint",
+          "rate_per_min": 0,
+          "source": { "x": -20, "y": 20, "spread": { "l": 130, "r": 130, "u": 120, "d": 120 } },
+          "stem": { "kind": "synth", "file": "audio/bowel/gurgle.wav", "params": { "kind": "bowel_gurgle" } },
+          "provenance": { "class": "synthesized", "basis": "Bates 13e, abdomen chapter [verify]: absent means no sounds after listening for two minutes [verify: some sources teach five]" }
+        },
+        {
+          "type": "boundary_heart",
+          "intensity": "faint",
+          "sources": [
+            { "label": "toward the chest: the heart, distant", "x": -10, "y": -130, "spread": { "l": 200, "r": 200, "u": 60, "d": 260 } }
+          ],
+          "stems": { "in": { "kind": "synth", "file": "audio/stems/s1-f90.wav", "params": { "f0": 90, "decay_ms": 60 } }, "out": { "kind": "synth", "file": "audio/stems/s2-f120.wav", "params": { "f0": 120, "decay_ms": 45 } } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        },
+        {
+          "type": "boundary_breath",
+          "intensity": "faint",
+          "sources": [
+            { "label": "toward the chest: breath sounds", "x": 0, "y": -130, "spread": { "l": 200, "r": 200, "u": 60, "d": 220 } }
+          ],
+          "stem": { "kind": "synth", "file": "audio/boundary/vesicular.wav", "params": { "texture": "vesicular" } },
+          "provenance": { "class": "synthesized", "basis": "n/a - boundary cue" }
+        }
+      ],
+      "real_thing": null,
+      "card": {
+        "summary": "Nothing from the gut. The distant heart and breathing are all you hear, however long you wait.",
+        "why": "No peristalsis, no movement of gas and fluid, no sound. The abdomen is not silent, because the heart and lungs transmit through it, but the gut has stopped contributing.",
+        "why_squared": "Absent is a finding you earn by waiting: listen for two full minutes [verify: some sources teach five] before writing it. The tool cannot make you wait, so treat thirty quiet seconds here as a prompt to keep listening, not as proof. [cite Bates 13e abdomen chapter, page to verify]",
+        "sources": [
+          "Bickley LS. Bates' Guide to Physical Examination and History Taking, 13th ed. Abdomen. [page - verify]",
+          "StatPearls. Abdominal Examination. [NBK id - verify]"
+        ]
+      },
+      "quiz_rationales": {
+        "identify": "Listen through the whole clip: heart and breath only, no gurgle at all. Absent. At the bedside that verdict needs two full minutes.",
+        "present_absent_bowel_active": "No gurgle, however long you wait. Bowel sounds are not present.",
+        "present_absent_bowel_absent": "Not one sound from the gut. Absent, provided you have waited long enough to say so.",
+        "which_head": "The diaphragm, which is the head you would use to be sure you are not missing a faint high-pitched sound."
+      },
+      "tiers": [2, 3, 4],
+      "reviewed_by": null,
+      "review_date": null
     }
   ]
 }

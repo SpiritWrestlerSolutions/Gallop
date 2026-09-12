@@ -29,7 +29,7 @@ const check = (name, ok, detail) => { results.push({name, ok, detail}); console.
   await send('Runtime.enable'); await send('Page.enable');
   await send('Page.navigate', {url: URL});
   await sleep(1500);
-  await ev('localStorage.clear(); true'); await send('Page.reload'); await sleep(1500);   // start from a clean profile
+  await ev('localStorage.clear(); true'); await send('Page.reload', {ignoreCache: true}); await sleep(1500);   // start from a clean profile
 
   // gate present, nothing playing before tap
   check('no AudioContext before tap', await ev('gallop.ctx === null'));
@@ -205,6 +205,24 @@ const check = (name, ok, detail) => { results.push({name, ok, detail}); console.
   check('lung identify options are lung findings only', await ev('TEMPLATES.identify.options(buildQuestion(5, 2)).every(o => MODULE_FINDINGS.lung.includes(o.v))'));
   await ev('(() => { cases.pop(); gallopQuiz.state.module = "heart"; const sel = document.getElementById("caseSel"); sel.value = "as-ejection"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(300);
   check('back on a heart case, anterior view and cardiac control restored', await ev('engine.view === "chest_anterior" && !document.getElementById("bpmBox").hidden && document.getElementById("rrBox").hidden && document.getElementById("viewBar").hidden'));
+
+
+  // ---- bowel module (ROADMAP §2)
+  await ev('(() => { const sel = document.getElementById("caseSel"); sel.value = "bowel-hyperactive"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(400);
+  check('bowel case opens on the abdomen view at the umbilicus', await ev('engine.view === "abdomen" && document.getElementById("chestImg").getAttribute("href") === "img/abdomen.svg" && engine.pos.x === 0 && engine.pos.y === 0'));
+  check('case picker groups by module', await ev('document.querySelectorAll("#caseSel optgroup").length') === 2);
+  check('compare-to-normal available (bowel-active is the normal)', await ev('!document.getElementById("cmpBtn").hidden && gallop.buses.normal !== null'));
+  check('no rate sliders for a stochastic-only finding, heart rate kept for the distant heart', await ev('document.getElementById("rrBox").hidden && !document.getElementById("bpmBox").hidden'));
+  await sleep(4000);
+  const ev1 = await ev('gallop.buses.main.layers.filter(L => L.def.type === "bowel").map(L => L.events)');
+  check('hyperactive bowel fires frequent events on both layers', ev1.every(n => n >= 2), ev1);
+  check('bowel layers audible at the umbilicus, distant heart faint', await ev('(async () => { placeHead(0, 0); await new Promise(r => setTimeout(r, 300)); const b = gallop.buses.main.layers.find(L => L.def.type === "bowel").gain.gain.value, h = gallop.buses.main.layers.find(L => L.def.type === "boundary_heart").gain.gain.value; return b > 0.8 && h < 0.1; })()'));
+  check('toward the chest the caption names the boundary', /toward the chest/.test(await ev('placeHead(0, -125); document.getElementById("caption").textContent')));
+  await ev('(() => { const sel = document.getElementById("caseSel"); sel.value = "bowel-absent"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(3000);
+  check('absent bowel schedules no events but the abdomen is never silent', await ev('(async () => { const L = gallop.buses.main.layers.find(L => L.def.type === "bowel"); placeHead(0, 120); await new Promise(r => setTimeout(r, 300)); const h = gallop.buses.main.layers.find(L => L.def.type === "boundary_heart").gain.gain.value; return L.events === 0 && h > 0.03; })()'));
+  check('present/absent prompt reads plainly for absent', await ev('(() => { const q = {finding:"bowel_absent"}; return TEMPLATES.present_absent.prompt(q); })()') === 'Are bowel sounds absent?');
+  check('bowel quiz pool has four cases and a Belly ladder', await ev('(() => { gallopQuiz.state.module = "bowel"; const seen = new Set(); for (let s = 0; s < 60; s++) seen.add(buildQuestion(s, 2).case.id); gallopQuiz.state.module = "heart"; return seen.size === 4; })()'));
+  await ev('(() => { const sel = document.getElementById("caseSel"); sel.value = "as-ejection"; sel.dispatchEvent(new Event("change")); })(); true'); await sleep(300);
 
   // ---- reviewer mode
   check('reviewer mode off by default', await ev('!document.body.classList.contains("reviewer") && getComputedStyle(document.getElementById("reviewBtn").closest(".reviewer-only")).display === "none"'));

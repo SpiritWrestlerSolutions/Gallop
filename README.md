@@ -17,11 +17,12 @@ self-study (Chest 2004;126:470; Am J Med 2006;119:73). Recordings do not
 replace hands-on time: Gallop builds the ear, the program's manikin and real
 patients build the hands.
 
-Status: **beta.** Engine (Phase 1) and quiz mode (Phase 3) are built. Two
-synthesized cases so far, both unreviewed drafts; the quiz lets drafts in
-behind a beta label until a reviewer signs off (`QUIZ_ALLOWS_DRAFTS` in
-`site/index.html`). The remaining ten v1 cases are the next job; see
-[docs/CASE-AUTHORING.md](docs/CASE-AUTHORING.md). The full brief is in
+Status: **beta.** Engine, quiz mode, reviewer mode, and the generalised
+engine (clocks, views, attenuation) are built. Six synthesized draft cases:
+two heart, four bowel. The quiz lets drafts in behind a beta label until a
+reviewer signs off (`QUIZ_ALLOWS_DRAFTS` in `site/index.html`). Next: the
+lung module, then the remaining heart cases; see
+[docs/ROADMAP.md](docs/ROADMAP.md) and [docs/CASE-AUTHORING.md](docs/CASE-AUTHORING.md). The full brief is in
 [GALLOP-HANDOVER.md](GALLOP-HANDOVER.md); the Phase 1 test script is in
 [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md).
 
@@ -106,7 +107,7 @@ one of four clocks: cardiac, respiratory, stochastic (Poisson events, for
 bowel sounds), or loop. Attenuation fields model breast and adipose tissue;
 habitus is the same effect over the whole body. The quiz keeps one ladder
 per module. Details in docs/CASE-AUTHORING.md; the plan in docs/ROADMAP.md.
-Only heart cases ship so far; bowel and lung cases are next.
+Heart and bowel cases ship; lung cases are next.
 
 ## Quiz mode
 
@@ -129,12 +130,13 @@ the link. The plan for what comes next is in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Not built yet
 
-Cases 3 to 12 of the v1 library, recorded PhysioNet stems, ejection click,
-opening snap, rub, body habitus (Tier 4 draws no habitus yet), respiratory
-modulation (the clock has the hook, wired to nothing), Tier 3 lookalike
-distractors (needs the split-S2 and S3 cases), the Tier 1 "the S3 dropped out"
-head-switch note (no case has an S3 yet), logo, by-ear tuning against the
-manikin, clinical review.
+Lung cases, heart cases 3 to 12 of the v1 library, recorded PhysioNet stems,
+ejection click, opening snap, rub, Tier 4 habitus draws (the engine supports
+habitus; the quiz does not yet draw it), respiratory S2 splitting (the breath
+phase is exposed by the engine, wired to nothing), Tier 3 lookalike
+distractors, the Tier 1 "the S3 dropped out" head-switch note, proper
+anatomical illustrations, Layers and Blind modes, logo, by-ear tuning against
+the manikin, clinical review.
 
 ## Licence
 

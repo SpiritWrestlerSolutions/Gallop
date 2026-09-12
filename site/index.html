@@ -33,7 +33,8 @@ fieldset{border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;mar
 legend{font-weight:500;padding:0 .3rem}
 label{display:block;font-size:.92rem}
 select,input[type=range],button{font:inherit}
-select{max-width:100%}
+select{max-width:100%;min-width:0}
+#caseSel{flex:1 1 12rem;width:100%}
 input[type=range]{width:100%}
 button{border:1px solid var(--blue);background:#fff;color:var(--blue);border-radius:8px;padding:.45rem .8rem;cursor:pointer}
 button.on,button[aria-pressed=true]{background:var(--blue);color:#fff}
@@ -264,7 +265,7 @@ const VIEWS = {
       {id:'RB', name:'Right base', x:-75, y:175, anchor:'end', note:'Below the scapula, T8 to T10. Lower lobe. Crackles of fluid and atelectasis are heard here first.'},
       {id:'LB', name:'Left base', x:75, y:175, anchor:'start', note:'Below the scapula, T8 to T10. Lower lobe.'},
     ]},
-  abdomen: {name:'Abdomen', svg:'img/abdomen.svg', viewBox:[-170,-150,340,300], box:{x0:-140,x1:140,y0:-130,y1:130}, home:{x:0,y:0}, mirror:false,
+  abdomen: {name:'Abdomen', svg:'img/abdomen.svg', viewBox:[-170,-150,340,300], box:{x0:-140,x1:140,y0:-130,y1:130}, home:{x:0,y:0}, mirror:false, labels:'id',
     offHeart:[[-130,-120],[130,-120],[0,120],[-130,100]],
     landmarks:[
       {id:'RUQ', name:'Right upper quadrant', x:-60, y:-50, anchor:'end', note:'Liver and gallbladder region. Bowel sounds transmit across the abdomen; one quadrant is enough to say they are present.'},
@@ -296,6 +297,9 @@ const MODULE_FINDINGS = {
 };
 const MODULE_NAME = {heart:'Heart', lung:'Lungs', bowel:'Belly'};
 const NORMAL_FINDINGS = new Set(['normal', 'vesicular_normal', 'bowel_active']);
+// Present/absent prompts for findings that do not read as "Is there a ...?"
+const PA_PROMPT = {bowel_absent:'Are bowel sounds absent?', bowel_hyperactive:'Are bowel sounds hyperactive?', bowel_hypoactive:'Are bowel sounds hypoactive?',
+  absent_breath:'Are breath sounds absent here?', diminished_breath:'Are breath sounds diminished here?', vesicular_normal:'Are the breath sounds normal here?', normal:'Is this a normal heart?'};
 const LAYER_LABEL = {s1:'S1', s2:'S2', s3:'S3', s4:'S4', murmur:'Murmur', boundary_breath:'Breath sounds (boundary)', boundary_bowel:'Bowel sounds (boundary)',
   boundary_heart:'Heart, distant (boundary)', lung_vesicular:'Breath sounds', lung_crackles:'Crackles', lung_wheeze:'Wheeze', lung_rhonchi:'Rhonchi',
   lung_stridor:'Stridor', lung_rub:'Pleural rub', bowel:'Bowel sounds'};
@@ -445,7 +449,8 @@ const engine = {
       if (L.clock !== 'cardiac') continue;
       const d = L.def;
       switch (d.type) {
-        case 's1': case 'boundary_heart': this.play(L, t0); if (d.type === 'boundary_heart' && L.buffers.expiratory) this.play(L, s2, {buffer:L.buffers.expiratory}); break;
+        case 's1': this.play(L, t0); break;
+        case 'boundary_heart': this.play(L, t0, {buffer: L.buffers.inspiratory || L.buffers.any}); if (L.buffers.expiratory) this.play(L, s2, {buffer: L.buffers.expiratory}); break;   // distant S1, S2
         case 's2': this.play(L, s2); if (d.split_ms > 0) this.play(L, s2 + d.split_ms/1000, {scale:0.7}); break;   // A2 then P2
         case 's3': this.play(L, Math.min(s2 + (d.offset_from_s2_ms ?? 150)/1000, next - 0.03)); break;
         case 's4': this.play(L, Math.max(s2 + 0.06, next - (d.offset_before_s1_ms ?? 80)/1000)); break;    // merges with S3 as diastole shrinks
@@ -528,7 +533,7 @@ const sx = x => V().mirror ? -x : x;   // patient x → screen x
 function drawLandmarks() {
   $('#landmarks').innerHTML = V().landmarks.map(l =>
     `<g class="lm" data-id="${l.id}"><circle cx="${sx(l.x)}" cy="${l.y}" r="4.5"/>` +
-    `<text x="${sx(l.x) + (l.anchor === 'end' ? -7 : 7)}" y="${l.y + 3}" text-anchor="${l.anchor}">${l.id} · ${l.name}</text></g>`).join('');
+    `<text x="${sx(l.x) + (l.anchor === 'end' ? -7 : 7)}" y="${l.y + 3}" text-anchor="${l.anchor}">${V().labels === 'id' ? l.id : `${l.id} · ${l.name}`}</text></g>`).join('');
   for (const g of document.querySelectorAll('.lm')) g.addEventListener('click', () => showPop(V().landmarks.find(l => l.id === g.dataset.id)));
 }
 function nearestLandmark(x, y, view = engine.view) {
@@ -676,7 +681,7 @@ function renderCard(cs) {
     `<p><strong>Sources</strong></p><ul>` + c.sources.map(s => `<li>${esc(s)}</li>`).join('') + `</ul>` +
     (cs.real_thing ? `<p><strong>Hear the real thing.</strong> <audio controls src="${cs.real_thing.file}"></audio><br><small>${esc(cs.real_thing.dataset)} record ${esc(cs.real_thing.record)}, ${esc(cs.real_thing.licence)}</small></p>` : '');
 }
-$('#caseSel').addEventListener('change', ev => selectCase(cases.find(c => c.id === ev.target.value)));
+$('#caseSel').addEventListener('change', ev => { const cs = cases.find(c => c.id === ev.target.value); if (cs) selectCase(cs); else console.error('no case with id', ev.target.value); });
 
 $('#resetBtn').onclick = () => {
   if (confirm('Clear Gallop progress stored in this browser? (Calibration, headphone answer, quiz ladder.)')) { store.clear(); location.reload(); }
@@ -784,7 +789,7 @@ const TEMPLATES = {
     options: q => MODULE_FINDINGS[moduleOf(q.case)].map(v => ({v, l: FINDING_LABEL[v]})), answer: q => q.case.answer_key.primary_finding,
     rationale: q => q.case.quiz_rationales.identify, label: v => FINDING_LABEL[v]},
   present_absent: {tiers:[1,2,3,4], applies: c => paFindings(c).length > 0, draw: (q, rng) => { q.finding = pick(rng, paFindings(q.case)); },
-    prompt: q => { const l = FINDING_LABEL[q.finding], shown = /^S\d/.test(l) ? l : l[0].toLowerCase() + l.slice(1); return /s$/.test(shown) && !/^S\d/.test(l) ? `Are there ${shown}?` : `Is there ${/^[aeiou]/i.test(l) ? 'an' : 'a'} ${shown}?`; }, options: () => YESNO,
+    prompt: q => { if (PA_PROMPT[q.finding]) return PA_PROMPT[q.finding]; const l = FINDING_LABEL[q.finding], shown = /^S\d/.test(l) ? l : l[0].toLowerCase() + l.slice(1); return /s$/.test(shown) && !/^S\d/.test(l) ? `Are there ${shown}?` : `Is there ${/^[aeiou]/i.test(l) ? 'an' : 'a'} ${shown}?`; }, options: () => YESNO,
     answer: q => q.case.findings.includes(q.finding) ? 'yes' : 'no',
     rationale: q => q.case.quiz_rationales['present_absent_' + q.finding] || q.case.quiz_rationales.identify, label: v => v === 'yes' ? 'Yes' : 'No'},
   localize: {tiers:[2,3,4], applies: c => !!c.quiz_rationales.localize, prompt: () => 'Drag the head to where it is loudest, then submit.',
@@ -1058,7 +1063,7 @@ $('#reviewForm').onsubmit = ev => {
   setReviewer(reviews.enabled());
   selectView('chest_anterior', true);
   try {
-    const doc = await (await fetch('data/cases.json')).json();
+    const doc = await (await fetch('data/cases.json', {cache:'no-cache'})).json();   // always revalidate: nginx caches JSON for a day
     cases = doc.cases;
     normalCase = cases.find(c => c.id === 'normal-72') || cases.find(c => moduleOf(c) === 'heart' && isNormal(c)) || cases[0];
     current = normalCase;

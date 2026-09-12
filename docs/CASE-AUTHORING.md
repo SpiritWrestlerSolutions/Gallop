@@ -122,7 +122,7 @@ or `sources` (boundary layers).
 | `s4` | `intensity`; `offset_before_s1_ms` (default 80). |
 | `murmur` | `phase` systolic / diastolic; `timing` early / mid / late / holo (suffixes like `midsystolic` are fine); `shape` crescendo / decrescendo / diamond / plateau; `pitch` low / medium / high; `quality` blowing / harsh / musical; `grade` 1–6 (1–4 diastolic). |
 | `boundary_breath`, `boundary_bowel` | `intensity`; `sources` list, each with a `label` shown as the region caption. |
-| `boundary_heart` | The distant heart on views where it is a boundary cue (abdomen, back). `intensity`; `sources` with labels; runs on the cardiac clock; `stem` for S1, optional `stems.out` for S2. |
+| `boundary_heart` | The distant heart on views where it is a boundary cue (abdomen, back). `intensity`; `sources` with labels; runs on the cardiac clock; `stems: {in: S1 stem, out: S2 stem}`. |
 | `lung_vesicular` | Baseline breath sounds. `intensity`; `stems: {in, out}`; `sources` over the lung fields. Every lung case needs one. |
 | `lung_crackles` | `intensity`; `phase` (usually inspiratory); `window` (fine crackles late, coarse early); `events` per window; `stem` one crackle. |
 | `lung_wheeze`, `lung_rhonchi`, `lung_stridor`, `lung_rub` | `intensity`; `phase`; `window`; `stem` (cut at the phase end). |
